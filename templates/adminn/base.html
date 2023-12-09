@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="pixelstrap">
+    <title>Админ</title>
+    <!-- Google font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap"
+          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap"
+          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&amp;display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/static/css/font-awesome.css">
+    <!-- ico-font-->
+    <link rel="stylesheet" type="text/css" href="/static/css/icofont.css">
+    <!-- Themify icon-->
+    <link rel="stylesheet" type="text/css" href="/static/css/themify.css">
+    <!-- Flag icon-->
+    <link rel="stylesheet" type="text/css" href="/static/css/flag-icon.css">
+    <!-- Feather icon-->
+    <link rel="stylesheet" type="text/css" href="/static/css/feather-icon.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/datatables.css">
+    <!-- Bootstrap css-->
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css">
+    <!-- App css-->
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+    <link id="color" rel="stylesheet" href="/static/css/color-1.css" media="screen">
+    <!-- Responsive css-->
+    <link rel="stylesheet" type="text/css" href="/static/css/responsive.css">
+
+    <link rel="stylesheet" type="text/css" href="/static/css/photoswipe.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/timepicker.css">
+
+
+    <style>
+        .sidebar-links li a i {
+            padding-right: 5px;
+        }
+    </style>
+    {% block css %}
+    {% endblock %}
+
+</head>
+<body>
+<!-- tap on top starts-->
+<div class="tap-top"><i data-feather="chevrons-up"></i></div>
+<!-- tap on tap ends-->
+<!-- Loader starts-->
+<div class="loader-wrapper">
+    <div class="loader"></div>
+</div>
+<!-- Loader ends-->
+<!-- page-wrapper Start-->
+<div class="page-wrapper compact-wrapper" id="pageWrapper">
+    <!-- Page Header Start-->
+    <div class="page-header">
+        <div class="header-wrapper row m-0">
+            <form class="form-inline search-full col" action="#" method="get">
+                <div class="form-group w-100">
+                    <div class="Typeahead Typeahead--twitterUsers">
+                        <div class="u-posRelative">
+                            <input class="demo-input Typeahead-input form-control-plaintext w-100" type="text"
+                                   placeholder="" name="q" title autofocus>
+                            <div class="spinner-border Typeahead-spinner" role="status"><span
+                                    class="sr-only">Loading...</span></div>
+                            <i class="close-search" data-feather="x"></i>
+                        </div>
+                        <div class="Typeahead-menu"></div>
+                    </div>
+                </div>
+            </form>
+            <div class="header-logo-wrapper col-auto p-0">
+                <div class="logo-wrapper">
+                </div>
+                <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle"
+                                               data-feather="align-center"></i></div>
+            </div>
+            <div class="left-header col horizontal-wrapper ps-0">
+                <div class="input-group">
+                    <input class="form-control" type="text" placeholder="Поиск ..."><span
+                        class="input-group-text mobile-search"><i data-feather="search"></i></span>
+                </div>
+            </div>
+            <div class="nav-right col-6 pull-right right-header p-0">
+                <ul class="nav-menus">
+                    <li class="profile-nav onhover-dropdown p-0 me-0">
+                        <div class="d-flex profile-media"><img class="b-r-50" src="/static/images/profile.png" alt>
+                            <div class="flex-grow-1">
+                                <span>{% if user %}{{user.username}}{% else %}user{% endif %}</span>
+                                <p class="mb-0 font-roboto">{% if user %}{{user.scope}}{% else %}user{% endif %}<i
+                                        class="middle fa fa-angle-down"></i></p>
+                            </div>
+                        </div>
+                        <ul class="profile-dropdown onhover-show-div">
+                            <!--li><a href="#"><i data-feather="user"></i><span>Аккаунт</span></a></li-->
+                            <li><a href="/admin/logout/"><i data-feather="log-in"> </i><span>Выход</span></a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <script class="result-template" type="text/x-handlebars-template">
+                <div class="ProfileCard u-cf">
+                    <div class="ProfileCard-avatar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="feather feather-airplay m-0">
+                            <path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"></path>
+                            <polygon points="12 15 17 21 7 21 12 15"></polygon>
+                        </svg>
+                    </div>
+                    <div class="ProfileCard-details">
+                        <div class="ProfileCard-realName">{{name}}</div>
+                    </div>
+                </div>
+            </script>
+            <script class="empty-template" type="text/x-handlebars-template">
+                <div class="EmptyMessage">Your search turned up 0 results. This most likely means the backend is down,
+                    yikes!
+                </div></script>
+        </div>
+    </div>
+    <!-- Page Header Ends-->
+    <!-- Page Body Start-->
+    <div class="page-body-wrapper">
+        <!-- Page Sidebar Start-->
+        <div class="sidebar-wrapper">
+            <div>
+                <div class="logo-wrapper">
+                    <div class="back-btn"><i class="fa fa-angle-left"></i></div>
+                    <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle"
+                                                   data-feather="align-left"> </i></div>
+                </div>
+                <div class="logo-icon-wrapper"></div>
+                <nav class="sidebar-main">
+                    <div class="left-arrow" id="left-arrow"><i data-feather="arrow-left"></i></div>
+                    <div id="sidebar-menu">
+                        <ul class="sidebar-links" id="simple-bar">
+                            <li class="back-btn"><a href="#"><img class="img-fluid for-light"
+                                                                  src="/static/images/logo-icon.png" alt><img
+                                    class="img-fluid for-dark" src="/static/images/logo-icon-dark.png" alt></a>
+                                <div class="mobile-back text-end"><span>Back</span><i class="fa fa-angle-right ps-2"
+                                                                                      aria-hidden="true"></i></div>
+                            </li>
+                            {% if user and "admin" in user.scope %}
+                            <li class="sidebar-list"><a class="sidebar-link sidebar-title" href="javascript:void(0)"><i
+                                    class="fa fa-certificate"></i><span>Сотрудники</span></a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="/api/roles/">Роли</a></li>
+                                    <li><a href="/api/users/list/">Пользователи</a></li>
+                                </ul>
+                            </li>
+                            {% endif %}
+
+                            <li class="sidebar-list"><a class="sidebar-link sidebar-title" href="javascript:void(0)"><i
+                                    class="fa fa-book"></i><span>Дневник</span></a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="/api/diary/create/">Создать</a></li>
+                                    <li><a href="/api/diary/">Лист</a></li>
+                                    <li><a href="/api/tariffs/">Тарифы</a></li>
+                                    <li><a href="/api/employees/salary/">Зарплата</a></li>
+                                </ul>
+                            </li>
+
+                            {% if user and "admin" in user.scope %}
+                            <li class="sidebar-list"><a class="sidebar-link sidebar-title" href="javascript:void(0)"><i
+                                    class="fa fa-database"></i><span>Аренда</span></a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="/api/tools/">Инструменты</a></li>
+                                    <li><a href="/api/tools/rent/">Заказы</a></li>
+                                </ul>
+                            </li>
+                            {% endif %}
+
+                            {% if user and ("admin" in user.scope or "sellers" in user.scope) %}
+                            <li class="sidebar-list"><a class="sidebar-link sidebar-title" href="javascript:void(0)"><i
+                                    class="fa fa-cubes"></i><span>Продукт</span></a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="/api/goods/">Лист Продуктов</a></li>
+                                    <li><a href="/api/good/create/">Создать Продукт</a></li>
+                                </ul>
+                            </li>
+                            <li class="sidebar-list"><a class="sidebar-link sidebar-title" href="javascript:void(0)"><i
+                                    class="fa fa-bars"></i><span>Магазин</span></a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="/api/overheads/">Накладные</a></li>
+                                    <li><a href="/api/category/">Категории</a></li>
+                                    <li><a href="/api/brands/">Бренды</a></li>
+                                    <li><a href="/api/applications/">Заявки</a></li>
+                                    <li><a href="/api/sizes/">Размеры</a></li>
+                                    <li><a href="/api/colors/">Цвета</a></li>
+                                    <li><a href="/api/cart/approve/">Заказы</a></li>
+                                </ul>
+                            </li>
+                            {% endif %}
+
+
+                            <li class="sidebar-list"><a class="sidebar-link sidebar-title" href="javascript:void(0)"><i
+                                    class="fa fa-tasks"></i><span>Предзаказы</span></a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="/api/pre_orders/list/">Поступление</a></li>
+                                </ul>
+                            </li>
+                            <li class="sidebar-list"><a class="sidebar-link sidebar-title" href="javascript:void(0)"><i
+                                    class="fa fa-reddit-alien"></i><span>Задачи</span></a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="/api/pre_orders/task/list/">Лист</a></li>
+                                </ul>
+                            </li>
+                            <li class="sidebar-list"><a class="sidebar-link sidebar-title" href="javascript:void(0)"><i
+                                    class="fa fa-institution"></i><span>Аналитика</span></a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="/api/analytics/expenses/">Расходы</a></li>
+                                    <li><a href="/api/analytics/">Аналитика</a></li>
+                                </ul>
+                            </li>
+                            <li class="sidebar-list"><a class="sidebar-link sidebar-title link-nav"
+                                                        href="/api/info/"><i
+                                    class="fa fa-info"> </i><span>Информации</span></a></li>
+
+                        </ul>
+                    </div>
+                    <div class="right-arrow" id="right-arrow"><i data-feather="arrow-right"></i></div>
+                </nav>
+            </div>
+        </div>
+        <!-- Page Sidebar Ends-->
+        <div class="page-body">
+            <div class="container-fluid">
+                <div class="page-title">
+                    <div class="row">
+                        {% block header %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+            <!-- Container-fluid starts-->
+            <div class="container-fluid">
+                <div class="row">
+                    <!-- HTML (DOM) sourced data  Starts-->
+                    {% block container %}{% endblock %}
+                </div>
+            </div>
+        </div>
+        <!-- HTML (DOM) sourced data  Ends-->
+    </div>
+</div>
+<!-- Container-fluid Ends-->
+</div>
+</div>
+</div>
+<!-- latest jquery-->
+<script src="/static/js/jquery-3.6.0.min.js"></script>
+<script src="/static/js/popper.min.js"></script>
+<script src="/static/js/bootstrap.bundle.min.js"></script>
+<!-- feather icon js-->
+<script src="/static/js/feather.min.js"></script>
+<script src="/static/js/feather-icon.js"></script>
+<script src="/static/js/simplebar.js"></script>
+<script src="/static/js/custom.js"></script>
+<!-- Sidebar jquery-->
+<script src="/static/js/config.js"></script>
+<script src="/static/js/sidebar-menu.js"></script>
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<script src="/static/js/datatable.custom.js"></script>
+<script src="/static/js/tooltip-init.js"></script>
+<!-- Theme js-->
+<script src="/static/js/script.js"></script>
+<script src="/static/js/uploder.js"></script>
+
+<script src="/static/js/photoswipe.min.js"></script>
+<script src="/static/js/photoswipe-ui-default.min.js"></script>
+<script src="/static/js/photoswipe.js"></script>
+<script src="/static/js/clockpicker.js"></script>
+<script src="/static/js/jquery-clockpicker.min.js"></script>
+
+<script src="/static/js/highlight.min.js"></script>
+<script src="/static/js/clockpicker.js"></script>
+
+<script src="/static/js/manage.js"></script>
+
+<script>
+    document.addEventListener("keydown", function (event) {
+        if (event.which === 27) {
+            location.reload()
+        }
+    })
+</script>
+
+
+{% block js %}
+{% endblock %}
+</body>
+</html>

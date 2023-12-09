@@ -1,0 +1,75 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="element-area">
+    <div class="demo-view">
+        <div class="container-fluid pt-0 ps-0 pe-lg-4 pe-0">
+            <div class="col-xl-12">
+                <div class="card dz-card" id="bootstrap-table2">
+                    <div class="card-header flex-wrap d-flex justify-content-between  border-0">
+                        <div>
+                            <h4 class="card-title">Пользователи</h4>
+                        </div>
+                        <ul class="nav nav-tabs dzm-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link js-add">Создать
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content" id="myTabContent-1">
+                        <div class="tab-pane fade show active" id="bordered" role="tabpanel"
+                             aria-labelledby="home-tab-1">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-responsive-md">
+                                        <thead>
+                                        <tr>
+                                            <th><strong>ФИО</strong></th>
+                                            <th><strong>логин</strong></th>
+                                            <th><strong>статус</strong></th>
+                                            <th><strong></strong></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for item in data.users %}
+                                        <tr>
+                                            <td>
+                                                <span>{{ item.last_name }} {{ item.first_name }}</span>
+                                            </td>
+                                            <td>
+                                                <span>{{ item.username }}</span>
+                                            </td>
+
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    {% if item.status == -2 %}
+                                                        <i class="fa fa-circle text-danger me-1"></i> удален
+
+                                                    {% elif item.status == -1 %}
+                                                        <i class="fa fa-circle text-warning me-1"></i> заблокирован
+                                                    {% else %}
+                                                        <i class="fa fa-circle text-success me-1"></i> Активный
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div class="d-flex">
+                                                    <a class="btn btn-info shadow btn-xs sharp me-1"><i
+                                                            class="fa fa-info"></i></a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

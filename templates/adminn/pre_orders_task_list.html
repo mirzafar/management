@@ -1,0 +1,434 @@
+{% extends 'admin/base.html' %}
+{% block css_file %}
+<link rel="stylesheet" type="text/css" href="/css/dropzone.css">
+{% endblock %}
+{% block header %}
+{% endblock %}
+{% block container %}
+<div class="row project-cards">
+    <div class="col-md-12 project-list">
+        <div class="card">
+            <div class="row">
+                <div class="col-md-6 p-0 d-flex">
+                    <ul class="nav nav-tabs border-tab" id="top-tab" role="tablist">
+                        <li class="nav-item"><a class="nav-link active"
+                                                href="/api/pre_orders/task/list?status=-1{% if employee_id %}&employee_id={{employee_id}}{% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-target">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <circle cx="12" cy="12" r="6"></circle>
+                                <circle cx="12" cy="12" r="2"></circle>
+                            </svg>
+                            Удаленные</a></li>
+                        <li class="nav-item"><a class="nav-link"
+                                                href="/api/pre_orders/task/list?status=0{% if employee_id %}&employee_id={{employee_id}}{% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-info">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12" y2="8"></line>
+                            </svg>
+                            Новые</a></li>
+                        <li class="nav-item"><a class="nav-link"
+                                                href="/api/pre_orders/task/list?status=1{% if employee_id %}&employee_id={{employee_id}}{% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-info">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12" y2="8"></line>
+                            </svg>
+                            В процессе</a></li>
+                        <li class="nav-item"><a class="nav-link"
+                                                href="/api/pre_orders/task/list?status=2{% if employee_id %}&employee_id={{employee_id}}{% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-check-circle">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            Завершенные</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-6 p-0">
+                    <div class="form-group mb-0 me-0"></div>
+                    <a class="btn btn-primary" href="/api/pre_orders/task/create/">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="feather feather-plus-square">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                        Создать новый задачу</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12">
+        <div class="card">
+
+            <div class="card-body">
+                <div class="row">
+                    <label class="col-sm-3 col-form-label">Пользователь</label>
+                    <div class="col-sm-9">
+                        <select id="js-employee" class="custom-select form-select">
+                            <option value="">Выберите</option>
+                            {% for a in employees %}
+                            <option {% if employee_id and employee_id == a._id|string %} selected {% endif %} value="{{a._id}}">{{a.last_name}} {{a.first_name}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <br>
+                <div class="tab-content" id="top-tabContent">
+                    <div class="tab-pane fade show active" role="tabpanel" aria-labelledby="top-home-tab">
+                        <div class="row">
+                            {% for d in data %}
+                            <div class="col-xxl-4 col-xl-4 col-md-6 box-col-33">
+                                <div class="project-box"><span
+                                        {% if d.priority== 1 %}
+                                        class="badge badge-success"
+                                        {% elif d.priority== 2 %}
+                                        class="badge badge-info"
+                                        {% elif d.priority== 3 %}
+                                        class="badge badge-warning"
+                                        {% elif d.priority== 4 %}
+                                        class="badge badge-secondary"
+                                        {% elif d.priority== 5 %}
+                                        class="badge badge-light-danger"
+                                        {% else %}
+                                        class="badge badge-light-success"
+                                        {% endif %}
+                                >{{priority[(d.priority)]}}</span>
+                                    <h4><a href="/api/pre_orders/task/{{d._id}}/">{{d.title}}</a></h4>
+                                    <div class="d-flex"><img class="img-20 me-2 rounded-circle"
+                                                             src="../assets/images/user/3.jpg" alt="">
+                                    </div>
+                                    <p>{{d.description}}</p>
+                                    <div class="row details">
+                                        <div class="col-6"><span>Испольнители</span></div>
+                                        <div class="col-6 font-primary">{{d.employee_ids|length}}</div>
+                                        <div class="col-6"><span>Дата создание</span></div>
+                                        <div class="col-6 font-primary">{{d.created_at}}</div>
+                                        <div class="col-6"><span>Comment</span></div>
+                                        <div class="col-6 font-primary">7</div>
+                                    </div>
+                                    <div class="customers">
+                                        <ul>
+                                            {% if d.user %}
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="/static/uploads/{{d.user.photo}}"
+                                                                            alt=""
+                                            ></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                    <div class="project-status mt-4">
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <!--div class="col-xxl-4 col-xl-4 col-md-6 box-col-33">
+                                <div class="project-box"><span class="badge badge-secondary">Done</span>
+                                    <h4>Universal adminn Design</h4>
+                                    <div class="d-flex"><img class="img-20 me-2 rounded-circle"
+                                                             src="../assets/images/user/5.jpg" alt=""
+                                                             data-original-title="" title="">
+                                        <div class="flex-grow-1">
+                                            <p>Envato, australia</p>
+                                        </div>
+                                    </div>
+                                    <p>Universal Admin featured, multipurpose, premium bootstrap adminn template.</p>
+                                    <div class="row details">
+                                        <div class="col-6"><span>Issues </span></div>
+                                        <div class="col-6 font-secondary">24</div>
+                                        <div class="col-6"><span>Resolved</span></div>
+                                        <div class="col-6 font-secondary">24</div>
+                                        <div class="col-6"><span>Comment</span></div>
+                                        <div class="col-6 font-secondary">40</div>
+                                    </div>
+                                    <div class="customers">
+                                        <ul>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/3.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/5.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/1.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block ms-2">
+                                                <p class="f-12">+3 More</p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="project-status mt-4">
+                                        <div class="d-flex mb-0">
+                                            <p>100% </p>
+                                            <div class="flex-grow-1 text-end"><span>Done</span></div>
+                                        </div>
+                                        <div class="progress" style="height: 5px">
+                                            <div class="progress-bar-animated bg-secondary" role="progressbar"
+                                                 style="width: 100%" aria-valuenow="10" aria-valuemin="0"
+                                                 aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xxl-4 col-xl-4 col-md-6 box-col-33">
+                                <div class="project-box"><span class="badge badge-success">Done</span>
+                                    <h4>Poco adminn Design</h4>
+                                    <div class="d-flex"><img class="img-20 me-2 rounded-circle"
+                                                             src="../assets/images/user/1.jpg" alt=""
+                                                             data-original-title="" title="">
+                                        <div class="flex-grow-1">
+                                            <p>Envato, australia</p>
+                                        </div>
+                                    </div>
+                                    <p>Poco Admin featured, multipurpose, premium bootstrap adminn template.</p>
+                                    <div class="row details">
+                                        <div class="col-6"><span>Issues </span></div>
+                                        <div class="col-6 font-success">40</div>
+                                        <div class="col-6"><span>Resolved</span></div>
+                                        <div class="col-6 font-success">40</div>
+                                        <div class="col-6"><span>Comment</span></div>
+                                        <div class="col-6 font-success">20</div>
+                                    </div>
+                                    <div class="customers">
+                                        <ul>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/3.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/5.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/1.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block ms-2">
+                                                <p class="f-12">+2 More</p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="project-status mt-4">
+                                        <div class="d-flex mb-0">
+                                            <p>100% </p>
+                                            <div class="flex-grow-1 text-end"><span>Done</span></div>
+                                        </div>
+                                        <div class="progress" style="height: 5px">
+                                            <div class="progress-bar-animated bg-success" role="progressbar"
+                                                 style="width: 100%" aria-valuenow="10" aria-valuemin="0"
+                                                 aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xxl-4 col-xl-4 col-md-6 box-col-33">
+                                <div class="project-box"><span class="badge badge-info">Done</span>
+                                    <h4>Xolo adminn Design</h4>
+                                    <div class="d-flex"><img class="img-20 me-2 rounded-circle"
+                                                             src="../assets/images/user/4.jpg" alt=""
+                                                             data-original-title="" title="">
+                                        <div class="flex-grow-1">
+                                            <p>Envato, australia</p>
+                                        </div>
+                                    </div>
+                                    <p>Xolo Admin featured, multipurpose, premium bootstrap adminn template.</p>
+                                    <div class="row details">
+                                        <div class="col-6"><span>Issues </span></div>
+                                        <div class="col-6 font-info">24</div>
+                                        <div class="col-6"><span>Resolved</span></div>
+                                        <div class="col-6 font-info">24</div>
+                                        <div class="col-6"><span>Comment</span></div>
+                                        <div class="col-6 font-info">40</div>
+                                    </div>
+                                    <div class="customers">
+                                        <ul>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/3.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/5.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/1.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block ms-2">
+                                                <p class="f-12">+3 More</p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="project-status mt-4">
+                                        <div class="d-flex mb-0">
+                                            <p>100% </p>
+                                            <div class="flex-grow-1 text-end"><span>Done</span></div>
+                                        </div>
+                                        <div class="progress" style="height: 5px">
+                                            <div class="progress-bar-animated bg-info" role="progressbar"
+                                                 style="width: 100%" aria-valuenow="10" aria-valuemin="0"
+                                                 aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xxl-4 col-xl-4 col-md-6 box-col-33">
+                                <div class="project-box"><span class="badge badge-warning">Doing</span>
+                                    <h4>Zeta adminn Design</h4>
+                                    <div class="d-flex"><img class="img-20 me-2 rounded-circle"
+                                                             src="../assets/images/user/1.jpg" alt=""
+                                                             data-original-title="" title="">
+                                        <div class="flex-grow-1">
+                                            <p>Themeforest, australia</p>
+                                        </div>
+                                    </div>
+                                    <p>Zeta Admin featured, multipurpose, premium bootstrap adminn template.</p>
+                                    <div class="row details">
+                                        <div class="col-6"><span>Issues </span></div>
+                                        <div class="col-6 font-warning">12</div>
+                                        <div class="col-6"><span>Resolved</span></div>
+                                        <div class="col-6 font-warning">5</div>
+                                        <div class="col-6"><span>Comment</span></div>
+                                        <div class="col-6 font-warning">7</div>
+                                    </div>
+                                    <div class="customers">
+                                        <ul>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/3.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/5.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/1.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block ms-2">
+                                                <p class="f-12">+10 More</p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="project-status mt-4">
+                                        <div class="d-flex mb-0">
+                                            <p>70% </p>
+                                            <div class="flex-grow-1 text-end"><span>Done</span></div>
+                                        </div>
+                                        <div class="progress" style="height: 5px">
+                                            <div class="progress-bar-animated bg-warning progress-bar-striped"
+                                                 role="progressbar" style="width: 70%" aria-valuenow="10"
+                                                 aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xxl-4 col-xl-4 col-md-6 box-col-33">
+                                <div class="project-box"><span class="badge badge-danger">Done</span>
+                                    <h4>Tivo adminn Design</h4>
+                                    <div class="d-flex"><img class="img-20 me-2 rounded-circle"
+                                                             src="../assets/images/user/5.jpg" alt=""
+                                                             data-original-title="" title="">
+                                        <div class="flex-grow-1">
+                                            <p>Envato, australia</p>
+                                        </div>
+                                    </div>
+                                    <p>Tivo Admin featured, multipurpose, premium bootstrap adminn template.</p>
+                                    <div class="row details">
+                                        <div class="col-6"><span>Issues </span></div>
+                                        <div class="col-6 font-danger">40</div>
+                                        <div class="col-6"><span>Resolved</span></div>
+                                        <div class="col-6 font-danger">40</div>
+                                        <div class="col-6"><span>Comment</span></div>
+                                        <div class="col-6 font-danger">20</div>
+                                    </div>
+                                    <div class="customers">
+                                        <ul>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/3.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/5.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block"><img class="img-30 rounded-circle"
+                                                                            src="../assets/images/user/1.jpg" alt=""
+                                                                            data-original-title="" title=""></li>
+                                            <li class="d-inline-block ms-2">
+                                                <p class="f-12">+2 More</p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="project-status mt-4">
+                                        <div class="d-flex mb-0">
+                                            <p>100% </p>
+                                            <div class="flex-grow-1 text-end"><span>Done</span></div>
+                                        </div>
+                                        <div class="progress" style="height: 5px">
+                                            <div class="progress-bar-animated bg-danger" role="progressbar"
+                                                 style="width: 100%" aria-valuenow="10" aria-valuemin="0"
+                                                 aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if _range %}
+            <div class="card-body">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end pagination-primary">
+                        {% for i in range(1, (_range + 1)) %}
+                        <li class="page-item {% if i == page %} active {% endif %}"><a class="page-link"
+                                                                                       href="/api/pre_orders/task/list/?page={{i}}&status={{status}}">{{i}}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js_file %}
+<script src="/js/manage.js"></script>
+<script src="/js/dropzone.js"></script>
+<script src="/js/dropzone-script.js"></script>
+<script src="/js/tooltip-init.js"></script>
+{% endblock %}
+{% block js %}
+<script>
+    $('.js-remove').click(function () {
+        var new_id = $(this).parents('tr').data('id');
+        var new_data = getValues('.js-cont[data-id="' + new_id + '"]')
+        new_data.action = "delete"
+        new_data._id = new_id
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/pre_orders/task/' + new_id,
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good")
+                    location.reload()
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors!")
+            }
+        });
+        return false;
+    });
+
+    $('#js-employee').change(function () {
+        location.search = "?employee_id=" + $('#js-employee').val();
+    })
+
+</script>
+{% endblock %}

@@ -1,0 +1,376 @@
+{% extends 'admin/base.html' %}
+{% block namePage %}
+<button type="button" onclick="backUrl('/api/lessons/template/')" class="btn btn-page"><span class="btn-icon-start text-info"><i
+        class="fa fa-left-long color-info"></i></span>Назад
+</button>Вопросы
+{% endblock %}
+{% block container %}
+<div class="element-area">
+    <div class="demo-view">
+        <div class="container-fluid pt-0 ps-0 pe-lg-4 pe-0">
+            <div class="col-xl-12">
+                <div class="card dz-card" id="basic-list">
+                    <div class="card-header d-flex justify-content-between ">
+                        <ul class="nav nav-tabs dzm-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" id="add_question" data-id="add">Создать
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content" id="list_items">
+                        <div class="tab-pane fade show active" id="BasicList" role="tabpanel"
+                             aria-labelledby="home-tab">
+                            <div class="card-body">
+                                <div class="basic-list-group">
+                                    <ul class="list-group" id="list_questions">
+
+                                    </ul>
+                                </div>
+
+                            </div>
+                            <div class="row ">
+                                <div class="col-12 ps-3">
+                                    <div class="table-pagenation">
+                                        <nav>
+                                            <ul class="pagination pagination-sm" id="list_pagination">
+
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="card-body" id="new_item_column">
+                        <div class="row">
+                            <div class="col-sm-6 m-b30">
+                                <label class="form-label">Названия</label>
+                                <input type="text" class="form-control" name="title">
+                            </div>
+                            <div class="col-sm-6 m-b30">
+                                <label class="form-label">Описания</label>
+                                <input type="text" class="form-control" name="description">
+                            </div>
+                            <div class="col-sm-6 m-b30">
+                                <label class="form-label">Url Video</label>
+                                <input type="text" class="form-control" name="video_link">
+                            </div>
+                            <div class="ol-sm-6 m-b30">
+                                <label class="form-label">Фото</label>
+                                <div class="col-sm-9" data-name="photo">
+                                    <img id="item-photo" class="img-fluid mt-4 mb-4 w-100 rounded">
+                                    <input type="hidden" name="photo">
+                                    <input class="form-control" type="file" id="photoInput" accept="image/*">
+                                </div>
+                            </div>
+                            <div class="ol-sm-6 m-b30">
+                                <label class="form-label">Аудио</label>
+                                <div class="col-sm-9">
+                                    <audio id="audioPlayer" controls></audio>
+                                    <div class="col-sm-9">
+                                        <button id="startRecording" class="btn btn-info shadow btn-xs sharp me-1">
+                                            <i class="fa fa-play"></i>
+                                        </button>
+                                        <button id="stopRecording" class="btn btn-danger shadow btn-xs sharp me-1"
+                                                disabled>
+                                            <i class="fa fa-stop"></i>
+                                        </button>
+                                        <button id="clearRecording" class="btn btn-warning shadow btn-xs sharp me-1">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                        <button id="successRecording" class="btn btn-success shadow btn-xs sharp me-1">
+                                            <i class="fa fa-save"></i>
+                                        </button>
+                                    </div>
+                                    <label></label>
+                                    <div class="col-sm-9" data-name="audio">
+                                        <input type="hidden" name="audio">
+                                        <input class="form-control" type="file" id="audioInput" accept="audio/*">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ol-sm-6 m-b30">
+                                <label class="form-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <a class="btn btn-primary" id="save_new_item">Сохранить</a>
+                            <a class="btn btn-primary" id="update_new_item">Изменить</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="/static/js/audioRecorder.js"></script>
+<script>
+    let urlParams = {}
+    let curl_url = location.pathname.split('/');
+    let lesson_id = curl_url[curl_url.length - 3];
+    function backUrl(url) {
+        if (url) {
+            location.href = url
+        } else {
+            window.history.back();
+        }
+    }
+
+    function clearAll() {
+        $('#add_question').data('id', 'add').text('Создать')
+        $('#list_items').show();
+        $('#new_item_column').hide();
+    }
+
+    clearAll();
+
+    $('#add_question').on('click', function () {
+        if ($('#add_question').data('id') === 'add') {
+            $('#add_question').data('id', 'cancel').text('Отмена');
+
+            $('#list_items').hide();
+            $('#new_item_column').show();
+
+            clearAllInfo();
+
+            $('#save_new_item').show();
+            $('#update_new_item').hide();
+
+        } else {
+            $('#add_question').data('id', 'add').text('Создать');
+            getListQuestions(urlParams);
+        }
+    })
+
+    getListQuestions(urlParams);
+
+    $('#photoInput, #audioInput').change(function () {
+        var trigger_name = $(this).parents('.col-sm-9').data('name');
+        var input_name = $(this).closest('.col-sm-9').find('[name="' + trigger_name + '"]');
+        uploadImage($(this).attr('id')).then(function (data) {
+            alertShow('success', 'Loaded')
+            input_name.val(String(data['file_name']));
+
+            if (trigger_name.toString() === 'photo') {
+                $('#item-photo').attr('src', '/static/uploads/' + data['file_name'])
+            } else if (trigger_name.toString() === 'audio') {
+                $('#audioPlayer').attr('src', '/static/uploads/' + data['file_name'])
+            }
+        }, function (data) {
+            alertShow('waring');
+        });
+    });
+
+    $('#save_new_item').on('click', function () {
+        var new_data = getValues('#new_item_column')
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/testings/questions/' + lesson_id.toString() + '/list/',
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] === true) {
+                    alertShow('success');
+                    getListQuestions(urlParams);
+
+                } else {
+                    alertShow('error', d['message']);
+                }
+            },
+            error: function (d) {
+                alertShow('waring');
+            }
+        });
+    })
+
+    function showQuestionItem(question) {
+        let newElementLi = $('<li>')
+            .text(question.title)
+            .addClass('list-group-item d-flex justify-content-between align-items-center js-question-item')
+            .attr("data-id", question.id)
+        ;
+
+        let newSpan = $('<span>');
+
+        let newButtonEdit = $('<a>').addClass('btn btn-primary shadow btn-xs sharp me-1');
+        newButtonEdit.append($('<i>').addClass('fa fa-pencil'));
+        newSpan.append(newButtonEdit);
+
+        let newButtonAnswers = $('<a>').addClass('btn btn-page shadow btn-xs sharp me-1');
+        newButtonAnswers.append($('<i>').addClass('fa fa-list'));
+        newSpan.append(newButtonAnswers);
+
+        let newButtonDelete = $('<a>').addClass('btn btn-danger shadow btn-xs sharp me-1');
+        newButtonDelete.append($('<i>').addClass('fa fa-trash'));
+        newSpan.append(newButtonDelete);
+
+        newElementLi.append(newSpan);
+
+        $(newButtonEdit).on("click", function () {
+            showEditInput(question)
+        });
+
+        $(newButtonAnswers).on("click", function () {
+            location.href = '/api/testings/answers/' + question.id.toString() + '/'
+        });
+
+        $(newButtonDelete).on("click", function () {
+            deleteQuestion(newElementLi, question)
+        });
+
+        $('#list_questions').append(newElementLi);
+    }
+
+    function showPagination(pager) {
+
+        // ADD LEFT BUTTON PAGINATION
+        let newElementLiLeft = $('<li>').addClass('page-item page-indicator');
+        let newElementALeft = $('<a>').addClass('page-link')
+        if (pager.prev_page) {
+            $(newElementLiLeft).on("click", function () {
+                urlParams.limit = pager.limit.toString()
+                urlParams.page = pager.prev_page.toString()
+                getListQuestions(urlParams);
+            });
+            newElementALeft.append($('<i>').addClass('fa-solid fa-angle-left'))
+            newElementLiLeft.append(newElementALeft)
+        }
+
+        $("#list_pagination").append(newElementLiLeft);
+
+        // ADD CURRENT
+        let newElementLiCurrent = $('<li>').addClass('page-item');
+        newElementLiCurrent.append($('<a>').addClass('page-link').text(pager.page))
+        $("#list_pagination").append(newElementLiCurrent);
+
+        // ADD RIGHT BUTTON PAGINATION
+        let newElementLiRight = $('<li>').addClass('page-item page-indicator');
+        let newElementARight = $('<a>').addClass('page-link')
+        if (pager.next_page) {
+            $(newElementLiRight).on("click", function () {
+                urlParams.limit = pager.limit.toString()
+                urlParams.page = pager.next_page.toString()
+                getListQuestions(urlParams);
+            });
+            newElementARight.append($('<i>').addClass('fa-solid fa-angle-right'))
+            newElementLiRight.append(newElementARight)
+        }
+        $("#list_pagination").append(newElementLiRight);
+    }
+
+    function showEditInput(question) {
+        clearAllInfo();
+        $('#add_question').data('id', 'cancel').text('Отмена')
+
+        $('#update_new_item').show();
+        $('#save_new_item').hide();
+
+        $('#list_items').hide();
+        $('#new_item_column').show();
+
+        $('#new_item_column input[name="title"]').val(question.title);
+        $('#new_item_column input[name="description"]').val(question.description);
+        $('#new_item_column input[name="video_link"]').val(question.video_link);
+        if (question.photo) {
+            $('#new_item_column input[name="photo"]').val(question.photo);
+            $('#new_item_column img').attr('src', '/static/uploads/' + question.photo);
+        }
+        if (question.audio) {
+            $('#new_item_column input[name="audio"]').val(question.audio);
+            $('#new_item_column audio').attr('src', '/static/uploads/' + question.audio);
+        }
+
+        $('#update_new_item').on('click', function () {
+            updateQuestion(question);
+        })
+
+    }
+
+    function getListQuestions(params) {
+        clearAll();
+
+        var paramsString = $.param(params);
+        var apiUrl = '/api/testings/questions/' + lesson_id.toString() + '/list?';
+        if (paramsString) {
+            apiUrl += paramsString
+        }
+        $.ajax({
+            type: 'GET',
+            dataType: 'json',
+            url: apiUrl,
+            success: function (d) {
+                if (d['_success'] === true) {
+                    $('#list_questions').empty()
+                    $('#list_pagination').empty()
+
+                    $.each(d['questions'], function (index, question) {
+                        showQuestionItem(question);
+                    });
+                    showPagination(d['pager']);
+                } else {
+                    alertShow('error', d['message']);
+                }
+            },
+            error: function (d) {
+                alertShow('waring');
+            }
+        })
+    }
+
+    function clearAllInfo() {
+        $('#new_item_column input').val('');
+        $('#new_item_column img').attr('src', '');
+        $('#new_item_column audio').attr('src', '');
+        clearRecorder();
+    }
+
+    function deleteQuestion(ElementLi, question) {
+        $.ajax({
+            type: 'DELETE',
+            dataType: 'json',
+            url: '/api/testings/questions/' + question.id.toString() + '/template/',
+            success: function (d) {
+                if (d['_success'] === true) {
+                    alertShow('success');
+                    getListQuestions(urlParams);
+                } else {
+                    alertShow('error', d['message'])
+                }
+            },
+            error: function (d) {
+                alertShow('waring');
+            }
+        });
+    }
+
+    function updateQuestion(question) {
+        var new_data = getValues('#new_item_column')
+        console.log(new_data)
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/testings/questions/' + question.id.toString() + '/template/',
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] === true) {
+                    alertShow('success');
+                    getListQuestions(urlParams);
+
+                } else {
+                    alertShow('error', d['message']);
+                }
+            },
+            error: function (d) {
+                alertShow('waring');
+            }
+        });
+    }
+
+</script>
+{% endblock %}

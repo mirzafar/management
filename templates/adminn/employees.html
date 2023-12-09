@@ -1,0 +1,259 @@
+{% extends 'admin/base.html' %}
+{% block header %}
+<div class="col-6">
+    <h3>Работники</h3>
+</div>
+<div class="col-6">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/api/"> <i data-feather="home"></i></a></li>
+        <li class="breadcrumb-item active">Работники</li>
+    </ol>
+</div>
+{% endblock %}
+{% block container %}
+<div class="col-sm-12">
+    <div class="col-md-12 project-list">
+        <div class="card">
+            <div class="row">
+                <div class="col-md-6 p-0 d-flex">
+                </div>
+                <div class="col-md-6 p-0">
+                    <div class="form-group mb-0 me-0"></div>
+                    <a class="btn btn-sm btn-primary js-add" href="#" data-bs-original-title="" title="">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="feather feather-plus-square">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                        создать</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+
+        <div class="card-body">
+            <div class="col-sm-12">
+
+                <div class="card">
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+
+                            <table class="display dataTable" id="basic-9" role="grid" aria-describedby="basic-9_info">
+                                <thead>
+                                <tr role="row">
+                                    <th>Фамилия</th>
+                                    <th>Имя</th>
+                                    <th>Отчества</th>
+                                    <th>Роль</th>
+                                    <th>Email</th>
+                                    <th>Возрост</th>
+                                    <th>Телефон номер</th>
+                                    <th>ИИН номер</th>
+                                    <th>Действия</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr role="row" data-id="add" class="js-cont odd" id="new" style="display: none">
+                                    <td><input class="form-control" type="text" name="first_name"></td>
+                                    <td><input class="form-control" type="text" name="last_name"></td>
+                                    <td><input class="form-control" type="text" name="middle_name"></td>
+                                    <td><select class="form-select form-control-inverse" name="role_id">
+                                        <option value="0">Выберите</option>
+                                        {% for role in roles %}
+                                        <option value="{{role._id}}">{{role.title}}</option>
+                                        {% endfor %}
+                                    </select></td>
+                                    <td><input class="form-control" type="text" name="email"></td>
+                                    <td><input class="form-control" type="number" name="age"></td>
+                                    <td><input class="form-control" type="text" name="phone_number"></td>
+                                    <td><input class="form-control" type="text" name="iin"></td>
+                                    <td>
+                                        <a href="#"
+                                           class="btn btn-pill btn-sm btn-success btn-air-success btn-air-success js-add-new">сохранить</a>
+                                    </td>
+
+                                </tr>
+                                {% for dt in data %}
+                                <tr role="row" class="odd js-cont" data-id="{{ dt._id }}">
+                                    <td style="display: none" class="sorting_1"></td>
+                                    <td>
+                                        <span>{{dt.last_name}}</span>
+                                        <input style="display: none" type="text" class="form-control" name="last_name"
+                                               value="{{ dt.last_name }}">
+                                    </td>
+
+                                    <td>
+                                        <span>{{ dt.first_name }}</span>
+                                        <input style="display: none" type="text" class="form-control" name="first_name"
+                                               value="{{ dt.first_name }}">
+                                    </td>
+                                    <td>
+                                        <span>{{ dt.middle_name }}</span>
+                                        <input style="display: none" type="text" class="form-control" name="middle_name"
+                                               value="{{ dt.middle_name }}">
+                                    </td>
+                                    <td>
+                                        <span class="badge rounded-pill badge-light-success">{% if dt.role_id.title %}{{ dt.role_id.title }}{% endif %}</span>
+                                        <select style="display: none" name="role_id">
+                                            <option value="0">Выберите</option>
+                                            {% for role in roles %}
+                                            <option {% if role._id== dt.role_id._id %} selected {% endif %}
+                                                    value="{{role._id}}">{{role.title}}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <span>{{dt.email}}</span>
+                                        <input style="display: none" type="text" class="form-control" name="email"
+                                               value="{{ dt.email }}">
+                                    </td>
+                                    <td>
+                                        <span>{{dt.age}}</span>
+                                        <input style="display: none" type="number" class="form-control" name="age"
+                                               value="{{ dt.age }}">
+                                    </td>
+                                    <td>
+                                        <span>{{dt.phone_number}}</span>
+                                        <input style="display: none" type="text" class="form-control"
+                                               name="phone_number"
+                                               value="{{ dt.phone_number }}">
+                                    </td>
+                                    <td>
+                                        <span>{{dt.iin}}</span>
+                                        <input style="display: none" type="text" class="form-control"
+                                               name="iin"
+                                               value="{{ dt.iin }}">
+                                    </td>
+                                    <td>
+                                        <ul class="action">
+                                            <li>
+                                                <a class="btn btn-sm btn-pill btn-warning btn-air-warning btn-air-warning js-change"
+                                                   href="#"><i
+                                                        class="bx bx-edit-alt me-1"></i>Edit</a>
+                                            </li>
+                                            <li><a href="#"><a style="display: none"
+                                                               class="btn btn-sm btn-pill btn-success btn-air-success btn-air-success js-update"
+                                                               href="#"><i
+                                                    class="bx bx-menu"></i>Save</a></a></li>
+                                            <li><a href="#"><a style="display: none"
+                                                               class="btn btn-sm btn-pill btn-primary btn-air-primary js-cancel"
+                                                               href="#"><i
+                                                    class="bx bx-menu"></i>Cancel</a></a></li>
+                                            <li><a class="btn btn-pill btn-sm btn-danger btn-air-danger js-remove"
+                                                   href="#"><i
+                                                    class="bx bx-trash me-1"></i>Delete</a></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $('.js-add').click(function () {
+        $('#new').show(1000);
+        return false;
+    });
+    $('.js-add-new').click(function () {
+        var new_id = $(this).parents('tr').data('id');
+        var new_data = getValues('.js-cont[data-id="' + new_id + '"]')
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/collection/employees/' + new_id,
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good");
+                    location.reload();
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors")
+            }
+        });
+        return false;
+    });
+    $('.js-update').click(function () {
+        var new_id = $(this).parents('tr').data('id');
+        var new_data = getValues('.js-cont[data-id="' + new_id + '"]')
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/collection/employees/' + new_id,
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good")
+                    location.reload()
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors!")
+            }
+        });
+        return false;
+    });
+    $('.js-remove').click(function () {
+        var new_id = $(this).parents('tr').data('id');
+        var new_data = getValues('.js-cont[data-id="' + new_id + '"]')
+        new_data.status = -1
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/collection/employees/' + new_id,
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good")
+                    location.reload()
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors!")
+            }
+        });
+        return false;
+    });
+    $('.js-change').click(function () {
+        $(this).hide();
+        $(this).parents('tr').find('span').hide();
+        $(this).parents('tr').find('input').show();
+        $(this).parents('tr').find('select').show();
+        $(this).parents('tr').find('.js-update').show();
+        $(this).parents('tr').find('.js-cancel').show();
+        $(this).parents('tr').find('.js-remove').hide();
+        return false;
+    });
+    $('.js-cancel').click(function () {
+        $(this).hide();
+        $(this).parents('tr').find('span').show();
+        $(this).parents('tr').find('input').hide();
+        $(this).parents('tr').find('select').hide();
+        $(this).parents('tr').find('.js-update').hide();
+        $(this).parents('tr').find('.js-cancel').hide();
+        $(this).parents('tr').find('.js-remove').show();
+        return false;
+    })
+</script>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends 'admin/base.html' %}
+{% block namePage %}
+{% endblock %}
+{% block container %}
+<div id="main">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="profile-blog">
+
+                    </div>
+                </div>
+                <div class="card" id=""></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+
+    let curl_url = location.pathname.split('/');
+    let result_id = curl_url[curl_url.length - 4];
+
+    getListItems();
+
+    function getListItems(params) {
+        var paramsString = $.param(params);
+        var apiUrl = '/api/testings/results/' + result_id.toString() + '/indicators/list/';
+        if (paramsString) {
+            apiUrl += paramsString
+        }
+        $.ajax({
+            type: 'GET',
+            dataType: 'json',
+            url: apiUrl,
+            success: function (d) {
+                if (d['_success'] === true) {
+                    console.log(d)
+                    $.each(d['data'], function (index, item) {
+                        showDataItem(item);
+                    });
+
+                } else {
+                    alertShow('error', d['message']);
+                }
+            },
+            error: function (d) {
+                alertShow('waring');
+            }
+        })
+    }
+
+    function showQuestions(question) {
+        let self = $('<div>').addClass('profile-blog')
+
+        self.append(
+            $('<h5>').addClass('text-primary d-inline').text(question.title)
+        )
+
+        if (question.photo) {
+            self.append(
+                $('<img>').attr({
+                    class: 'img-fluid mt-4 mb-4 w-100 rounded',
+                    src: '/static/uploads/' + question.photo
+                })
+            )
+        }
+
+        if (question.audio) {
+            self.append(
+                $('<audio>').attr({
+                    class: 'img-fluid mt-4 mb-4 w-100 rounded',
+                    src: '/static/uploads/' + question.audio
+                })
+            )
+        }
+
+        if (question.video_link) {
+            self.append(
+                $('<h4>').append(
+                    $('<a>').attr({
+                        class: 'text-black',
+                        href: question.video_link
+                    }).text('Перейдите по ссылке для просмотра видео')
+                )
+            )
+        }
+
+        if (question.description) {
+            self.append(
+                $('<p>').attr({
+                    class: 'mb-0',
+                }).text(question.description)
+            )
+        }
+
+        $('#main').append(
+            $('<div>').addClass('row').append(
+                $('<div>').addClass('col-md-8').append(
+                    $('<div>').addClass('card').append(
+                        $('<div>').addClass('card-body').append(self)
+                    )
+                )
+            )
+        )
+    }
+
+    function showDataItem(item) {
+        if (item) {
+            $.each(item.questions, function (index, question) {
+                showQuestions(question);
+            });
+        }
+    }
+</script>
+{% endblock %}

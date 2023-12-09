@@ -1,0 +1,180 @@
+{% extends 'admin/base.html' %}
+{% block css %}
+<style>
+    table tr td li {
+        margin-right: 2px;
+    }
+</style>
+{% endblock %}
+{% block header %}
+<div class="col-6">
+    <h3> Заказы </h3>
+</div>
+<div class="col-6">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/api/"> <i data-feather="home"></i></a></li>
+        <li class="breadcrumb-item active">Заказы</li>
+    </ol>
+</div>
+{% endblock %}
+{% block container %}
+<div class="col-sm-12">
+    <div class="card-body">
+        <div class="col-sm-12">
+
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="table-responsive">
+                        <div class="row">
+                            <label class="col-sm-3 col-form-label">Статус</label>
+                            <div class="col-sm-9">
+                                <select id="js-status" class="custom-select form-select">
+                                    <option selected value="1">Создан</option>
+                                    <option {% if status and status== 2 %} selected {% endif %} value="2">Оплачен
+                                    </option>
+                                    <option {% if status and status== -2 %} selected {% endif %} value="-2">Отклонен
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover" role="grid">
+                                <thead>
+                                <tr role="row">
+                                    <th> Фамилия</th>
+                                    <th> Имя</th>
+                                    <th> Email</th>
+                                    <th> Телефон номер</th>
+                                    <th> Адресс</th>
+                                    <th> ЖК</th>
+                                    <th> summa</th>
+                                    <th> Статус</th>
+                                    <th> Действия</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for dt in data %}
+                                <tr role="row" class="odd js-cont" data-id="{{ dt._id }}">
+                                    <td class="sorting_1">
+                                        <span>{{dt.first_name}}</span>
+                                    </td>
+
+                                    <td>
+                                        <span>{{ dt.last_name }}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{ dt.email }}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{ dt.phone_number }}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{ dt.address }}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{ dt.apartment }}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{ dt.summa }}</span>
+                                    </td>
+                                    <td>
+                                        <span>{% if dt.status|int == 1 %}создан{% elif dt.status == 2 %}Оплачен{% endif %}</span>
+                                    </td>
+                                    <td>
+                                        {% if status and status == 1 %}
+                                        <ul class="action">
+                                            <li><a href="#"><a
+                                                    class="btn btn-sm btn-pill btn-success btn-air-success btn-air-success js-update"
+                                                    href="#"><i
+                                                    class="bx bx-menu"></i>оплатить</a></a></li>
+                                            <li><a href="#"><a style="display: none"
+                                                               class="btn btn-sm btn-pill btn-primary btn-air-primary js-cancel"
+                                                               href="#"><i
+                                                    class="bx bx-menu"></i>Cancel</a></a></li>
+                                            <li><a class="btn btn-pill btn-danger btn-air-danger js-remove" href="#"><i
+                                                    class="bx bx-trash me-1"></i>отклонить</a></li>
+                                        </ul>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if _range %}
+            <div class="card-body">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end pagination-primary">
+                        {% for i in range(1, (_range + 1)) %}
+                        <li class="page-item {% if i == page %} active {% endif %}"><a class="page-link"
+                                                                                       href="/api/cart/approve/?page={{i}}&status={{status}}">{{i}}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $('.js-update').click(function () {
+        var new_id = $(this).parents('tr').data('id');
+        var new_data = {'status': 2}
+        console.log(new_data)
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/collection/carts/' + new_id,
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good")
+                    location.reload()
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors!")
+            }
+        });
+        return false;
+    });
+    $('.js-remove').click(function () {
+        var new_id = $(this).parents('tr').data('id');
+        var new_data = {'status': -2}
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/collection/carts/' + new_id,
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good")
+                    location.reload()
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors!")
+            }
+        });
+        return false;
+    });
+
+    $('#js-status').change(function () {
+        location.search = "?status=" + $(this).val()
+    })
+</script>
+{% endblock %}

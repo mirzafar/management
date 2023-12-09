@@ -1,0 +1,316 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="/static/css/shop/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/shop/owl.carousel.min.css">
+    <link rel="stylesheet" href="/static/css/shop/slick.css">
+    <link rel="stylesheet" href="/static/css/shop/magnific-popup.css">
+    <link rel="stylesheet" href="/static/css/shop/font.awesome.css">
+    <link rel="stylesheet" href="/static/css/shop/animate.css">
+    <link rel="stylesheet" href="/static/css/shop/jquery-ui.min.css">
+    <link rel="stylesheet" href="/static/css/shop/slinky.menu.css">
+    <link rel="stylesheet" href="/static/css/shop/plugins.css">
+
+    <link rel="stylesheet" href="/static/css/shop/style.css">
+
+    <link rel="stylesheet" href="/static/css/shop/ionicons.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/font-awesome.css">
+
+    <script src="/static/js/shop/vendor/modernizr-3.7.1.min.js"></script>
+
+</head>
+
+<body>
+
+<header class="header_area">
+    <div class="header_top">
+        <div class="container">
+            <div class="top_inner">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="follow_us">
+                            <label> Следуйте за нами:</label>
+                            <ul class="follow_link">
+                                <li><a href="#"><i class="ion-social-facebook"></i></a></li>
+                                <li><a href="#"><i class="ion-social-twitter"></i></a></li>
+                                <li><a href="#"><i class="ion-social-googleplus"></i></a></li>
+                                <li><a href="#"><i class="ion-social-youtube"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="top_right text-right">
+                            <ul>
+                                <li class="top_links"><a href="#"><i class="ion-android-person"></i>Корзина<i
+                                        class="ion-ios-arrow-down"></i></a>
+                                    <ul class="dropdown_links">
+                                        <li><a href="/api/checkout/">Оплата</a></li>
+                                        <li><a href="/api/cart/">Корзина</a></li>
+                                    </ul>
+                                </li>
+                                <li class="language"><a href="#"><img src="/static/images/shop/logo/language.png"
+                                                                      alt="">en-gb<i class="ion-ios-arrow-down"></i></a>
+                                    <ul class="dropdown_language">
+                                        <li><a href="#"><img src="/static/images/shop/logo/language.png" alt=""> english</a>
+                                        </li>
+                                        <li><a href="#"><img src="/static/images/shop/logo/language2.png" alt="">
+                                            русский</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="header_middle">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-3 col-md-6">
+                    <div class="logo">
+                        <a href="/"><h1 class="h1">{% if info %}{{info.name}}{% endif %}</h1></a>
+                    </div>
+                </div>
+                <div class="col-lg-9 col-md-6">
+                    <div class="middel_right">
+                        <div class="search-container">
+                            <div class="search_box">
+                                <input value="{% if q %}{{q}}{% endif %}" placeholder="Поиск по названию ..."
+                                       type="text" class="js-search-val">
+                                <button onclick="js_search_btn()"><i class="ion-ios-search-strong"></i></button>
+                            </div>
+                        </div>
+                        <div class="middel_right_info">
+
+                            <div class="mini_cart_wrapper">
+                                <a href="javascript:void(0)"><span class="lnr lnr-cart"></span>Корзина</a>
+                                <span class="cart_quantity">{% if cart_items %}{{cart_items|length}}{% endif %}</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mini_cart">
+        <div class="cart_close">
+            <div class="cart_text">
+                <h3>Корзина</h3>
+            </div>
+            <div class="mini_cart_close">
+                <a href="javascript:void(0)"><i class="ion-android-close"></i></a>
+            </div>
+        </div>
+        {% for item in cart_items %}
+        <div class="cart_item" data-id="{{item._id}}">
+            <div class="cart_img">
+                <a href="#"><img src="/static/uploads/{{item.good.photo}}" alt=""></a>
+            </div>
+            <div class="cart_info">
+                <a href="#">{% if item.good %}{{item.good.title}}{% endif %}</a>
+
+                <span class="quantity">Количество: {{item.amount}}</span>
+                <span class="price_cart">₸{{item.summa}}</span>
+
+            </div>
+            <div class="cart_remove">
+                <a href="#">
+                    <input type="hidden" id="js-base-good-id" value="{{item.good._id}}">
+                    <i class="ion-android-close js-remove-item"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="mini_cart_table">
+            <div class="cart_total mt-10">
+                <span>Сумма:</span>
+                <span class="price">₸{% if cart %}{{ cart.summa }}{% else %} 0 {% endif %}</span>
+            </div>
+        </div>
+
+        <div class="mini_cart_footer">
+            <div class="cart_button">
+                <a href="/api/cart/">Перейти на корзину</a>
+            </div>
+            <div class="cart_button">
+                <a class="active" href="/api/checkout/">Оплата</a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="header_bottom mb-0 sticky-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-12">
+                    <div class="main_menu header_position">
+                        <nav>
+                            <ul>
+                                <li><a href="/">Магазин</a></li>
+                                <li><a href="/profile/">Профил</a></li>
+                                <li><a href="/api/about/">О нас</a></li>
+                                <li><a href="/api/contact/">Контакты</a></li>
+                                <li><a href="/api/pre_orders/create/">Предзаказ</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</header>
+
+<div class="off_canvars_overlay"></div>
+<div class="Offcanvas_menu canvas_padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="canvas_open">
+                    <span>МЕНЮ</span>
+                    <a href="javascript:void(0)"><i class="ion-navicon"></i></a>
+                </div>
+                <div class="Offcanvas_menu_wrapper">
+
+                    <div class="canvas_close">
+                        <a href="#"><i class="ion-android-close"></i></a>
+                    </div>
+                    <div class="top_right text-right">
+                        <ul>
+                            <li class="top_links"><a href="#"><i class="ion-android-person"></i>Аккаунт<i
+                                    class="ion-ios-arrow-down"></i></a>
+                                <ul class="dropdown_links">
+                                    <li><a href="/api/checkout/">Оплата</a></li>
+                                    <li><a href="/api/cart/">Корзина</a></li>
+                                </ul>
+                            </li>
+                            <li class="language"><a href="#"><img src="/static/images/shop/logo/language.png" alt="">en-gb<i
+                                    class="ion-ios-arrow-down"></i></a>
+                                <ul class="dropdown_language">
+                                    <li><a href="#"><img src="/static/images/shop/logo/language.png" alt=""> English</a>
+                                    </li>
+                                    <li><a href="#"><img src="/static/images/shop/logo/language2.png" alt="">
+                                        Русский</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="Offcanvas_follow">
+                        <label>Следуйте за нами:</label>
+                        <ul class="follow_link">
+                            <li><a href="#"><i class="ion-social-facebook"></i></a></li>
+                            <li><a href="#"><i class="ion-social-twitter"></i></a></li>
+                            <li><a href="#"><i class="ion-social-googleplus"></i></a></li>
+                            <li><a href="#"><i class="ion-social-youtube"></i></a></li>
+                        </ul>
+                    </div>
+                    <div class="search-container">
+                        <div class="search_box">
+                            <input value="{% if q %}{{q}}{% endif %}" placeholder="Поиск по названию ..." type="text"
+                                   class="js-search-val">
+                            <button onclick="js_search_btn()"><i class="ion-ios-search-strong"></i></button>
+                        </div>
+                    </div>
+                    <div id="menu" class="text-left ">
+                        <ul class="offcanvas_main_menu">
+                            <li class="menu-item-has-children">
+                                <a href="/">Магазин</a>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="#">Блог</a>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="/api/about/">О нас</a>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="/api/contact/">Контакты</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% block main %}
+{% endblock %}
+
+<footer class="footer_widgets">
+    <div class="container">
+        <div class="footer_bottom">
+            <div class="row">
+                <div class="col-lg-6 col-md-6">
+                    <div class="copyright_area">
+                        <p>Авторское право © 2023 Все права защищены.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="/static/js/shop/vendor/jquery-3.4.1.min.js"></script>
+<script src="/static/js/shop/popper.js"></script>
+<script src="/static/js/shop/bootstrap.min.js"></script>
+<script src="/static/js/shop/owl.carousel.min.js"></script>
+<script src="/static/js/shop/slick.min.js"></script>
+<script src="/static/js/shop/jquery.magnific-popup.min.js"></script>
+<script src="/static/js/shop/jquery.countdown.js"></script>
+<script src="/static/js/shop/jquery.ui.js"></script>
+<script src="/static/js/shop/jquery.elevatezoom.js"></script>
+<script src="/static/js/shop/isotope.pkgd.min.js"></script>
+<script src="/static/js/shop/slinky.menu.js"></script>
+<script src="/static/js/shop/plugins.js"></script>
+
+<script src="/static/js/shop/main.js"></script>
+<script src="/static/js/manage.js"></script>
+<script>
+    $('.js-remove-item').click(function () {
+        var new_id = $(this).parents('.cart_item').data('id');
+        var good_id = $('#js-base-good-id').val()
+        var new_data = {'action': 'remove_in_order', 'cart_item_id': new_id, 'good_id': good_id}
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/cart/item/',
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good")
+                    location.reload()
+                } else {
+                    alert("errors")
+                }
+            },
+            error: function (d) {
+                alert("errors!")
+            }
+        });
+        return false;
+    })
+
+    function js_search_btn() {
+        let value = $('.js-search-val').val()
+        window.location.href = '/?q=' + value;
+    }
+
+</script>
+{% block js %}
+{% endblock %}
+
+
+</body>
+
+</html>

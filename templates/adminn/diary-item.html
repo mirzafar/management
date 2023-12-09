@@ -1,0 +1,162 @@
+{% extends 'admin/base.html' %}
+{% block css_file %}
+<link rel="stylesheet" type="text/css" href="/css/dropzone.css">
+{% endblock %}
+{% block header %}
+{% endblock %}
+{% block container %}
+<div class="edit_data card">
+    <input class="data_id" type="hidden" value="{{data._id}}" name="_id">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <div class="mb-3 row g-3">
+                    <label class="col-sm-3 col-form-label">Работник</label>
+                    <div class="col-xl-5 col-sm-9">
+                        <select class="datepicker-here form-control digits" name="user_id">
+                            <option value="">Выберите</option>
+                            {% for x in users %}
+                            <option {% if x._id|string== data.user_id|string %}selected{% endif %}
+                                    value="{{x._id}}">
+                                {{x.first_name}} {{x.last_name}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-sm-3 col-form-label">Время прихода</label>
+                    <div class="col-sm-9">
+                        <div>
+                            <div class="input-group clockpicker" data-placement="center" data-align="left"
+                                 data-donetext="Done">
+                                <input class="form-control" name="start_date"
+                                       value="{% if data.start_date %}{{data.start_date}}{% endif %}"
+                                       type="text"><span class="input-group-addon"><span
+                                    class="glyphicon glyphicon-time"></span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-sm-3 col-form-label">Время ухода</label>
+                    <div class="col-sm-9">
+                        <div>
+                            <div class="input-group clockpicker" data-placement="center" data-align="left"
+                                 data-donetext="Done">
+                                <input class="form-control" value="{% if data.stop_date %}{{data.stop_date}}{% endif %}"
+                                       name="stop_date"
+                                       type="text"><span class="input-group-addon"><span
+                                    class="glyphicon glyphicon-time"></span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-sm-3 col-form-label">Photo</label>
+                    <div class="col-sm-9" data-name="photo">
+                        {% if data.photo %}
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row gallery my-gallery" id="aniimated-thumbnials14" itemscope=""
+                                             data-pswp-uid="15">
+                                            <figure class="col-md-3 col-6 img-hover hover-15" itemprop="associatedMedia"
+                                                    itemscope=""><a href="/static/uploads/{{data.photo}}"
+                                                                    itemprop="contentUrl" data-size="1600x950"
+                                                                    data-bs-original-title="" title="">
+                                                <div><img src="/static/uploads/{{data.photo}}" itemprop="thumbnail"
+                                                          alt="Image description"></div>
+                                            </a>
+                                                <figcaption itemprop="caption description">Image caption 1</figcaption>
+                                            </figure>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <input type="hidden" name="photo" value="{{data.photo}}">
+                        <input class="form-control" type="file" id="new">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer text-end">
+        <div class="col-sm-9 offset-sm-3">
+            <a href="#" class="btn btn-primary js-edit">Изменить</a>
+            <a href="#" class="btn btn-primary js-delete">Удалить</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js_file %}
+<script src="/js/manage.js"></script>
+<script src="/js/dropzone.js"></script>
+<script src="/js/dropzone-script.js"></script>
+<script src="/js/tooltip-init.js"></script>
+{% endblock %}
+{% block js %}
+<script>
+
+    $('.js-edit').click(function () {
+        var data_id = $('.data_id').val()
+        var new_data = getValues('.edit_data')
+        new_data.action = "edit"
+        new_data.diary_id = data_id
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/diary/',
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good");
+                    window.location.href = '/api/diary/'
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors")
+            }
+        });
+        return false;
+    });
+    $('.js-delete').click(function () {
+        var data_id = $('.data_id').val()
+        var new_data = getValues('.edit_data')
+        new_data.action = "delete"
+        new_data.diary_id = data_id
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/diary/',
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good");
+                    location.href = '/api/goods/';
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors")
+            }
+        });
+        return false;
+    });
+    $('[type="file"]').change(function () {
+        var trigger_name = $(this).parents('.col-sm-9').data('name');
+        var input_name = $(this).closest('.col-sm-9').find('[name="' + trigger_name + '"]');
+        uploadImage($(this).attr('id')).then(function (data) {
+            input_name.val(String(data['file name']));
+        }, function (data) {
+            alert('error');
+        });
+    })
+</script>
+{% endblock %}

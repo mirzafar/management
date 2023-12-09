@@ -1,0 +1,154 @@
+{% extends 'shop/base.html' %}
+{% block title %}
+Корзина
+{% endblock %}
+{% block main %}
+<!--breadcrumbs area start-->
+<div class="breadcrumbs_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb_content">
+                    <ul>
+                        <li><a href="/">Гоавная</a></li>
+                        <li>Корзина</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--breadcrumbs area end-->
+
+<!--shopping cart area start -->
+<div class="shopping_cart_area mt-32">
+    <div class="container">
+        <form action="#">
+            <div class="row">
+                <div class="col-12">
+                    <div class="table_desc">
+                        <div class="cart_page table-responsive">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th class="product_remove">Действия</th>
+                                    <th class="product_thumb">Фото</th>
+                                    <th class="product_name">Продукт</th>
+                                    <th class="product-price">Цена</th>
+                                    <th class="product_quantity">Количество</th>
+                                    <th class="product_total">Сумма</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for item in cart_items %}
+                                <tr class="js-cont" data-id="{{ item._id }}">
+                                    <td class="product_remove">
+                                        <a class="js-remove" href="#"><i class="fa fa-trash-o"></i></a>
+                                        <a class="js-edit" href="#"><i class="fa fa-edit"></i></a>
+                                        <a style="display: none" class="js-save" href="#"><i class="fa fa-save"></i></a>
+                                    </td>
+                                    <td class="product_thumb"><a href="#">{% if item.good %}<img
+                                            src="/static/uploads/{{item.good.photo}}"
+                                            alt="">{% endif %}</a></td>
+                                    <td class="product_name"><a href="#">{%if item.good %}
+                                        <input type="hidden" name="good_id" id="js-good-id" value="{{item.good._id}}">
+                                        {{item.good.title}}
+                                        {% endif %}</a></td>
+                                    <td class="product-price">{% if item.good %}{{item.good.price}}{% endif %}</td>
+                                    <td class="product_quantity"><label>Quantity</label> <span>{{item.amount}}</span>
+                                        <input style="display: none" name="amount" min="1" max="100"
+                                               value="{{item.amount}}" type="number">
+                                    </td>
+                                    <td class="product_total">{{item.summa}}</td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--coupon code area start-->
+            <div class="coupon_area">
+                <div class="row">
+
+                    <div class="col-lg-6 col-md-6">
+                        <div class="coupon_code right">
+                            <h3>Тотал</h3>
+                            <div class="coupon_inner">
+                                <div class="cart_subtotal">
+                                    <p>Сумма</p>
+                                    <p class="cart_amount">{{cart.summa}}</p>
+                                </div>
+                                <div class="checkout_btn">
+                                    <a href="/api/checkout/">Оплата</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--coupon code area end-->
+        </form>
+    </div>
+</div>
+<!--shopping cart area end -->
+{% endblock %}
+{%block js%}
+<script>
+    $('.js-remove').click(function () {
+        var new_id = $(this).parents('tr').data('id');
+        var good_id = $('#js-good-id').val()
+        var new_data = {'action': 'remove_in_order', 'cart_item_id': new_id, 'good_id': good_id}
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/cart/item/',
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good")
+                    location.reload()
+                } else {
+                    alert("errors")
+                }
+            },
+            error: function (d) {
+                alert("errors!")
+            }
+        });
+        return false;
+    });
+    $('.js-edit').click(function () {
+        $(this).hide();
+        $(this).parents('tr').find('span').hide();
+        $(this).parents('tr').find('input').show();
+        $(this).parents('tr').find('.js-save').show();
+        $(this).parents('tr').find('.js-remove').hide();
+    })
+    $('.js-save').click(function (){
+        var new_id = $(this).parents('tr').data('id');
+        var new_data = getValues('.js-cont[data-id="' + new_id + '"]')
+        new_data.action = 'edit_in_order'
+        new_data.cart_item_id = new_id
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/cart/item',
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good")
+                    location.reload()
+                } else {
+                    alert("errors")
+                }
+            },
+            error: function (d) {
+                alert("errors!")
+            }
+        });
+        return false;
+    })
+</script>
+{% endblock %}

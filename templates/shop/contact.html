@@ -1,0 +1,96 @@
+{% extends 'shop/base.html' %}
+{% block title %}
+Корзина
+{% endblock %}
+{% block main %}
+
+<!--breadcrumbs area start-->
+<div class="breadcrumbs_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb_content">
+                    <ul>
+                        <li><a href="/">Главная</a></li>
+                        <li>Контакты</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--breadcrumbs area end-->
+
+<!--contact area start-->
+<div class="contact_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-12">
+                <div class="contact_message content">
+                    <h3>Связаться с нами</h3>
+                    <ul>
+                        <li><i class="fa fa-fax"></i> Address : {{info.address}}</li>
+                        <li><i class="fa fa-phone"></i> <a href="tel:{{info.phone_number}}">{{info.phone_number}}</a>
+                        </li>
+                        <li><i class="fa fa-envelope-o"></i><a>{{info.email}}</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-12">
+                <div class="contact_message form js-data-contact">
+                    <p>
+                        <label> Ваше имя</label>
+                        <input name="name" placeholder="имя" type="text">
+                    </p>
+                    <p>
+                        <label> Телефон номер</label>
+                        <input name="phone_number" placeholder="телефон номер" type="text">
+                    </p>
+                    <p>
+                        <label> Email</label>
+                        <input name="email" placeholder="Email" type="email">
+                    </p>
+                    <div class="contact_textarea">
+                        <label> Ваше сообщение</label>
+                        <textarea placeholder="Сообщение" name="description" class="form-control2"></textarea>
+                    </div>
+                    <button class="js-send">Отправить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--contact area end-->
+
+
+{% endblock %}
+{% block js %}
+<script>
+    $('.js-send').click(function () {
+        var new_data = getValues('.js-data-contact')
+        if (new_data.name && new_data.email && new_data.phone_number && new_data.description) {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: '/collection/applications/add/',
+                data: JSON.stringify(new_data),
+                success: function (d) {
+                    if (d['_success'] == true) {
+                        alert("good")
+                        location.reload()
+                    } else {
+                        alert(d['message'])
+                    }
+                },
+                error: function (d) {
+                    alert("errors!")
+                }
+            });
+            return false;
+        } else {
+            alert('не заполнен')
+        }
+    })
+</script>
+{% endblock %}

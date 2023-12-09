@@ -1,0 +1,185 @@
+{% extends 'admin/base.html' %}
+{% block css %}
+<style>
+    table tr td li {
+        margin-right: 2px;
+    }
+</style>
+{% endblock %}
+{% block header %}
+<div class="col-6">
+    <h3> Аренда </h3>
+</div>
+<div class="col-6">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/api/"> <i data-feather="home"></i></a></li>
+        <li class="breadcrumb-item active">Аренда</li>
+    </ol>
+</div>
+{% endblock %}
+{% block container %}
+<div class="col-sm-12">
+    <div class="col-md-12 project-list">
+        <div class="card">
+            <div class="row">
+                <div class="col-md-6 p-0 d-flex">
+                </div>
+                <div class="col-md-6 p-0">
+                    <div class="form-group mb-0 me-0"></div>
+                    <a class="btn btn-sm btn-primary" href="/api/tools/rent/create/">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="feather feather-plus-square">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                        создать</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <label class="col-sm-3 col-form-label">Статус</label>
+                            <div class="col-sm-9">
+                                <select id="js-status" class="custom-select form-select">
+                                    <option {% if status and status== 0 %} selected {% endif %} value="0">В аренде
+                                    </option>
+                                    <option {% if status and status== 1 %} selected {% endif %} value="1">Завершен
+                                    </option>
+                                    <option {% if status and status== -1 %} selected {% endif %} value="-1">Удаленные
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="table-responsive">
+                            <table class="display dataTable" id="basic-9" role="grid" aria-describedby="basic-9_info">
+                                <thead>
+                                <tr role="row">
+                                    <th> Ф.И.О</th>
+                                    <th> Телефон номер</th>
+                                    <th> Инструмент</th>
+                                    <th> Дата начала</th>
+                                    <th> Дата завершения</th>
+                                    <th> Сумма</th>
+                                    <th> Действия</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for dt in data %}
+                                <tr role="row" class="odd js-cont" data-id="{{ dt._id }}">
+                                    <td>
+                                        <span>{{dt.last_name}} {{dt.first_name}}</span>
+                                    </td>
+
+                                    <td>
+                                        <span>{{ dt.phone_number }}</span>
+                                    </td>
+                                    <td>
+                                        <span>{% if dt.tool %}{{ dt.tool.title }}{% endif %}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{ dt.start_date }}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{ dt.stop_date }}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{ dt.summa }}</span>
+                                    </td>
+                                    <td>
+                                        <ul class="action">
+                                            {% if not dt.stop_date %}
+                                            <li>
+                                                <a class="btn btn-pill btn-sm btn-warning btn-air-warning btn-air-warning js-change"
+                                                   href="/api/tools/rent/{{dt._id}}/"><i
+                                                        class="bx bx-edit-alt me-1"></i>Изменить</a>
+                                            </li>
+                                            {% endif %}
+                                            <li><a class="btn btn-pill btn-danger btn-air-danger js-remove"><i
+                                                    class="bx bx-trash me-1"></i>Удалить</a></li>
+                                            {% if not dt.stop_date %}
+                                            <li><a class="btn btn-pill btn-air-danger js-stop"><i
+                                                    class="bx bx-trash me-1"></i>Завершить</a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+
+    $('.js-remove').click(js_delete_item);
+    $('.js-stop').click(js_stop_item);
+
+    function js_delete_item() {
+        var new_id = $(this).parents('tr').data('id');
+        var new_data = {}
+        new_data.action = 'delete'
+        alert(new_id)
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/tools/rent/' + new_id,
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good")
+                    location.reload()
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors!")
+            }
+        });
+        return false;
+    }
+
+    function js_stop_item() {
+        var new_id = $(this).parents('tr').data('id');
+        var new_data = {}
+        new_data.action = 'stop'
+        alert(new_id)
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/tools/rent/' + new_id,
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good")
+                    location.reload()
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors!")
+            }
+        });
+        return false;
+    }
+
+    $('#js-status').change(function () {
+        location.search = "?status=" + $(this).val()
+    })
+</script>
+{% endblock %}

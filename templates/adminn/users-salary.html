@@ -1,0 +1,120 @@
+{% extends 'admin/base.html' %}
+{% block css %}
+<style>
+    table tr td li {
+        margin-right: 2px;
+    }
+</style>
+{% endblock %}
+{% block header %}
+<div class="col-6">
+    <h3> Зарплата </h3>
+</div>
+<div class="col-6">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/api/"> <i data-feather="home"></i></a></li>
+        <li class="breadcrumb-item active">Зарплата</li>
+    </ol>
+</div>
+{% endblock %}
+{% block container %}
+<div class="col-sm-12">
+    <div class="card">
+        <div class="card-body">
+            <div class="col-sm-12">
+
+                <div class="card">
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+                            <div class="row">
+                                <label class="col-sm-3 col-form-label">Сотрудник</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control" id="js-user-id">
+                                        <option value="">Выберите</option>
+                                        {% for x in users %}
+                                        <option {% if user_id and user_id== x._id|string %} selected {% endif %}
+                                                value="{{x._id}}">{% if x.last_name %}{{x.last_name}} {{x.first_name}}{%
+                                            else %}{{x.username}}{% endif %}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <label class="col-sm-3 col-form-label">Дата</label>
+                                <div class="col-sm-4">
+                                    <input id="js-start-date" type="date" value="{{start_date}}" class="form-control">
+                                </div>
+                                <div class="col-sm-4">
+                                    <input id="js-stop-date" value="{{stop_date}}" type="date" class="form-control">
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-sm-11" style="text-align: right">
+                                    <a class="btn btn-sm btn-pill btn-success btn-air-success btn-air-success js-filter-button">Найти</a>
+                                </div>
+
+                            </div>
+                            <br>
+
+                            <table class="display dataTable" id="basic-9" role="grid" aria-describedby="basic-9_info">
+                                <thead>
+                                <tr role="row">
+                                    <th> ФИО</th>
+                                    <th> Роль</th>
+                                    <th> День</th>
+                                    <th> Тариф</th>
+                                    <th> Сумма</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for dt in data %}
+                                <tr role="row" class="odd js-cont" data-id="{{ dt._id }}">
+                                    <td class="sorting_1">
+                                        <span>{% if dt.first_name %}{{dt.first_name}} {{dt.last_name}}{% else %}{{dt.username}}{% endif %}</span>
+                                    </td>
+                                    <td>
+                                        <span>{% if dt.role %}{{ dt.role.title }}{% endif %}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{ dt.days }}</span>
+                                    </td>
+                                    <td>
+                                        <span>{% if dt.tariff %}{{ dt.tariff }}{% else %}0{% endif %}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{ dt.salary }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+
+    function get_filter_params() {
+        var start_date = $('#js-start-date').val()
+        var stop_date = $('#js-stop-date').val()
+        var user_id = $('#js-user-id').val()
+        if (start_date && stop_date) {
+            var locale_url = "?start_date=" + start_date + "&stop_date=" + stop_date + "&user_id=" + user_id;
+
+            location.search = locale_url
+        }
+    }
+
+    $('.js-filter-button').click(get_filter_params)
+</script>
+{% endblock %}

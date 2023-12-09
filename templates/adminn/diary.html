@@ -1,0 +1,126 @@
+{% extends 'admin/base.html' %}
+{% block css_file %}
+<link rel="stylesheet" type="text/css" href="/css/dropzone.css">
+{% endblock %}
+{% block header %}
+{% endblock %}
+{% block container %}
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <label class="col-sm-3 col-form-label">Пользователь</label>
+                    <div class="col-sm-9">
+                        <select id="js-employee" class="custom-select form-select">
+                            <option value="">Выберите</option>
+                            {% for a in users %}
+                            <option {% if employee_id and employee_id== a._id|string %} selected {% endif %}
+                                    value="{{a._id}}">{% if a.last_name or a.first_name %}{{a.last_name}}
+                                {{a.first_name}}{% else %} {{a.username}}{% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <br>
+                <div class="table-responsive">
+                    <div id="basic-1_wrapper" class="dataTables_wrapper no-footer">
+                        <table class="table table-hover" role="grid">
+                            <thead>
+                            <tr role="row">
+                                <th>
+                                    Работник
+                                </th>
+                                <th>
+                                    Приход
+                                </th>
+                                <th>
+                                    Уход
+                                </th>
+                                <th>
+                                    Action
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for dt in data %}
+                            <tr role="row" class="js-cont" data-id="{{ dt._id }}">
+                                <td>{% if dt.user %}{% if dt.user.last_name %}{{dt.user.last_name}}
+                                    {{dt.user.first_name}}{% else %}{{dt.user.username }}{% endif %}{% endif %}
+                                </td>
+                                <td>{{dt.start_date}}</td>
+                                <td>{{dt.stop_date}}</td>
+                                <td>
+                                    <ul class="action">
+                                        <li class="edit"><a href="/api/diary/{{dt._id}}/"><i
+                                                class="icon-pencil-alt"></i></a></li>
+                                        <li class="delete"><a href="#" class="js-remove"><i
+                                                class="icon-trash"></i></a></li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% if _range %}
+            <div class="card-body">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end pagination-primary">
+                        {% for i in range(1, (_range + 1)) %}
+                        <li class="page-item {% if i == page %} active {% endif %}"><a class="page-link"
+                                                                                       href="/api/diary?page={{i}}&status={{status}}">{{i}}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+{% block js_file %}
+<script src="/js/manage.js"></script>
+<script src="/js/dropzone.js"></script>
+<script src="/js/dropzone-script.js"></script>
+<script src="/js/tooltip-init.js"></script>
+{% endblock %}
+{% block js %}
+<script>
+    $('.js-remove').click(function () {
+        var new_id = $(this).parents('tr').data('id');
+        var new_data = getValues('.js-cont[data-id="' + new_id + '"]')
+        new_data.action = "delete"
+        new_data.diary_id = new_id
+        console.log(new_data)
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/diary/',
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good")
+                    location.reload()
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors!")
+            }
+        });
+        return false;
+    });
+
+    $('#js-employee').change(function () {
+        location.search = "?employee_id=" + $('#js-employee').val();
+    })
+</script>
+{% endblock %}

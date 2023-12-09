@@ -1,0 +1,112 @@
+{% extends 'shop/base.html' %}
+{% block title %}
+Логин
+{% endblock %}
+{% block main %}
+
+<div class="breadcrumbs_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb_content">
+                    <ul>
+                        <li><a href="/static">Главная</a></li>
+                        <li>Предзаказ</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="customer_login mt-32">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-12 js-data">
+                <div class="account_form register">
+                    <h2>Предзаказ</h2>
+                    <p>
+                        <label>Фамилия </label>
+                        <input type="text" name="last_name">
+                    </p>
+                    <p>
+                        <label>Имя </label>
+                        <input type="text" name="first_name">
+                    </p>
+                    <p>
+                        <label>Название </label>
+                        <input type="text" name="title">
+                    </p>
+                    <p>
+                        <label>Товар</label>
+                        <select class="form-control" name="good_id">
+                            <option value="">Выберите</option>
+                            {% for x in goods %}
+                            <option value="{{x._id}}">{{x.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+                    <p>
+                        <label>Размер</label>
+                        <select class="form-control" name="size_id">
+                            <option value="">Выберите</option>
+                            {% for x in sizes %}
+                            <option value="{{x._id}}">{{x.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+                    <p>
+                        <label>Цвет</label>
+                        <select class="form-control" name="color_id">
+                            <option value="">Выберите</option>
+                            {% for x in colors %}
+                            <option value="{{x._id}}">{{x.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+                    <p>
+                        <label>Описание</label>
+                        <textarea class="form-control" name="description"></textarea>
+                    </p>
+                    <p>
+                        <label>Телефон номер</label>
+                        <input type="text" name="phone_number">
+                    </p>
+                    <div class="login_submit">
+                        <button class="js-check-user" onclick="send_post()">Отправить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    function send_post() {
+        var new_data = getValues('.js-data')
+        console.log(new_data)
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/pre_orders/list/',
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    window.location.href = '/'
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors")
+            }
+        });
+        return false;
+    }
+
+</script>
+{% endblock %}

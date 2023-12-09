@@ -1,0 +1,158 @@
+{% extends 'admin/base.html' %}
+{% block namePage %}
+<button type="button" id="back_url" class="btn btn-page"><span class="btn-icon-start text-info"><i
+        class="fa fa-left-long color-info"></i></span>Назад
+</button>
+Инфо о уроке
+{% endblock %}
+{% block container %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-xl-3 col-lg-6 col-md-6">
+                        <!-- Tab panes -->
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel"
+                                 aria-labelledby="home-tab" tabindex="0">
+                                <img class="img-fluid rounded  "
+                                     src="{% if lesson.logo %}/static/uploads/{{lesson.logo}}/{% else %}/static/images/no-image.avif/{% endif %}"
+                                     alt="">
+                            </div>
+
+                        </div>
+                    </div>
+                    <!--Tab slider End-->
+                    <div class="col-xl-9 col-lg-6 col-md-6 col-sm-12">
+                        <div class="product-detail-content">
+                            <!--Product details-->
+                            <div class="new-arrival-content pr">
+                                <h4>{{lesson.title}}</h4>
+                                <div class="comment-review star-rating d-flex">
+                                    <span class="review-text ms-3">({{lesson.subscribers|length if lesson.subscribers else 0}}) / подписки</span>
+                                </div>
+                                <div class="d-table mb-2">
+                                    <p class="price float-start d-block">₸{{lesson.price}}</p>
+                                </div>
+                                <p>Категории: <span class="item">{{lesson.category_title}}</span></p>
+                                <p>Тэги:&nbsp;&nbsp;
+                                    {% for tag in (lesson.tags or []) %}
+                                    <span class="badge badge-success light">{{tag}}</span>
+                                    {% endfor %}
+                                </p>
+                                <p class="text-content">{{lesson.description}}</p>
+                                <div class="d-flex align-items-end flex-wrap mt-4">
+                                    {% if lesson.is_subscribe %}
+                                    <button onclick="unsubscribeLesson({{lesson.id}})" type="button" class="btn btn-primary"><i class="fa fa-check"></i> Удалить
+                                    </button>
+                                    {% else %}
+                                    <button type="button" onclick="subscribeLesson({{lesson.id}})" class="btn btn-primary"><i class="fa fa-plus"></i> Добавить
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- review -->
+    <div class="modal fade" id="reviewModal">
+        <div class="modal-dialog modal-dialog-center" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="text-center mb-4">
+                            <img class="img-fluid rounded" width="78" src="./images/avatar/1.jpg" alt="DexignZone">
+                        </div>
+                        <div class="mb-3">
+                            <div class="rating-widget mb-4 text-center">
+                                <!-- Rating Stars Box -->
+                                <div class="rating-stars">
+                                    <ul id="stars">
+                                        <li class="star" title="Poor" data-value="1">
+                                            <i class="fa fa-star fa-fw"></i>
+                                        </li>
+                                        <li class="star" title="Fair" data-value="2">
+                                            <i class="fa fa-star fa-fw"></i>
+                                        </li>
+                                        <li class="star" title="Good" data-value="3">
+                                            <i class="fa fa-star fa-fw"></i>
+                                        </li>
+                                        <li class="star" title="Excellent" data-value="4">
+                                            <i class="fa fa-star fa-fw"></i>
+                                        </li>
+                                        <li class="star" title="WOW!!!" data-value="5">
+                                            <i class="fa fa-star fa-fw"></i>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <textarea class="form-control" placeholder="Comment" rows="5"></textarea>
+                        </div>
+                        <button class="btn btn-success btn-block">RATE</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    function subscribeLesson(lesson_id) {
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/lessons/' + lesson_id.toString(),
+            data: JSON.stringify({
+                action: 'subscribe'
+            }),
+            success: function (d) {
+                if (d['_success'] === true) {
+                    location.reload()
+
+                } else {
+                    alertShow('error', d['message']);
+                }
+            },
+            error: function (d) {
+                alertShow('waring');
+            }
+        })
+    }
+
+    function unsubscribeLesson(lesson_id) {
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/lessons/' + lesson_id.toString(),
+            data: JSON.stringify({
+                action: 'unsubscribe'
+            }),
+            success: function (d) {
+                if (d['_success'] === true) {
+                    location.reload()
+
+                } else {
+                    alertShow('error', d['message']);
+                }
+            },
+            error: function (d) {
+                alertShow('waring');
+            }
+        })
+        return false;
+    }
+</script>
+{% endblock %}

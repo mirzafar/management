@@ -1,0 +1,170 @@
+{% extends 'shop/base.html' %}
+{% block title %}
+Профил
+{% endblock %}
+{% block main %}
+<div class="breadcrumbs_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb_content">
+                    <ul>
+                        <li><a href="/">Главная</a></li>
+                        <li>Аккаунт</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="main_content_area">
+    <div class="container">
+        <div class="account_dashboard">
+            <div class="row">
+                <div class="col-sm-12 col-md-3 col-lg-3">
+                    <div class="dashboard_tab_button">
+                        <ul role="tablist" class="nav flex-column dashboard-list" id="nav-tab">
+                            <li><a href="#orders" data-toggle="tab" class="nav-link active">Orders</a></li>
+                            <li><a href="#profile" data-toggle="tab" class="nav-link">Профиль</a></li>
+                            <li><a onclick="logout()" class="nav-link">logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-md-9 col-lg-9">
+                    <div class="tab-content dashboard_content">
+                        <div class="tab-pane fade active" id="orders">
+                            <h3>Мои заказы</h3>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>id заказа</th>
+                                        <th>Дата</th>
+                                        <th>Статус</th>
+                                        <th>Сумма</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for x in orders %}
+                                    <tr>
+                                        <td>{{x._id}}</td>
+                                        <td>{{x.created_at}}</td>
+                                        <td><span class="success">{% if x.status == 1 %}В процессе отправки{% elif x.status == -1 %}Отменен{% else %}В процессе{% endif %}</span>
+                                        </td>
+                                        <td>{{x.summa}}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="downloads">
+                            <h3>Downloads</h3>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Downloads</th>
+                                        <th>Expires</th>
+                                        <th>Download</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>Shopnovilla - Free Real Estate PSD Template</td>
+                                        <td>May 10, 2018</td>
+                                        <td><span class="danger">Expired</span></td>
+                                        <td><a href="#" class="view">Click Here To Download Your File</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Organic - ecommerce html template</td>
+                                        <td>Sep 11, 2018</td>
+                                        <td>Never</td>
+                                        <td><a href="#" class="view">Click Here To Download Your File</a></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="pp">
+                            <p>The following addresses will be used on the checkout page by default.</p>
+                            <h4 class="billing-address">Billing address</h4>
+                            <a href="#" class="view">Edit</a>
+                            <p><strong>Bobby Jackson</strong></p>
+                            <address>
+                                House #15<br>
+                                Road #1<br>
+                                Block #C <br>
+                                Banasree <br>
+                                Dhaka <br>
+                                1212
+                            </address>
+                            <p>Bangladesh</p>
+                        </div>
+                        <div class="tab-pane fade" id="profile">
+                            <h3>Редактирования</h3>
+                            <div class="login js-profile-data">
+                                <div class="login_form_container">
+                                    <div class="account_login_form">
+                                        <form>
+                                            <label>Username</label>
+                                            <input type="text" name="username"
+                                                   value="{% if user %}{{user.username}}{% endif %}">
+                                            <label>Password</label>
+                                            <input type="text" name="password">
+                                            <input type="hidden" name="_id"
+                                                   value="{% if user %}{{user._id}}{% endif %}">
+                                            <label>Email</label>
+                                            <input type="text" name="email"
+                                                   value="{% if user %}{{user.email}}{% endif %}">
+                                            <div class="save_button primary_btn default_button">
+                                                <button onclick="_profile()">Save</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{% endblock %}
+{% block js %}
+<script>
+    function _profile() {
+        var new_data = getValues('.js-profile-data')
+        new_data.scope = ['user']
+        new_data.action = 'update'
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/users/' + new_data._id,
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    window.location.reload()
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors")
+            }
+        });
+        return false;
+    }
+
+    function logout() {
+        window.location.href = '/login/'
+    }
+
+</script>
+{% endblock %}

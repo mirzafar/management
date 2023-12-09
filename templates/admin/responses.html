@@ -1,0 +1,267 @@
+{% extends 'admin/base.html' %}
+{% block namePage %}
+{% endblock %}
+{% block container %}
+<div class="col-xl-6">
+    <div class="card dz-card">
+        <div class="card-header flex-wrap border-0">
+            <div>
+                <p class="m-0 subtitle">Список ответов</p>
+            </div>
+        </div>
+        <div class="tab-content">
+            <div class="tab-pane fade active show">
+                <div class="card-body pt-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-responsive-sm">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Время</th>
+                                <th>Статус</th>
+                            </tr>
+                            </thead>
+                            <tbody id="list-responses">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="col-xl-6">
+    <div class="card dz-card">
+        <div class="tab-content">
+            <div class="tab-pane fade active show">
+                <div class="card-body pt-0">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead id="question-contain">
+                            </thead>
+                            <tbody id="answer-contain">
+                            <tr>
+                                <td>1</td>
+                            </tr>
+
+                            <tr>
+                                <td>1</td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}
+
+
+{% block js %}
+
+<script>
+
+    let curl_url = location.pathname.split('/');
+    let result_id = curl_url[curl_url.length - 3];
+
+    getListItems();
+
+    function getListItems(params) {
+        var paramsString = $.param(params);
+        var apiUrl = '/api/testings/responses/' + result_id.toString() + '/list/';
+        if (paramsString) {
+            apiUrl += paramsString
+        }
+        $.ajax({
+            type: 'GET',
+            dataType: 'json',
+            url: apiUrl,
+            success: function (d) {
+                if (d['_success'] === true) {
+                    console.log(d)
+                    $.each(d['data'], function (index, item) {
+                        let isUserAnswerTrue = false
+                        if (item.is_currect === 1) {
+                            isUserAnswerTrue = true
+                        }
+
+                        showDataItem(index, item, isUserAnswerTrue);
+
+                        if (index === 0) {
+                            showQuestion(index + 1, item.question_id, isUserAnswerTrue, item.answer_id);
+                        }
+                    });
+
+                } else {
+                    alertShow('error', d['message']);
+                }
+            },
+            error: function (d) {
+                alertShow('waring');
+            }
+        })
+    }
+
+    function showAnswer(index, answer, is_currect, user_answer_id) {
+        let self = $('#answer-contain')
+        let row = $('<tr>')
+        row.append(
+            $('<td>').addClass('text-center').text(answer.title)
+        )
+
+        if (is_currect === true && answer.is_currect === 1) {
+            row.css({
+                'background-color': '#3A9B94',
+                'color': 'white',
+                'border-color': '#96d8d3',
+                'border-radius': '.25em'
+            })
+        } else if (answer.is_currect === 1) {
+            row.css({
+                'background-color': '#bbe6e3',
+                'color': '#3A9B94',
+                'border-color': '#96d8d3',
+                'border-radius': '.25em'
+            })
+        } else if (user_answer_id === answer.id) {
+            row.css({
+                'background-color': '#FF5E5E',
+                'color': 'white',
+                'border-radius': '2em'
+            })
+        }
+
+        self.append(row)
+    }
+
+    function showQuestion(index, question_id, is_currect, user_answer_id) {
+        $.ajax({
+            type: 'GET',
+            dataType: 'json',
+            url: '/api/testings/questions/' + question_id.toString(),
+            success: function (d) {
+                if (d['_success'] === true) {
+                    if (d.question) {
+                        let self = $('#question-contain')
+                        console.log(d)
+                        self.empty()
+
+                        self.append(
+                            $('<tr>').append(
+                                $('<td>').text('#' + index.toString() + ' ' + d.question.title)
+                            )
+                        )
+
+                        if (d.question.description) {
+                            self.append(
+                                $('<tr>').append(
+                                    $('<th>').text(d.question.description)
+                                )
+                            )
+                        }
+
+                        if (d.question.photo) {
+                            self.append(
+                                $('<tr>').append(
+                                    $('<th>').append(
+                                        $('<img>').attr({
+                                            class: 'img-fluid mt-4 mb-4 w-100 rounded',
+                                            src: '/static/uploads/' + d.question.photo
+                                        })
+                                    )
+                                )
+                            )
+                        }
+
+                        if (d.question.audio) {
+                            self.append(
+                                $('<tr>').append(
+                                    $('<th>').append(
+                                        $('<audio>').attr({
+                                            class: 'img-fluid mt-4 mb-4 w-100 rounded',
+                                            src: '/static/uploads/' + d.question.audio
+                                        })
+                                    )
+                                )
+                            )
+                        }
+
+                        if (d.question.video_link) {
+                            self.append(
+                                $('<tr>').append(
+                                    $('<th>').append(
+                                        $('<a>').attr({
+                                            href: d.question.video_link
+                                        }).text('Перейдите по ссылке для просмотра видео')
+                                    )
+                                )
+                            )
+                        }
+
+                        $('#answer-contain').empty()
+                        $.each(d.question.answers, function (index, answer) {
+                            showAnswer(index, answer, is_currect, user_answer_id);
+                        });
+                    }
+
+
+                } else {
+                    alertShow('error', d['message']);
+                }
+            },
+            error: function (d) {
+                alertShow('waring');
+            }
+        })
+
+    }
+
+    function showDataItem(index, item, isUserAnswerTrue) {
+        let newColum = $('<tr>')
+        newColum.append(
+            $('<th>').text(index + 1)
+        )
+
+        var createdAt = new Date(item.created_at * 1000);
+        var responseTime = createdAt.toLocaleString('ru-RU', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+
+        newColum.append(
+            $('<td>').text(responseTime)
+        )
+
+        if (item.is_currect === 1) {
+            newColum.append(
+                $('<td>').append(
+                    $('<span>').addClass('badge badge-success').text('Правильно')
+                )
+            )
+        } else {
+            newColum.append(
+                $('<td>').append(
+                    $('<span>').addClass('badge badge-danger light').text('Ошибка')
+                )
+            )
+        }
+
+        $('#list-responses').append(newColum)
+
+        $(newColum).on('click', function () {
+            showQuestion(index, item.question_id, isUserAnswerTrue, item.answer_id)
+        });
+    }
+</script>
+{% endblock %}

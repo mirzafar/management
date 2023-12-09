@@ -1,0 +1,121 @@
+{% extends 'shop/base.html' %}
+{% block title %}
+Логин
+{% endblock %}
+{% block main %}
+
+<div class="breadcrumbs_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb_content">
+                    <ul>
+                        <li><a href="/static">Главная</a></li>
+                        <li>Логин</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="customer_login mt-32">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 js-login-data">
+                <div class="account_form">
+                    <h2>Логин</h2>
+                    <p>
+                        <label>Логин <span>*</span></label>
+                        <input type="text" name="username">
+                    </p>
+                    <p>
+                        <label>Пароль <span>*</span></label>
+                        <input type="password" name="password">
+                    </p>
+                    <div class="login_submit">
+                        <button class="js-check-user" onclick="login()">Войти</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-md-6 js-register-data">
+                <div class="account_form register">
+                    <h2>Регистрация</h2>
+                    <p>
+                        <label>Логин <span>*</span></label>
+                        <input type="text" name="username">
+                    </p>
+                    <p>
+                        <label>email <span>*</span></label>
+                        <input type="text" name="email">
+                    </p>
+                    <p>
+                        <label>Пароль <span>*</span></label>
+                        <input type="password" name="password">
+                    </p>
+                    <p>
+                        <label>Повторный пароль <span>*</span></label>
+                        <input type="password" name="reply_password">
+                    </p>
+                    <div class="login_submit">
+                        <button class="js-check-user" onclick="register()">Войти</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    function login() {
+        var new_data = getValues('.js-login-data')
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/login/',
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    window.location.href = d['redirect_url']
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors")
+            }
+        });
+        return false;
+    }
+
+    function register() {
+        var new_data = getValues('.js-register-data')
+        new_data.scope = ['user']
+        console.log(new_data)
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/register/',
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    window.location.href = d['redirect_url']
+                } else {
+                    alert(d['message'])
+                }
+            },
+            error: function (d) {
+                alert("errors")
+            }
+        });
+        return false;
+    }
+
+</script>
+{% endblock %}

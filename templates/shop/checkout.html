@@ -1,0 +1,144 @@
+{% extends 'shop/base.html' %}
+{% block title %}
+Корзина
+{% endblock %}
+{% block main %}
+<!--breadcrumbs area start-->
+<div class="breadcrumbs_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb_content">
+                    <ul>
+                        <li><a href="/">Главная</a></li>
+                        <li>Оплата</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--breadcrumbs area end-->
+
+
+<!--Checkout page section-->
+<div class="Checkout_section mt-32">
+    <div class="container">
+        <div class="checkout_form">
+            <div class="row">
+                <div class="col-lg-6 col-md-6 js-data-info">
+                    <h3>Инфо</h3>
+                    <div class="row">
+
+                        <div class="col-lg-6 mb-20">
+                            <label>Фамилия <span>*</span></label>
+                            <input type="text" name="first_name">
+                        </div>
+                        <div class="col-lg-6 mb-20">
+                            <label>Имя <span>*</span></label>
+                            <input type="text" name="last_name">
+                        </div>
+                        <div class="col-12 mb-20">
+                            <label for="country">Страна <span>*</span></label>
+                            <select class="niceselect_option" name="country" id="country">
+                                <option value="kaz">Казахстан</option>
+                                <option value="rus">Россия</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 mb-20">
+                            <label>Адресс<span>*</span></label>
+                            <input placeholder="город/район/улица" type="text" name="address">
+                        </div>
+                        <div class="col-12 mb-20">
+                            <input placeholder="жк/кв" name="apartment" type="text">
+                        </div>
+                        <div class="col-lg-6 mb-20">
+                            <label>Телефон номер<span>*</span></label>
+                            <input type="text" name="phone_number">
+
+                        </div>
+                        <div class="col-lg-6 mb-20">
+                            <label> Email <span>*</span></label>
+                            <input type="text" name="email">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <h3>К оплату</h3>
+                    <div class="order_table table-responsive">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>продукт</th>
+                                <th>тотал</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td> {% if item.good %} {{item.good.title}} {% endif %} <strong> ×
+                                    {{item.amount}}</strong></td>
+                                <td> {{item.summa}}</td>
+                            </tr>
+                            {% endfor %}
+
+                            </tbody>
+                            <tfoot>
+                            <tr class="order_total">
+                                <th>Сумма</th>
+                                <td>
+                                    <input type="hidden" name="cart_id" value="{{cart._id}}" class="js-cart-id">
+                                    <strong>{{cart.summa}}</strong>
+                                </td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="payment_method">
+                        <div class="order_button">
+                            <button class="js-save-info">Заказать</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Checkout page section end-->
+{% endblock %}
+{% block js %}
+<script>
+    function get_info() {
+        var new_data = getValues('.js-data-info')
+        new_data.action = 'create'
+        new_data.cart_id = $('.js-cart-id').val()
+        console.log(new_data)
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/checkout/',
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] == true) {
+                    alert("good")
+                    window.location.href = '/profile/#orders'
+                } else {
+                    if (d['message']) {
+                        alert(d['message'])
+                    } else {
+                        alert(d['message'])
+                    }
+                }
+            },
+            error: function (d) {
+                alert("errors!")
+            }
+        });
+        return false;
+    }
+
+    $('.js-save-info').click(get_info)
+</script>
+{% endblock %}

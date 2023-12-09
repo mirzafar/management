@@ -1,0 +1,98 @@
+{% extends 'shop/base.html' %}
+{% block title %}
+Корзина
+{% endblock %}
+{% block main %}
+
+<!--breadcrumbs area start-->
+<div class="breadcrumbs_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb_content">
+                    <ul>
+                        <li><a href="/">Главная</a></li>
+                        <li>О нас</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--breadcrumbs area end-->
+
+<!--about section area -->
+<div class="about_section mt-32">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-12">
+                <div class="about_thumb" style="text-align: center">
+                    <img src="/static/uploads/{{info.photo}}" alt="">
+                </div>
+
+                <div class="about_content">
+                    <p>{{info.about_us}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--about section end-->
+
+<!--chose us area start-->
+<div class="choseus_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="chose_title">
+                    <h1>Почему выбрали нас?</h1>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="single_chose">
+                    <div class="chose_icone">
+                        <img src="/static/images/shop/about/About_icon1.jpg" alt="">
+                    </div>
+                    <div class="chose_content">
+                        <h3>Довольные клиенты</h3>
+                        <p>Клиент – это самый важный посетитель. Не он зависит от нас. Мы зависим от него. Он не
+                            прерывает нашу работу. Он – цель нашей работы.</p>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="single_chose">
+                    <div class="chose_icone">
+                        <img src="/static/images/shop/about/About_icon2.jpg" alt="">
+                    </div>
+                    <div class="chose_content">
+                        <h3>Качество товара</h3>
+                        <p>Мы собрали для вас в одном месте самые надежные и производительные электрические инструменты
+                            и прочие вспомогательные товары. У нас очень большой ассортимент, а потому вы гарантировано
+                            найдете то, что ищете.</p>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="single_chose">
+                    <div class="chose_icone">
+                        <img src="/static/images/shop/about/About_icon3.jpg" alt="">
+                    </div>
+                    <div class="chose_content">
+                        <h3>Круглосуточный доступ 24/7</h3>
+                        <p>Интернет всегда на связи, и всегда под рукой. Доступ к нашему интернет-магазину возможен
+                            круглосуточно и без выходных. А это значит, что товары в нашем магазине могут быть куплены в
+                            любой удобный момент.</p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--chose us area end-->
+
+
+{% endblock %}

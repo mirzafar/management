@@ -1,0 +1,162 @@
+{% extends 'admin/base.html' %}
+{% block namePage %}
+<button type="button" id="back_url" class="btn btn-page"><span class="btn-icon-start text-info"><i
+        class="fa fa-left-long color-info"></i></span>Назад
+</button>Редактирование
+{% endblock %}
+{% block container %}
+<input type="hidden" id="user_id" value="{{lesson.id}}">
+<div class="row">
+    <div class="col-xl-9 col-lg-8">
+        <div class="card profile-card card-bx m-b30">
+            <div class="profile-form">
+                <div class="card-body">
+                    <div class="row new_data">
+                        <div class="col-sm-6 m-b30">
+                            <label class="form-label">Названия</label>
+                            <input type="text" class="form-control" name="title" value="{{lesson.title}}">
+                        </div>
+                        <div class="col-sm-6 m-b30">
+                            <label class="form-label">Описания</label>
+                            <input type="text" class="form-control" name="description" value="{{lesson.description}}">
+                        </div>
+                        <div class="col-sm-6 m-b30">
+                            <label class="form-label">URL</label>
+                            <input type="text" class="form-control" name="link" value="{{lesson.link}}">
+                        </div>
+                        <div class="col-sm-6 m-b30">
+                            <label class="form-label">Категории</label>
+                            <div class="dropdown bootstrap-select default-select form-control">
+                                <select class="default-select form-control" name="category_id" id="validationCustom05">
+                                    <option value="">Выберите</option>
+                                    {% for category in categories %}
+                                    <option {% if lesson.category_id== category.id %}selected{% endif %}
+                                            value="{{category.id}}">
+                                        {{category.title}}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="ol-sm-6 m-b30">
+                            <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel"
+                                 aria-labelledby="home-tab" tabindex="0">
+                                <img style="width: 30%;" id="my_image" class="img-fluid rounded  "
+                                     src="/static/uploads/{{lesson.logo}}" alt="">
+                            </div>
+                            <label class="form-label">Фото</label>
+                            <div class="col-sm-9" data-name="logo">
+                                <input type="hidden" name="logo" value="{{lesson.logo}}">
+                                <input class="form-control" type="file" id="new">
+                            </div>
+                        </div>
+                        <div class="col-sm-6 m-b30">
+                            <label class="form-label">Цена</label>
+                            <input type="number" class="form-control"
+                                   value="{% if lesson.price %}{{lesson.price}}{% endif %}" name="price" min="1">
+                        </div>
+                        <div class="col-sm-6 m-b30">
+                            <label class="form-label">Скидка</label>
+                            <input type="number" class="form-control"
+                                   value="{% if lesson.discount %}{{lesson.discount}}{% endif %}" name="discount"
+                                   min="1" max="100">
+                        </div>
+                        <div class="col-sm-6 m-b30">
+                            <label class="form-label">Количества попыток на тестирование</label>
+                            <input type="number" class="form-control"
+                                   value="{% if lesson.testing_count %}{{lesson.testing_count}}{% endif %}"
+                                   name="testing_count" min="1" max="100">
+                        </div>
+                        <div class="col-sm-6 m-b30">
+                            <label class="form-label">Статус тестирования</label>
+                            <div class="dropdown bootstrap-select default-select form-control">
+                                <select class="default-select form-control" name="testing_state" id="validationCustom25">
+                                    <option {% if lesson.testing_state == 0 %} selected {% endif %} value="0">Деактивировать</option>
+                                    <option {% if lesson.testing_state == 1 %} selected {% endif %} value="1">Активировать</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 m-b30">
+                            <label class="form-label">Теги</label>
+                            <div class="dropdown bootstrap-select default-select form-control">
+                                <select class="default-select form-control" name="tag_ids" id="validationCustom15"
+                                        multiple>
+                                    {% for tag in tags %}
+                                    <option {% if tag.id in lesson.tag_ids %} selected {% endif %} value="{{tag.id}}">
+                                        {{tag.title}}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-success update-item">Сохранить</a>
+                    <a class="btn btn-danger delete-item">Удалить</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    $('.update-item').click(function () {
+        var new_data = getValues('.new_data')
+        $.ajax({
+            type: 'PUT',
+            dataType: 'json',
+            url: '/api/lessons/' + $('#user_id').val(),
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] === true) {
+                    alertShow('success');
+                    location.href = '/api/lessons/template/'
+                } else {
+                    alertShow('error', d['message']);
+                }
+            },
+            error: function (d) {
+                alertShow('waring');
+            }
+        });
+        return false;
+    });
+
+    $('.delete-item').click(function () {
+        $.ajax({
+            type: 'DELETE',
+            dataType: 'json',
+            url: '/api/lessons/' + $('#user_id').val(),
+            success: function (d) {
+                if (d['_success'] === true) {
+                    alertShow('success');
+                    location.href = '/api/lessons/template/'
+                } else {
+                    alertShow('error', d['message']);
+                }
+            },
+            error: function (d) {
+                alertShow('waring');
+            }
+        });
+        return false;
+    });
+
+
+    $('[type="file"]').change(function () {
+        var trigger_name = $(this).parents('.col-sm-9').data('name');
+        var input_name = $(this).closest('.col-sm-9').find('[name="' + trigger_name + '"]');
+        uploadImage($(this).attr('id')).then(function (data) {
+            input_name.val(String(data['file_name']));
+            $('#my_image').attr('src', '/static/uploads/' + String(data['file_name']));
+        }, function (data) {
+            alertShow('waring');
+        });
+    });
+</script>
+{% endblock %}
