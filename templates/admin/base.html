@@ -1,29 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zxx" class="js">
+<meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="keywords" content="">
-    <meta name="author" content="">
-    <meta name="robots" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta property="og:title" content="">
-    <meta property="og:description" content="">
-    <meta property="og:image" content="">
-    <meta name="format-detection" content="">
+    <meta name="author" content="Softnio">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Main</title>
+    <link rel="stylesheet" href="/static/css/dashlite0226.css?ver=3.1.2">
+    <link id="skin-default" rel="stylesheet" href="/static/css/theme0226.css?ver=3.1.2">
+    <script>window.dataLayer = window.dataLayer || [];
 
-    <title>Admin Panel</title>
+    function gtag() {
+        dataLayer.push(arguments);
+    }
 
-    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
-    <link href="/static/css/bootstrap-select.min.css" rel="stylesheet">
-    <link href="/static/css/style.css" rel="stylesheet">
-    <link href="/static/css/sweetalert2.min.css" rel="stylesheet">
+    gtag('js', new Date());
+    gtag('config', 'UA-91615293-4');</script>
 
     <style>
         .main-alert {
-            z-index: 100;
+            z-index: 10000;
             position: fixed;
+            top: 5%;
             left: 40%;
             max-width: 30%;
             display: flex;
@@ -33,287 +31,832 @@
     </style>
 
 </head>
-
-<body>
-<div class="alert main-alert">
-    <div style="display: none" id="alert-success"
-         class="alert alert-success solid alert-dismissible fade show align-self-center">
-        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"
-             stroke-linecap="round" stroke-linejoin="round" class="me-2">
-            <polyline points="9 11 12 14 22 4"></polyline>
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-        </svg>
-        <strong>Success!</strong> <span></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="btn-close">
-        </button>
-    </div>
-    <div style="display: none" id="alert-info" class="alert alert-info solid alert-dismissible fade show">
-        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"
-             stroke-linecap="round" stroke-linejoin="round" class="me-2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="16" x2="12" y2="12"></line>
-            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-        </svg>
-        <strong>Info!</strong> <span></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="btn-close">
-        </button>
-    </div>
-    <div style="display: none" id="alert-waring" class="alert alert-warning solid alert-dismissible fade show">
-        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"
-             stroke-linecap="round" stroke-linejoin="round" class="me-2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-        </svg>
-        <strong>Warning!</strong> <span>Something went wrong. Please check.</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="btn-close">
-        </button>
-    </div>
-    <div style="display: none" id="alert-error" class="alert alert-danger solid alert-dismissible fade show">
-        <svg viewBox="0 0 24 24" width="24 " height="24" stroke="currentColor" stroke-width="2" fill="none"
-             stroke-linecap="round" stroke-linejoin="round" class="me-2">
-            <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
-            <line x1="15" y1="9" x2="9" y2="15"></line>
-            <line x1="9" y1="9" x2="15" y2="15"></line>
-        </svg>
-        <strong>Error!</strong> <span>Message sending failed.</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="btn-close">
-        </button>
-    </div>
-</div>
-<div id="main-wrapper">
-    <div class="nav-header">
-        <a href="/api/" class="brand-logo">
-            ADMIN
-        </a>
-        <div class="nav-control">
-            <div class="hamburger">
-                    <span class="line">
-						<svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M10.7468 5.58925C11.0722 5.26381 11.0722 4.73617 10.7468 4.41073C10.4213 4.0853 9.89369 4.0853 9.56826 4.41073L4.56826 9.41073C4.25277 9.72622 4.24174 10.2342 4.54322 10.5631L9.12655 15.5631C9.43754 15.9024 9.96468 15.9253 10.3039 15.6143C10.6432 15.3033 10.6661 14.7762 10.3551 14.4369L6.31096 10.0251L10.7468 5.58925Z"
-                                  fill="#452B90"></path>
-							<path opacity="0.3"
-                                  d="M16.5801 5.58924C16.9056 5.26381 16.9056 4.73617 16.5801 4.41073C16.2547 4.0853 15.727 4.0853 15.4016 4.41073L10.4016 9.41073C10.0861 9.72622 10.0751 10.2342 10.3766 10.5631L14.9599 15.5631C15.2709 15.9024 15.798 15.9253 16.1373 15.6143C16.4766 15.3033 16.4995 14.7762 16.1885 14.4369L12.1443 10.0251L16.5801 5.58924Z"
-                                  fill="#452B90"></path>
-						</svg>
-					</span>
+<body class="nk-body ui-rounder npc-default has-sidebar ">
+<div class="nk-app-root">
+    <div class="nk-sidebar" data-content="sidebarMenu">
+        <div class="nk-sidebar-bar">
+            <div class="nk-apps-brand"><a href="/" class="logo-link">
+                <img class="logo-light logo-img"
+                     src="/static/images/logo-small.png"
+                     alt="logo">
+                <img class="logo-dark logo-img" src="/static/images/logo-dark-small.png"
+                     alt="logo-dark"></a></div>
+            <div class="nk-sidebar-element">
+                <div class="nk-sidebar-body">
+                    <div class="nk-sidebar-content" data-simplebar>
+                        <div class="nk-sidebar-menu">
+                            <ul class="nk-menu apps-menu">
+                                <li class="nk-menu-item active"><a href="#" class="nk-menu-link nk-menu-switch"
+                                                                   data-target="navPharmacy"><span class="nk-menu-icon"><em
+                                        class="icon ni ni-capsule"></em></span></a></li>
+                                <li class="nk-menu-item"><a href="#" class="nk-menu-link nk-menu-switch"
+                                                            data-target="navHospital"><span class="nk-menu-icon"><em
+                                        class="icon ni ni-plus-medi"></em></span></a></li>
+                                <li class="nk-menu-item"><a href="#" class="nk-menu-link nk-menu-switch"
+                                                            data-target="navDashboards"><span class="nk-menu-icon"><em
+                                        class="icon ni ni-dashboard"></em></span></a></li>
+                                <li class="nk-menu-item"><a href="#" class="nk-menu-link nk-menu-switch"
+                                                            data-target="navApps"><span class="nk-menu-icon"><em
+                                        class="icon ni ni-menu-circled"></em></span></a></li>
+                                <li class="nk-menu-item"><a href="#" class="nk-menu-link nk-menu-switch"
+                                                            data-target="navPages"><span class="nk-menu-icon"><em
+                                        class="icon ni ni-files"></em></span></a></li>
+                                <li class="nk-menu-item"><a href="#" class="nk-menu-link nk-menu-switch"
+                                                            data-target="navMisc"><span class="nk-menu-icon"><em
+                                        class="icon ni ni-server"></em></span></a></li>
+                                <li class="nk-menu-item"><a href="#" class="nk-menu-link nk-menu-switch"
+                                                            data-target="navError"><span class="nk-menu-icon"><em
+                                        class="icon ni ni-alert-c"></em></span></a></li>
+                                <li class="nk-menu-hr"></li>
+                                <li class="nk-menu-item"><a href="#" class="nk-menu-link nk-menu-switch"
+                                                            data-target="navComponents"><span class="nk-menu-icon"><em
+                                        class="icon ni ni-layers"></em></span></a></li>
+                            </ul>
+                        </div>
+                        <div class="nk-sidebar-footer">
+                            <ul class="nk-menu nk-menu-md apps-menu">
+                                <li class="nk-menu-item"><a href="#" class="nk-menu-link" title="Settings"><span
+                                        class="nk-menu-icon"><em class="icon ni ni-setting"></em></span></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="nk-sidebar-profile nk-sidebar-profile-fixed dropdown"><a href="#"
+                                                                                         data-bs-toggle="dropdown"
+                                                                                         data-offset="50,-50">
+                        <div class="user-avatar">
+                            <span>
+                                {% if _user %}
+                                    {{_user.last_name[:1]|upper}}{{_user.first_name[:1]|upper}}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </a>
+                        <div class="dropdown-menu dropdown-menu-md ml-4">
+                            <div class="dropdown-inner user-card-wrap d-none d-md-block">
+                                <div class="user-card">
+                                    <div class="user-avatar">
+                                        <span>
+                                            {% if _user %}
+                                                {{_user.last_name[:1]|upper}}{{_user.first_name[:1]|upper}}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="user-info">
+                                        <span class="lead-text">
+                                            {% if _user %}
+                                                {{_user.last_name|capitalize}} {{_user.first_name|capitalize}}
+                                            {% endif %}
+                                        </span>
+                                        <span class="sub-text text-soft">
+                                            {% if _user %}
+                                                {{_user.email}}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dropdown-inner">
+                                <ul class="link-list">
+                                    <li><a href="/api/profile/"><em
+                                            class="icon ni ni-user-alt"></em><span>View Profile</span></a></li>
+                                    <li><a href="#"><em
+                                            class="icon ni ni-setting-alt"></em><span>Account Setting</span></a></li>
+                                    <li><a href="#"><em
+                                            class="icon ni ni-activity-alt"></em><span>Login Activity</span></a></li>
+                                </ul>
+                            </div>
+                            <div class="dropdown-inner">
+                                <ul class="link-list">
+                                    <li><a href="/admin/logout/"><em
+                                            class="icon ni ni-signout"></em><span>Sign out</span></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="nk-sidebar-main">
+            <div class="nk-sidebar-inner" data-simplebar>
+                <div class="nk-menu-content menu-active" data-content="navPharmacy"><h5 class="title">dsa</h5>
+                    <ul class="nk-menu">
+                        <li class="nk-menu-item"><a href="/" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-dashboard-fill"></em></span><span
+                                class="nk-menu-text">Dashboard</span></a></li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-users-fill"></em></span><span
+                                class="nk-menu-text">Customer</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="add-customer.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Add Customer</span></a></li>
+                                <li class="nk-menu-item"><a href="customer.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Customer List</span></a></li>
+                                <li class="nk-menu-item"><a href="customer-ledger.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Customer Ledger</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-capsule-fill"></em></span><span
+                                class="nk-menu-text">Medicine</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="add-medicine.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Add Medicine</span></a></li>
+                                <li class="nk-menu-item"><a href="medicine-list.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Medicine List</span></a></li>
+                                <li class="nk-menu-item"><a href="medicine-details.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Medicine Details</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-home-fill"></em></span><span
+                                class="nk-menu-text">Manufacturer</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="manufacturer.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Manufacturer List</span></a></li>
+                                <li class="nk-menu-item"><a href="manufacturer-ledger.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Manufacturer Ledger</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-repeat"></em></span><span
+                                class="nk-menu-text">Return</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="add-wastage-return.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Add Wastage Return</span></a></li>
+                                <li class="nk-menu-item"><a href="wastage-return.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Wastage Return List</span></a></li>
+                                <li class="nk-menu-item"><a href="add-manufacturer-return.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Add Manufacture Return</span></a>
+                                </li>
+                                <li class="nk-menu-item"><a href="manufacturer-return.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Manufacturer Return List</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-user-circle-fill"></em></span><span
+                                class="nk-menu-text">Human resource</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="member.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Member</span></a></li>
+                                <li class="nk-menu-item"><a href="members-profile-regular.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Members Profile</span></a>
+                                </li>
+                                <li class="nk-menu-item"><a href="attendence.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Attendence</span></a></li>
+                                <li class="nk-menu-item"><a href="salary.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Salary</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-coin-alt-fill"></em></span><span
+                                class="nk-menu-text">Finance</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="income-list.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Income</span></a></li>
+                                <li class="nk-menu-item"><a href="expense-list.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Expence</span></a></li>
+                                <li class="nk-menu-item"><a href="invoice-list.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Invoice List</span></a></li>
+                                <li class="nk-menu-item"><a href="invoice-details.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Invoice Details</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-activity-round-fill"></em></span><span
+                                class="nk-menu-text">Report</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="sales-report.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Sales Report</span></a></li>
+                                <li class="nk-menu-item"><a href="purchase-report.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Purchase Report</span></a></li>
+                                <li class="nk-menu-item"><a href="stock-report.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Stock Report</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item"><a href="support.html" class="nk-menu-link"><span class="nk-menu-icon"><em
+                                class="icon ni ni-msg-fill"></em></span><span class="nk-menu-text">Support</span></a>
+                        </li>
+                        <li class="nk-menu-item"><a href="general-settings.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-setting-fill"></em></span><span
+                                class="nk-menu-text">Setting</span></a></li>
+                    </ul>
+                </div>
+                <div class="nk-menu-content" data-content="navHospital"><h5 class="title">Hospital Manegment</h5>
+                    <ul class="nk-menu">
+                        <li class="nk-menu-item"><a href="../hospital/index.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-dashboard-fill"></em></span><span
+                                class="nk-menu-text">Dashboard</span></a></li>
+                        <li class="nk-menu-item"><a href="../hospital/appointment.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-note-add-fill"></em></span><span
+                                class="nk-menu-text">Appointment List</span></a></li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-users-fill"></em></span><span
+                                class="nk-menu-text">Patient</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../hospital/patient-add.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Add Patient</span></a></li>
+                                <li class="nk-menu-item"><a href="../hospital/patient-list.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">IPD / OPD Patients</span></a>
+                                </li>
+                                <li class="nk-menu-item"><a href="../hospital/patient-profile.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Patient Profile</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-plus-medi-fill"></em></span><span
+                                class="nk-menu-text">Doctors / Nurses</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../hospital/doctor-nurse-add.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Add Doctor / Nurses</span></a>
+                                </li>
+                                <li class="nk-menu-item"><a href="../hospital/doctor-nurse-list.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Doctors / Nurses</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-coin-alt-fill"></em></span><span
+                                class="nk-menu-text">Finance</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../hospital/income-list.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Income</span></a></li>
+                                <li class="nk-menu-item"><a href="../hospital/expense-list.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Expense</span></a></li>
+                                <li class="nk-menu-item"><a href="../hospital/invoice-list.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Invoice List</span></a></li>
+                                <li class="nk-menu-item"><a href="../hospital/invoice-details.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Invoice Details</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-activity-round-fill"></em></span><span
+                                class="nk-menu-text">Monitor Hospital</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../hospital/birth-report.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Birth Report</span></a></li>
+                                <li class="nk-menu-item"><a href="../hospital/blood-bank.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Blood Bank</span></a></li>
+                                <li class="nk-menu-item"><a href="../hospital/inventory-items.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Inventory Items Reports</span></a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-panel-fill"></em></span><span
+                                class="nk-menu-text">Misc Pages</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../hospital/bed-group.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Bed Group</span></a></li>
+                                <li class="nk-menu-item"><a href="../hospital/bed-allotment.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Bed Allotment</span></a>
+                                </li>
+                                <li class="nk-menu-item"><a href="../hospital/department.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Department</span></a></li>
+                                <li class="nk-menu-item"><a href="../hospital/death-report.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Death Report</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item"><a href="../hospital/user-profile.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-user-fill"></em></span><span
+                                class="nk-menu-text">User Profile</span></a></li>
+                        <li class="nk-menu-item"><a href="../hospital/settings.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-setting-fill"></em></span><span
+                                class="nk-menu-text">Setting</span></a></li>
+                    </ul>
+                </div>
+                <div class="nk-menu-content" data-content="navDashboards"><h5 class="title">Dashboards</h5>
+                    <ul class="nk-menu">
+                        <li class="nk-menu-item"><a href="../index-2.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-dashboard-fill"></em></span><span
+                                class="nk-menu-text">Default Dashboard</span></a></li>
+                        <li class="nk-menu-item"><a href="../index-ecommerce.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-bag-fill"></em></span><span
+                                class="nk-menu-text">Ecommerce Dashboard</span></a></li>
+                        <li class="nk-menu-item"><a href="../index-sales.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-bag-fill"></em></span><span
+                                class="nk-menu-text">Sales Dashboard</span></a></li>
+                        <li class="nk-menu-item"><a href="../index-analytics.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-growth-fill"></em></span><span
+                                class="nk-menu-text">Analytics Dashboard</span></a></li>
+                    </ul>
+                </div>
+                <div class="nk-menu-content" data-content="navApps"><h5 class="title">Apps</h5>
+                    <ul class="nk-menu">
+                        <li class="nk-menu-item"><a href="../apps-inbox.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-inbox-fill"></em></span><span
+                                class="nk-menu-text">Mailbox</span></a></li>
+                        <li class="nk-menu-item"><a href="../apps-messages.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-chat-fill"></em></span><span
+                                class="nk-menu-text">Messages</span></a></li>
+                        <li class="nk-menu-item"><a href="../apps-file-manager.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-folder-fill"></em></span><span
+                                class="nk-menu-text">File Manager</span></a></li>
+                        <li class="nk-menu-item"><a href="../apps-chats.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-chat-circle-fill"></em></span><span
+                                class="nk-menu-text">Chats</span></a></li>
+                        <li class="nk-menu-item"><a href="../apps-calendar.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-calender-date-fill"></em></span><span
+                                class="nk-menu-text">Calendar</span></a></li>
+                        <li class="nk-menu-item"><a href="../apps-kanban.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-template-fill"></em></span><span
+                                class="nk-menu-text">Kanban Board</span><span
+                                class="nk-menu-badge badge-warning">New</span></a></li>
+                    </ul>
+                </div>
+                <div class="nk-menu-content" data-content="navPages"><h5 class="title">Pages</h5>
+                    <ul class="nk-menu">
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-tile-thumb-fill"></em></span><span
+                                class="nk-menu-text">Projects</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../project-card.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Project Cards</span></a></li>
+                                <li class="nk-menu-item"><a href="../project-list.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Project List</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-users-fill"></em></span><span
+                                class="nk-menu-text">User Manage</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../user-list-regular.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">User List - Regular</span></a></li>
+                                <li class="nk-menu-item"><a href="../user-list-compact.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">User List - Compact</span></a></li>
+                                <li class="nk-menu-item"><a href="../user-details-regular.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">User Details - Regular</span></a>
+                                </li>
+                                <li class="nk-menu-item"><a href="../user-profile-regular.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">User Profile - Regular</span></a>
+                                </li>
+                                <li class="nk-menu-item"><a href="../user-card.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">User Contact - Card</span> <span
+                                        class="nk-menu-badge badge-warning">New</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-cart-fill"></em></span><span
+                                class="nk-menu-text">Ecommerce Pages</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../products.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Product List</span></a></li>
+                                <li class="nk-menu-item"><a href="../orders-regular.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Order List - Regular</span></a></li>
+                                <li class="nk-menu-item"><a href="../orders-sales.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Order List - Sales</span></a></li>
+                                <li class="nk-menu-item"><a href="../invoice-list.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Invoices List</span></a></li>
+                                <li class="nk-menu-item"><a href="../invoice-details.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Invoice Details</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item"><a href="../_blank.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-file-fill"></em></span><span
+                                class="nk-menu-text">Blank / Startup</span></a></li>
+                        <li class="nk-menu-item"><a href="../pages/faqs.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-file-fill"></em></span><span
+                                class="nk-menu-text">Faqs / Help</span></a></li>
+                        <li class="nk-menu-item"><a href="../pages/terms-policy.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-file-fill"></em></span><span
+                                class="nk-menu-text">Terms / Policy</span></a></li>
+                        <li class="nk-menu-item"><a href="../pages/regular-v1.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-file-fill"></em></span><span
+                                class="nk-menu-text">Regular Page - v1</span></a></li>
+                        <li class="nk-menu-item"><a href="../pages/regular-v2.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-file-fill"></em></span><span
+                                class="nk-menu-text">Regular Page - v2</span></a></li>
+                    </ul>
+                </div>
+                <div class="nk-menu-content" data-content="navMisc"><h5 class="title">Misc Pages</h5>
+                    <ul class="nk-menu">
+                        <li class="nk-menu-item"><a href="../pages/auths/auth-login.html" class="nk-menu-link"
+                                                    target="_blank"><span class="nk-menu-text">Login / Signin</span></a>
+                        </li>
+                        <li class="nk-menu-item"><a href="../pages/auths/auth-register.html" class="nk-menu-link"
+                                                    target="_blank"><span class="nk-menu-text">Register / Signup</span></a>
+                        </li>
+                        <li class="nk-menu-item"><a href="../pages/auths/auth-reset.html" class="nk-menu-link"
+                                                    target="_blank"><span
+                                class="nk-menu-text">Forgot Password</span></a></li>
+                        <li class="nk-menu-item"><a href="../pages/auths/auth-success.html" class="nk-menu-link"
+                                                    target="_blank"><span class="nk-menu-text">Success / Confirm</span></a>
+                        </li>
+                        <li class="nk-menu-item no-icon"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-text">Classic Version - v2</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../pages/auths/auth-login-v2.html"
+                                                            class="nk-menu-link" target="_blank"><span
+                                        class="nk-menu-text">Login / Signin</span></a></li>
+                                <li class="nk-menu-item"><a href="../pages/auths/auth-register-v2.html"
+                                                            class="nk-menu-link" target="_blank"><span
+                                        class="nk-menu-text">Register / Signup</span></a></li>
+                                <li class="nk-menu-item"><a href="../pages/auths/auth-reset-v2.html"
+                                                            class="nk-menu-link" target="_blank"><span
+                                        class="nk-menu-text">Forgot Password</span></a></li>
+                                <li class="nk-menu-item"><a href="../pages/auths/auth-success-v2.html"
+                                                            class="nk-menu-link" target="_blank"><span
+                                        class="nk-menu-text">Success / Confirm</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item no-icon"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-text">No Slider Version - v3</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../pages/auths/auth-login-v3.html"
+                                                            class="nk-menu-link" target="_blank"><span
+                                        class="nk-menu-text">Login / Signin</span></a></li>
+                                <li class="nk-menu-item"><a href="../pages/auths/auth-register-v3.html"
+                                                            class="nk-menu-link" target="_blank"><span
+                                        class="nk-menu-text">Register / Signup</span></a></li>
+                                <li class="nk-menu-item"><a href="../pages/auths/auth-reset-v3.html"
+                                                            class="nk-menu-link" target="_blank"><span
+                                        class="nk-menu-text">Forgot Password</span></a></li>
+                                <li class="nk-menu-item"><a href="../pages/auths/auth-success-v3.html"
+                                                            class="nk-menu-link" target="_blank"><span
+                                        class="nk-menu-text">Success / Confirm</span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="nk-menu-content" data-content="navError"><h5 class="title">Error Pages</h5>
+                    <ul class="nk-menu">
+                        <li class="nk-menu-item"><a href="../pages/errors/404-classic.html" target="_blank"
+                                                    class="nk-menu-link"><span
+                                class="nk-menu-text">404 Classic</span></a></li>
+                        <li class="nk-menu-item"><a href="../pages/errors/504-classic.html" target="_blank"
+                                                    class="nk-menu-link"><span
+                                class="nk-menu-text">504 Classic</span></a></li>
+                        <li class="nk-menu-item"><a href="../pages/errors/404-s1.html" target="_blank"
+                                                    class="nk-menu-link"><span
+                                class="nk-menu-text">404 Modern</span></a></li>
+                        <li class="nk-menu-item"><a href="../pages/errors/504-s1.html" target="_blank"
+                                                    class="nk-menu-link"><span
+                                class="nk-menu-text">504 Modern</span></a></li>
+                    </ul>
+                </div>
+                <div class="nk-menu-content" data-content="navComponents"><h5 class="title">Components</h5>
+                    <ul class="nk-menu">
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-layers-fill"></em></span><span
+                                class="nk-menu-text">Ui Elements</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../components.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Component List</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/alerts.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Alerts</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/accordions.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Accordions</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/avatar.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Avatar</span><span
+                                        class="nk-menu-badge badge-warning">New</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/badges.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Badges</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/buttons.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Buttons</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/buttons-group.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Button Group</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/breadcrumb.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Breadcrumb</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/cards.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Cards</span></a>
+                                </li>
+                                <li class="nk-menu-item"><a href="../components/elements/carousel.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Carousel</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/list-dropdown.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">List Dropdown</span><span
+                                        class="nk-menu-badge badge-warning">New</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/modals.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Modals</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/pagination.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Pagination</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/popover.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Popovers</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/progress.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Progress</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/spinner.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Spinner</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/tabs.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Tabs</span>
+                                    <span class="nk-menu-badge badge-warning">Updated</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/toast.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Toasts</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/tooltip.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Tooltip</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/elements/typography.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Typography</span></a></li>
+                                <li class="nk-menu-item"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                        class="nk-menu-text">Utilities</span></a>
+                                    <ul class="nk-menu-sub">
+                                        <li class="nk-menu-item"><a href="../components/elements/util-border.html"
+                                                                    class="nk-menu-link"><span class="nk-menu-text">Border</span></a>
+                                        </li>
+                                        <li class="nk-menu-item"><a href="../components/elements/util-colors.html"
+                                                                    class="nk-menu-link"><span class="nk-menu-text">Colors</span></a>
+                                        </li>
+                                        <li class="nk-menu-item"><a href="../components/elements/util-display.html"
+                                                                    class="nk-menu-link"><span class="nk-menu-text">Display</span></a>
+                                        </li>
+                                        <li class="nk-menu-item"><a href="../components/elements/util-embeded.html"
+                                                                    class="nk-menu-link"><span class="nk-menu-text">Embeded</span></a>
+                                        </li>
+                                        <li class="nk-menu-item"><a href="../components/elements/util-flex.html"
+                                                                    class="nk-menu-link"><span
+                                                class="nk-menu-text">Flex</span></a></li>
+                                        <li class="nk-menu-item"><a href="../components/elements/util-text.html"
+                                                                    class="nk-menu-link"><span
+                                                class="nk-menu-text">Text</span></a></li>
+                                        <li class="nk-menu-item"><a href="../components/elements/util-sizing.html"
+                                                                    class="nk-menu-link"><span class="nk-menu-text">Sizing</span></a>
+                                        </li>
+                                        <li class="nk-menu-item"><a href="../components/elements/util-spacing.html"
+                                                                    class="nk-menu-link"><span class="nk-menu-text">Spacing</span></a>
+                                        </li>
+                                        <li class="nk-menu-item"><a href="../components/elements/util-others.html"
+                                                                    class="nk-menu-link"><span class="nk-menu-text">Others</span></a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-dot-box-fill"></em></span><span
+                                class="nk-menu-text">Crafted Icons</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../components/misc/svg-icons.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">SVG Icon - Exclusive</span></a>
+                                </li>
+                                <li class="nk-menu-item"><a href="../components/misc/nioicon.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">Nioicon - HandCrafted</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item"><a href="../components/misc/icons.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-menu-circled"></em></span><span
+                                class="nk-menu-text">Icon Libraries</span><span
+                                class="nk-menu-badge badge-warning">New</span></a></li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-table-view-fill"></em></span><span
+                                class="nk-menu-text">Tables</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../components/tables/table-basic.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Basic Tables</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/tables/table-special.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Special Tables</span></a>
+                                </li>
+                                <li class="nk-menu-item"><a href="../components/tables/table-datatable.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">DataTables</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-todo-fill"></em></span><span
+                                class="nk-menu-text">Forms</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../components/forms/form-elements.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Form Elements</span></a>
+                                </li>
+                                <li class="nk-menu-item"><a href="../components/forms/form-upload.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Form Upload</span> <span
+                                        class="nk-menu-badge badge-warning">New</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/forms/datetime-picker.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Date &amp; Time Picker</span>
+                                    <span class="nk-menu-badge badge-warning">New</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/forms/number-spinner.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Number Spinner</span>
+                                    <span class="nk-menu-badge badge-warning">New</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/forms/form-layouts.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Form Layouts</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/forms/form-validation.html"
+                                                            class="nk-menu-link"><span class="nk-menu-text">Form Validation</span></a>
+                                </li>
+                                <li class="nk-menu-item"><a href="../components/forms/form-wizard.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Wizard Basic</span></a></li>
+                                <li class="nk-menu-item"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                        class="nk-menu-text">Rich Editor</span></a>
+                                    <ul class="nk-menu-sub">
+                                        <li class="nk-menu-item"><a href="../components/forms/form-summernote.html"
+                                                                    class="nk-menu-link"><span class="nk-menu-text">Summernote</span></a>
+                                        </li>
+                                        <li class="nk-menu-item"><a href="../components/forms/form-quill.html"
+                                                                    class="nk-menu-link"><span class="nk-menu-text">Quill</span></a>
+                                        </li>
+                                        <li class="nk-menu-item"><a href="../components/forms/form-tinymce.html"
+                                                                    class="nk-menu-link"><span class="nk-menu-text">Tinymce</span></a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-pie-fill"></em></span><span
+                                class="nk-menu-text">Charts</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../components/charts/chartjs.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Chart JS</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/charts/knob.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Knob JS</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item has-sub"><a href="#" class="nk-menu-link nk-menu-toggle"><span
+                                class="nk-menu-icon"><em class="icon ni ni-block-over"></em></span><span
+                                class="nk-menu-text">Miscellaneous</span></a>
+                            <ul class="nk-menu-sub">
+                                <li class="nk-menu-item"><a href="../components/misc/toastr.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Toastr</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/misc/sweet-alert.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Sweet Alert</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/misc/js-tree.html" class="nk-menu-link"><span
+                                        class="nk-menu-text">jsTree</span><span
+                                        class="nk-menu-badge badge-warning">New</span></a></li>
+                                <li class="nk-menu-item"><a href="../components/misc/dual-listbox.html"
+                                                            class="nk-menu-link"><span
+                                        class="nk-menu-text">Dual Listbox</span><span
+                                        class="nk-menu-badge badge-warning">New</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="nk-menu-item"><a href="../email-templates.html" class="nk-menu-link"><span
+                                class="nk-menu-icon"><em class="icon ni ni-template-fill"></em></span><span
+                                class="nk-menu-text">Email Template</span></a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
+    <div class="nk-main ">
+        <div class="nk-wrap ">
+            <div class="nk-header nk-header-fixed nk-header-fluid">
+                <div class="container-fluid">
+                    <div class="nk-header-wrap">
+                        <div class="nk-menu-trigger d-xl-none ml-n1"><a href="#" class="nk-nav-toggle nk-quick-nav-icon"
+                                                                        data-target="sidebarMenu"><em
+                                class="icon ni ni-menu"></em></a></div>
 
-    <div class="header">
-        <div class="header-content">
-            <nav class="navbar navbar-expand">
-                <div class="collapse navbar-collapse justify-content-between">
-                    <div class="header-left">
-                        <div class="dashboard_bar">
-                            {% block namePage %}
-                            {% endblock %}
+                        <div class="nk-header-search ml-3 ml-xl-0"><em class="icon ni ni-search"></em>
+                            <input type="text"
+                                   class="form-control border-transparent form-focus-none"
+                                   placeholder="Search anything">
                         </div>
-                    </div>
-                    <div class="header-right d-flex align-items-center">
-                        <ul class="navbar-nav">
-                            <li class="nav-item ps-3">
-                                <div class="dropdown header-profile2">
-                                    <a class="nav-link" href="javascript:void(0);" role="button"
-                                       data-bs-toggle="dropdown" aria-expanded="false">
-                                        <div class="header-info2 d-flex align-items-center">
-                                            <div class="header-media">
-                                                <img src="{% if _user and _user.photo and _user.photo != 'None' %}/static/uploads/{{_user.photo}}{% else %}/static/images/noauthor.png{% endif %}"
-                                                     alt="">
-                                            </div>
+                        <div class="nk-header-tools">
+                            <ul class="nk-quick-nav">
+                                <li class="dropdown notification-dropdown">
+                                    <a href="#"
+                                       class="dropdown-toggle nk-quick-nav-icon"
+                                       data-bs-toggle="dropdown">
+                                        <div class="icon-status icon-status-info"><em class="icon ni ni-bell"></em>
                                         </div>
                                     </a>
-                                    <div class="dropdown-menu dropdown-menu-end" style="">
-                                        <div class="card border-0 mb-0">
-                                            <div class="card-header py-2">
-                                                <div class="products">
-                                                    <img src="{% if _user and _user.photo and _user.photo != 'None' %}/static/uploads/{{_user.photo}}{% else %}/static/images/noauthor.png{% endif %}"
-                                                         class="avatar avatar-md" alt="">
-                                                    <div>
-                                                        <h6>{% if _user %}{{_user.last_name}} {{_user.first_name}}{%
-                                                            endif %}</h6>
-                                                        <span>{% if _user %}{{_user.role_title}}{% endif %}</span>
-                                                    </div>
+                                    <div class="dropdown-menu dropdown-menu-xl dropdown-menu-end">
+                                        <div class="dropdown-head"><span class="sub-title nk-dropdown-title">Notifications</span><a
+                                                href="#">Mark All as Read</a></div>
+                                        <div class="dropdown-body">
+                                        </div>
+                                        <div class="dropdown-foot center"><a href="#">View All</a></div>
+                                    </div>
+                                </li>
+                                <li class="dropdown user-dropdown">
+                                    <a href="#" class="dropdown-toggle mr-n1"
+                                       data-bs-toggle="dropdown">
+                                        <div class="user-toggle">
+                                            <div class="user-avatar sm"><em class="icon ni ni-user-alt"></em></div>
+                                        </div>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-md dropdown-menu-end">
+                                        <div class="dropdown-inner user-card-wrap bg-lighter">
+                                            <div class="user-card">
+                                                <div class="user-avatar">
+                                                    <span>
+                                                        {% if _user %}
+                                                            {{_user.last_name[:1]|upper}}{{_user.first_name[:1]|upper}}
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
+                                                <div class="user-info">
+                                                    <span class="lead-text">
+                                                        {% if _user %}
+                                                            {{_user.last_name|capitalize}} {{_user.first_name|capitalize}}
+                                                        {% endif %}
+                                                    </span>
+                                                    <span class="sub-text">
+                                                        {% if _user %}
+                                                            {{_user.email}}
+                                                        {% endif %}
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="card-body px-0 py-2">
-                                                <a href="/api/users/{{_user.id}}/" class="dropdown-item ai-icon ">
-                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                                         xmlns="http://www.w3.org/2000/svg">
-                                                        <path fill-rule="evenodd" clip-rule="evenodd"
-                                                              d="M11.9848 15.3462C8.11714 15.3462 4.81429 15.931 4.81429 18.2729C4.81429 20.6148 8.09619 21.2205 11.9848 21.2205C15.8524 21.2205 19.1543 20.6348 19.1543 18.2938C19.1543 15.9529 15.8733 15.3462 11.9848 15.3462Z"
-                                                              stroke="var(--primary)" stroke-width="1.5"
-                                                              stroke-linecap="round" stroke-linejoin="round"></path>
-                                                        <path fill-rule="evenodd" clip-rule="evenodd"
-                                                              d="M11.9848 12.0059C14.5229 12.0059 16.58 9.94779 16.58 7.40969C16.58 4.8716 14.5229 2.81445 11.9848 2.81445C9.44667 2.81445 7.38857 4.8716 7.38857 7.40969C7.38 9.93922 9.42381 11.9973 11.9524 12.0059H11.9848Z"
-                                                              stroke="var(--primary)" stroke-width="1.42857"
-                                                              stroke-linecap="round" stroke-linejoin="round"></path>
-                                                    </svg>
-
-                                                    <span class="ms-2">Profile </span>
-                                                </a>
-                                            </div>
-                                            <div class="card-footer px-0 py-2">
-                                                <a href="/admin/login/" class="dropdown-item ai-icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                                         viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
-                                                         stroke-width="2" stroke-linecap="round"
-                                                         stroke-linejoin="round">
-                                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                                        <polyline points="16 17 21 12 16 7"></polyline>
-                                                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                                                    </svg>
-                                                    <span class="ms-2">Logout </span>
-                                                </a>
-                                            </div>
                                         </div>
-
+                                        <div class="dropdown-inner">
+                                            <ul class="link-list">
+                                                <li><a href="/api/profile/"><em
+                                                        class="icon ni ni-user-alt"></em><span>View Profile</span></a>
+                                                </li>
+                                                <li><a href="#"><em
+                                                        class="icon ni ni-setting-alt"></em><span>Account Setting</span></a>
+                                                </li>
+                                                <li><a href="#"><em class="icon ni ni-activity-alt"></em><span>Login Activity</span></a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="dropdown-inner">
+                                            <ul class="link-list">
+                                                <li>
+                                                    <a href="/admin/logout/">
+                                                        <em class="icon ni ni-signout"></em>
+                                                        <span>Sign out</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
-                                </div>
-                            </li>
-                        </ul>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </nav>
-        </div>
-    </div>
+            </div>
+            <div class="nk-content ">
+                <div class="container-fluid">
 
-    <div class="deznav">
-        <div class="deznav-scroll">
-            <ul class="metismenu" id="menu">
-                <li class="mm-active"><a class="has-arrow " href="" aria-expanded="false">
-                    <div class="menu-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9.13478 20.7733V17.7156C9.13478 16.9351 9.77217 16.3023 10.5584 16.3023H13.4326C13.8102 16.3023 14.1723 16.4512 14.4393 16.7163C14.7063 16.9813 14.8563 17.3408 14.8563 17.7156V20.7733C14.8539 21.0978 14.9821 21.4099 15.2124 21.6402C15.4427 21.8705 15.756 22 16.0829 22H18.0438C18.9596 22.0024 19.8388 21.6428 20.4872 21.0008C21.1356 20.3588 21.5 19.487 21.5 18.5778V9.86686C21.5 9.13246 21.1721 8.43584 20.6046 7.96467L13.934 2.67587C12.7737 1.74856 11.1111 1.7785 9.98539 2.74698L3.46701 7.96467C2.87274 8.42195 2.51755 9.12064 2.5 9.86686V18.5689C2.5 20.4639 4.04738 22 5.95617 22H7.87229C8.55123 22 9.103 21.4562 9.10792 20.7822L9.13478 20.7733Z"
-                                  fill="#90959F"></path>
-                        </svg>
+                    <div class="nk-content-inner">
+
+                        <div class="nk-content-body">
+                            <div id="alert-block" style="display: none" class="nk-header nk-header-fixed is-light">
+                                <div class="container-xl wide-xl">
+                                    <div style="display: none"
+                                            id="alert-success"
+                                            class="alert alert-icon alert-primary"
+                                            role="alert">
+                                        <em class="icon ni ni-alert-circle"></em> <strong>Success!</strong>.
+                                        <span></span>
+                                    </div>
+                                    <div style="display: none" id="alert-info"
+                                         class="alert alert-fill alert-info alert-icon">
+                                        <em class="icon ni ni-alert-circle"></em> <strong>Info!</strong>.
+                                        <span></span>
+                                    </div>
+                                    <div style="display: none" id="alert-warning"
+                                         class="alert alert-fill alert-warning alert-icon"><em
+                                            class="icon ni ni-alert-circle"></em>
+                                        <strong>Warning!</strong><span>Something went wrong. Please check.</span>
+                                    </div>
+                                    <div style="display: none" id="alert-error"
+                                         class="alert alert-fill alert-danger alert-icon"><em
+                                            class="icon ni ni-cross-circle"></em>
+                                        <strong>Error!</strong><span></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% block container %}
+                            {% endblock %}
+
+                        </div>
                     </div>
-                    <span class="nav-text">Панель управления</span>
-                </a>
-                    <ul aria-expanded="false">
-                        {% if _user and 'roles' in (_user.permissions or []) %}
-                        <li><a href="/api/roles/">Роль</a></li>
-                        {% endif %}
-                        {% if _user and 'categories' in (_user.permissions or []) %}
-                        <li><a href="/api/categories/">Категории</a></li>
-                        {% endif %}
-                        {% if _user and 'lessons' in (_user.permissions or []) %}
-                        <li><a href="/api/lessons/template/">Уроки</a></li>
-                        {% endif %}
-                        {% if _user and 'users' in (_user.permissions or []) %}
-                        <li><a href="/api/users/">Пользователи</a></li>
-                        {% endif %}
-                        {% if _user and 'my_lessons' in (_user.permissions or []) %}
-                        <li><a href="/api/lessons/me/template/">Мои уроки</a></li>
-                        {% endif %}
-                        {% if _user and 'chats' in (_user.permissions or []) %}
-                        <li><a href="/api/chats/template/">Чат</a></li>
-                        {% endif %}
-                        {% if _user and 'power-bi' in (_user.permissions or []) %}
-                        <li><a href="/api/analytics/template/">Power BI</a></li>
-                        {% endif %}
-                    </ul>
-                </li>
-            </ul>
+                </div>
+            </div>
         </div>
     </div>
-
-    <div class="content-body">
-        <div class="container-fluid">
-            {% block container %}
-            {% endblock %}
-
-        </div>
-    </div>
-
-
 </div>
 
-<script src="/static/js/global.min.js"></script>
-<script src="/static/js/sweetalert2.min.js"></script>
-<script src="/static/js/sweetalert.init.js"></script>
-<script src="/static/js/bootstrap-select.min.js"></script>
-<script src="/static/js/custom.js"></script>
-<script src="/static/js/deznav-init.js"></script>
-<script src="/static/js/demo.js"></script>
+<script src="/static/js/bundle0226.js?ver=3.1.2"></script>
+<script src="/static/js/scripts0226.js?ver=3.1.2"></script>
+<script src="/static/js/charts/gd-pharmacy0226.js?ver=3.1.2"></script>
+<script src="/static/js/jquery-3.7.1.min.js"></script>
 <script src="/static/js/manage.js"></script>
 <script src="/static/js/uploder.js"></script>
-
-<script src="/static/js/highlight.min.js"></script>
-<script>hljs.highlightAll();
-hljs.configure({ignoreUnescapedHTML: true})
-
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        document.querySelectorAll('pre code').forEach((el) => {
-            hljs.highlightElement(el);
-        });
-    });
-</script>
-<script>
-    $('#back_url').on('click', function () {
-        window.history.back();
-    })
-
-    function alertShow(type, text, is_reload) {
-        if (type === 'success') {
-            $('#alert-success').css('display', 'block');
-            $('#alert-success span').text(text || '')
-            setTimeout(function () {
-                $('#alert-success').css('display', 'none');
-            }, 1500);
-        } else if (type === 'error') {
-            $('#alert-error').css('display', 'block');
-            $('#alert-error span').text(text)
-            setTimeout(function () {
-                $('#alert-error').css('display', 'none');
-            }, 3500);
-            return
-
-        } else if (type === 'waring') {
-            $('#alert-waring').css('display', 'block');
-            if (text) {
-                $('#alert-waring span').text(text)
-            }
-            setTimeout(function () {
-                $('#alert-waring').css('display', 'none');
-            }, 1500);
-            return
-        } else if (type === 'info') {
-            $('#alert-info').css('display', 'block');
-            $('#alert-info span').text(text)
-            setTimeout(function () {
-                $('#alert-info').css('display', 'none');
-            }, 2500);
-            return
-        }
-        if (is_reload && is_reload === true) {
-            setTimeout(function () {
-                location.reload();
-            }, 1000);
-        }
-    }
-
-    function confirmShow(type, text, mode) {
-        if (type === 'danger') {
-            if (mode === 'show') {
-                $('#confirm-danger').css('display', 'block');
-                $('#confirm-danger span').text(text)
-
-            } else {
-                $('#confirm-danger').css('display', 'none');
-                $('#confirm-danger span').text(text)
-            }
-        }
-    }
-
-</script>
-
+<script src="/static/js/alerts.js"></script>
 {% block js %}
 {% endblock %}
-
 </body>
 </html>

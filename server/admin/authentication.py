@@ -13,11 +13,11 @@ password_regex = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$
 
 
 class LoginAdminView(TemplateHTTPView):
-    template_name = 'auth/admin/login.html'
+    template_name = 'auth/login.html'
 
     async def get(self, request):
-        auth.logout_user(request)
-        return self.render_template(request=request, user={})
+        await auth.logout_user(request)
+        return self.html(request=request, user={})
 
     async def post(self, request):
         username = StrUtils.to_str(request.json.get('username'))
@@ -64,7 +64,7 @@ class LoginAdminView(TemplateHTTPView):
                 'message': 'You do not have access'
             })
 
-        auth.login_user(request, user)
+        await auth.login_user(request, user)
         return response.json({
             '_success': True,
             'url': '/api/'
@@ -73,5 +73,5 @@ class LoginAdminView(TemplateHTTPView):
 
 class LogoutAdminView(BaseAPIView):
     async def get(self, request, user):
-        auth.logout_user(request)
+        await auth.logout_user(request)
         return response.redirect('/api/')

@@ -5,6 +5,7 @@ from admin.api.categories import category_bp
 from admin.api.chats import chats_bp
 from admin.api.lessons import lessons_bp
 from admin.api.main import MainView
+from admin.api.profile import profile_bp
 from admin.api.roles import role_bp
 from admin.api.testings import testing_bp
 from admin.api.users import users_bp
@@ -22,5 +23,6 @@ api_group = Blueprint.group(
     testing_bp,
     chats_bp,
     power_bi_bp,
+    profile_bp,
     url_prefix='/api'
 )

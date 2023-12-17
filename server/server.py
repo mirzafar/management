@@ -51,15 +51,15 @@ app.blueprint([
     webhooks_bp
 ])
 
-app.add_route(CollectionView.as_view(), '/collection/<collection_name>/<action>/', name='collection.action')
-app.add_route(UploadView.as_view(), '/upload/', name='upload')
-app.add_route(MainView.as_view(), '/', name='index')
+app.add_route(CollectionView.as_view(), '/collection/<collection_name>/<action>/')
+app.add_route(UploadView.as_view(), '/upload/')
+app.add_route(MainView.as_view(), '/')
 app.add_websocket_route(chat_messages, '/ws/chats/')
 
 app.static('/static', os.path.join(settings.get('file_path'), 'static'))
 
 if __name__ == '__main__':
     try:
-        app.run('127.0.0.1', port=8129, access_log=False)
+        app.run('127.0.0.1', port=8100, access_log=False, auto_reload=True)
     except Exception as e:
         print(e)

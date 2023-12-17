@@ -32,7 +32,7 @@ class Auth:
         else:
             return None
 
-    def login_user(self, request, user):
+    async def login_user(self, request, user):
         token = self.generate_token(user['id'])
         if token:
             await db.fetchrow(
@@ -44,15 +44,28 @@ class Auth:
                 user['id'],
                 token
             )
-            self.get_session(request)['token'] = token
 
-    def logout_user(self, request):
-        return self.get_session(request).pop('token', None)
+            request.ctx.session['token'] = token
 
-    async def current_user(self, request):
+    async def logout_user(self, request):
+        token = request.ctx.session.pop('token', None)
+        if token:
+            await db.fetchrow(
+                '''
+                UPDATE public.users
+                SET token = null
+                WHERE token = $1
+                ''',
+                token
+            )
+
+        return token
+
+    @classmethod
+    async def current_user(cls, request):
         token = StrUtils.to_str(request.headers.get('X-API-Token'))
         if not token:
-            token = self.get_session(request).get('token', None)
+            token = request.ctx.session.get('token', None)
 
         if token is not None:
             user = await db.fetchrow(
@@ -100,7 +113,7 @@ class Auth:
         async def privileged(request, *args, **kwargs):
             user = await self.current_user(request)
             if isawaitable(user):
-                user = await user
+                user = user
 
             if user is None:
                 if handle_no_auth:
