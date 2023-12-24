@@ -1,0 +1,42 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="nk-content-wrap">
+    <div class="components-preview wide-md mx-auto">
+        <div class="nk-block nk-block-lg">
+            <div class="preview-btn-item">
+
+                <a href="/api/organizations/create/" class="btn btn-secondary">Добавить</a>
+            </div>
+            <div class="card card-bordered card-preview">
+                <table class="table table-ulogs">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="tb-col-os"><span class="overline-title">Наименование</span></th>
+                        <th class="tb-col-action"><span class="overline-title">&nbsp;</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for x in organizations %}
+                    <tr>
+                        <td class="tb-col-os">
+                            {{x.title}}
+                        </td>
+                        <td class="tb-col-action">
+                            <a href="/api/organizations/{{x.id}}/" class="btn btn-dim btn-info btn-sm">
+                                <em class="icon ni ni-eye"></em>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    $('li .nk-menu-item .test').addClass('active')
+</script>
+{% endblock %}
