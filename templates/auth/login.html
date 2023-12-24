@@ -5,8 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Login</title>
-    <link rel="stylesheet" href="/static/css/dashlite0226.css?ver=3.1.2">
-    <link id="skin-default" rel="stylesheet" href="/static/css/theme0226.css?ver=3.1.2">
+    <link rel="stylesheet" href="/static/css/dashlite55a0.css?ver=3.2.0">
+    <link id="skin-default" rel="stylesheet" href="/static/css/theme55a0.css?ver=3.2.0">
 </head>
 <body>
 <div class="nk-app-root">
@@ -20,8 +20,11 @@
                                 <div class="nk-block-head-content"><h4 class="nk-block-title">Sign-In</h4></div>
                             </div>
                             <div class="form-group">
-                                <div class="form-label-group"><label class="form-label"
-                                                                     for="default-01">username</label></div>
+                                <div class="form-label-group">
+                                    <label class="form-label"
+                                           for="default-01">username
+                                    </label>
+                                </div>
                                 <div class="form-control-wrap">
                                     <input type="text"
                                            name="username"
@@ -32,18 +35,23 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <div class="form-label-group"><label class="form-label"
-                                                                     for="password">password</label>
+                                <div class="form-label-group">
+                                    <label class="form-label"
+                                           for="password">password
+                                    </label>
                                 </div>
-                                <div class="form-control-wrap"><a href="#"
-                                                                  class="form-icon form-icon-right passcode-switch lg"
-                                                                  data-target="password"><em
-                                        class="passcode-icon icon-show icon ni ni-eye"></em><em
-                                        class="passcode-icon icon-hide icon ni ni-eye-off"></em></a>
+                                <div class="form-control-wrap">
+                                    <a href="#"
+                                       class="form-icon form-icon-right passcode-switch lg"
+                                       data-target="password"><em
+                                            class="passcode-icon icon-show icon ni ni-eye"></em><em
+                                            class="passcode-icon icon-hide icon ni ni-eye-off"></em>
+                                    </a>
                                     <input type="password" class="form-control form-control-lg" id="password"
                                            name="password"
                                            value="qwerty"
-                                           placeholder="Enter your password"></div>
+                                           placeholder="Enter your password">
+                                </div>
                             </div>
                             <div class="form-group">
                                 <button onclick="login()" class="btn btn-lg btn-primary btn-block">Sign in</button>
@@ -55,8 +63,9 @@
                     <div class="container wide-lg">
                         <div class="row g-3">
                             <div class="col-lg-12">
-                                <div class="nk-block-content text-center text-lg-left"><p class="text-soft">&copy; 2024
-                                    Management. All Rights Reserved.</p></div>
+                                <div class="nk-block-content text-center text-lg-left">
+                                    <p class="text-soft">&copy; 2024 Management. All Rights Reserved.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -67,34 +76,10 @@
 </div>
 <script src="/static/js/manage.js"></script>
 <script src="/static/js/jquery-3.7.1.min.js"></script>
-<script>
-    function login() {
-        var new_data = getValues('#data-items')
-        $.ajax({
-            type: 'POST',
-            dataType: 'json',
-            url: '/admin/login/',
-            data: JSON.stringify(new_data),
-            success: function (d) {
-                if (d['_success'] === true) {
-                    location.href = '/api/'
-                } else {
-                    alert(d['message'])
-                }
-            },
-            error: function (d) {
-                alert('errors')
-            }
-        });
-        return false;
-    }
+<script src="/static/js/bundle55a0.js?ver=3.2.0"></script>
+<script src="/static/js/scripts55a0.js?ver=3.2.0"></script>
+<script src="/static/js/demo-settings55a0.js?ver=3.2.0"></script>
+<script src="/static/js/admin/auth.js"></script>
 
-    $(document).on('keypress', function (e) {
-        if (e.which === 13) {
-            $('.js-check-user').click();
-        }
-    });
-
-</script>
 </body>
 </html>

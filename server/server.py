@@ -1,6 +1,7 @@
 import os
 
 from sanic import Sanic
+from sanic.exceptions import NotFound
 from sanic_session import Session, AIORedisSessionInterface
 
 from admin import admin
@@ -11,6 +12,7 @@ from api.ws.chats import chat_messages
 from core.auth import auth
 from core.cache import cache
 from core.db import mongo, db
+from exceptions import not_found
 from settings import settings
 from webhooks import webhooks_bp
 
@@ -32,8 +34,9 @@ Session(
     app=app,
     interface=AIORedisSessionInterface(
         redis=cache,
-        domain=settings['base_url']
-    )
+        domain=settings['base_url'],
+        expiry=60 * 60 * 12
+    ),
 )
 
 
@@ -55,6 +58,9 @@ app.add_route(CollectionView.as_view(), '/collection/<collection_name>/<action>/
 app.add_route(UploadView.as_view(), '/upload/')
 app.add_route(MainView.as_view(), '/')
 app.add_websocket_route(chat_messages, '/ws/chats/')
+
+# Errors
+app.error_handler.add(NotFound, not_found)
 
 app.static('/static', os.path.join(settings.get('file_path'), 'static'))
 
