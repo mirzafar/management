@@ -9,7 +9,6 @@ class OrganizationsFieldsView(BaseAPIView):
     template_name = 'admin/organizations-fields.html'
 
     async def get(self, request, user):
-        request_type = request.args.get('request_type', 'html')
 
         fields = ListUtils.to_list_of_dicts(await db.fetch(
             '''
@@ -20,12 +19,7 @@ class OrganizationsFieldsView(BaseAPIView):
             '''
         ))
 
-        if request_type == 'html':
-            return self.html(request, user, data={
-                'fields': fields
-            })
-
-        return self.success(data={
+        return self.success(request, user, data={
             'fields': fields
         })
 

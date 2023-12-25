@@ -28,7 +28,7 @@ class ProfileView(BaseAPIView):
             '''
         ))
 
-        return self.html(request=request, user=user, data={
+        return self.success(request=request, user=user, data={
             'customer': dict(customer),
             'roles': roles,
         })

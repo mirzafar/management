@@ -9,8 +9,6 @@ class OrganizationsItemView(BaseAPIView):
     template_name = 'admin/organizations-item.html'
 
     async def get(self, request, user, item_id):
-        request_type = request.args.get('request_type', 'html')
-
         organization, organization_items = {}, []
         if item_id == 'create':
             organization_items = ListUtils.to_list_of_dicts(await db.fetch(
@@ -40,14 +38,9 @@ class OrganizationsItemView(BaseAPIView):
                 IntUtils.to_int(item_id)
             )
 
-        if request_type == 'html':
-            return self.html(request, user, data={
-                'organization': organization,
-                'organization_items': organization_items,
-            })
-
-        return self.success(data={
-            'organization': organization
+        return self.success(request, user, data={
+            'organization': organization,
+            'organization_items': organization_items,
         })
 
     async def post(self, request, user, item_id):

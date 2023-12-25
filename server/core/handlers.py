@@ -17,41 +17,49 @@ env = Environment(
     autoescape=select_autoescape()
 )
 
+RESPONSE_TYPES = [
+    'html',
+    'json',
+    'text',
+]
+
 
 class TemplateHTTPView(HTTPMethodView):
     template_name: str = None
 
-    def html(
-        self,
-        request: Request,
-        user: dict,
-        data=None
-    ):
-        data = DictUtils.as_dict(data) or {}
-        data.update({
-            'base_url': settings['base_url'],
-            '_user': user,
-        })
-
-        template = env.get_template(self.template_name)
-        rendered = template.render(
-            request=request,
-            app=request.app,
-            url_for=request.app.url_for,
-            **(data or {})
-        )
-        return response.HTTPResponse(rendered, content_type='text/html')
-
     def success(
         self,
-        data=None,
-        return_type: str = 'json',
+        request: Request = None,
+        user: dict = None,
+        data: dict = None,
     ):
-        if return_type == 'json':
+        if request:
+            resp = request.args.get('response_type')
+            response_type = resp if resp in RESPONSE_TYPES else 'html'
+        else:
+            response_type = 'json'
+
+        if response_type == 'json':
             return response.json({'_success': True, **(DictUtils.as_dict(data) or {})}, dumps=encoder.encode)
 
-        elif return_type == 'text':
-            return response.text(StrUtils.to_str(data) or '')
+        elif response_type == 'html':
+            data = DictUtils.as_dict(data) or {}
+            data.update({
+                'base_url': settings['base_url'],
+                '_user': user,
+            })
+
+            template = env.get_template(self.template_name)
+            rendered = template.render(
+                request=request,
+                app=request.app,
+                url_for=request.app.url_for,
+                **(data or {})
+            )
+            return response.HTTPResponse(rendered, content_type='text/html')
+
+        elif response_type == 'text':
+            return response.text(str(data) or '')
 
         else:
             return response.empty()
@@ -59,12 +67,12 @@ class TemplateHTTPView(HTTPMethodView):
     def error(
         self,
         message=None,
-        return_type: str = 'json',
+        response_type: str = 'json',
     ):
-        if return_type == 'json':
+        if response_type == 'json':
             return response.json({'_success': False, 'message': StrUtils.to_str(message)}, dumps=encoder.encode)
 
-        elif return_type == 'text':
+        elif response_type == 'text':
             return response.text(StrUtils.to_str(message) or '')
 
         else:

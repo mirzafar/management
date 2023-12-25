@@ -18,11 +18,6 @@ class OrganizationsView(BaseAPIView):
             '''
         ))
 
-        if request_type == 'html':
-            return self.html(request, user, data={
-                'organizations': organizations
-            })
-
-        return self.success(data={
+        return self.success(request, user, data={
             'organizations': organizations
         })
