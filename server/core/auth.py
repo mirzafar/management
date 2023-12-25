@@ -49,15 +49,6 @@ class Auth:
 
     async def logout_user(self, request):
         token = request.ctx.session.pop('token', None)
-        if token:
-            await db.fetchrow(
-                '''
-                UPDATE public.users
-                SET token = null
-                WHERE token = $1
-                ''',
-                token
-            )
 
         return token
 
