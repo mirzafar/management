@@ -7,43 +7,47 @@
 
                 <a id="btn-new-row" class="btn btn-secondary">Добавить</a>
             </div>
-            <div class="card card-bordered card-preview">
-                <table class="table table-ulogs">
-                    <thead class="table-light">
-                    <tr>
-                        <th class="tb-col-os"><span class="overline-title">Наименование</span></th>
-                        <th class="tb-col-action"><span class="overline-title">&nbsp;</span></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr id="new-row" style="display: none" data-id="new" class="js-cont">
-                        <td class="tb-col-os"><input type="text" class="form-control" name="title"></td>
-                        <td class="tb-col-action">
-                            <a class="btn btn-dim btn-success btn-sm insert_item">
-                                <em class="icon ni ni-check"></em>
-                            </a>
-                            <a id="js-cancel" class="btn btn-dim btn-dark btn-sm">
-                                <em class="icon ni ni-cross"></em>
-                            </a>
-                        </td>
-                    </tr>
-                    {% for x in fields %}
-                    <tr data-id="{{ x.id }}" class="js-cont">
-                        <td class="tb-col-os">
-                            <input type="text" class="form-control" name="title"
-                                   value="{{ x.title }}"></td>
-                        <td class="tb-col-action">
-                            <a class="btn btn-dim btn-success btn-sm update_item">
-                                <em class="icon ni ni-check"></em>
-                            </a>
-                            <a class="btn btn-dim btn-danger btn-sm delete_item">
-                                <em class="icon ni ni-trash"></em>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+            <div class="card card-preview">
+                <div class="card-inner">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th scope="col"><span class="overline-title">Наименование</span></th>
+                                <th scope="col"><span class="overline-title">&nbsp;</span></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr id="new-row" style="display: none" data-id="new" class="js-cont">
+                                <td><input type="text" class="form-control" name="title"></td>
+                                <td>
+                                    <a class="btn btn-dim btn-success btn-sm insert_item">
+                                        <em class="icon ni ni-check"></em>
+                                    </a>
+                                    <a id="js-cancel" class="btn btn-dim btn-dark btn-sm">
+                                        <em class="icon ni ni-cross"></em>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% for x in fields %}
+                            <tr data-id="{{ x.id }}" class="js-cont">
+                                <td>
+                                    <input type="text" class="form-control" name="title"
+                                           value="{{ x.title }}"></td>
+                                <td>
+                                    <a class="btn btn-dim btn-success btn-sm update_item">
+                                        <em class="icon ni ni-check"></em>
+                                    </a>
+                                    <a class="btn btn-dim btn-danger btn-sm delete_item">
+                                        <em class="icon ni ni-trash"></em>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -124,6 +128,9 @@
             alertShow('waring', `${error.message}`)
         }
     })
+
+    $('li[data-li="organization"]').addClass('active')
+    $('li[data-li="organization-field"]').addClass('active')
 
 </script>
 {% endblock %}
