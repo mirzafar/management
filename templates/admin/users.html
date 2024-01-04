@@ -46,7 +46,6 @@
             <table class="table table-tranx">
                 <thead>
                 <tr class="tb-tnx-head">
-                    <th class="tb-tnx-id"><span class="">#</span></th>
                     <th class="tb-tnx-info">
                         <span class="tb-tnx-desc d-none d-sm-inline-block">
                             <span>ФИ</span>
@@ -64,10 +63,9 @@
                 <tbody>
                 {% for item in users %}
                 <tr class="tb-tnx-item" data-id="{{item.id}}">
-                    <td class="tb-tnx-id"><a href="#"><span>{{item.id}}</span></a></td>
                     <td class="tb-tnx-info">
                         <div class="tb-tnx-desc">
-                            <span class="title">{{item.first_name}} {{item.last_name}}</span>
+                            <span class="title"><a href="/api/users/{{item.id}}/">{{item.first_name}} {{item.last_name}}</a></span>
                         </div>
                     </td>
                     <td class="tb-tnx-amount is-alt">
