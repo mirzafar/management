@@ -111,6 +111,27 @@
                     </tbody>
                 </table>
             </div>
+            {% if pager %}
+            <div class="card-inner">
+                <ul class="pagination justify-content-center justify-content-md-start">
+                    <li class="page-item">
+                        <a class="page-link"
+                           {% if pager.prev_page %}
+                           href="/api/users/?limit={{pager.limit}}&page={{pager.prev_page}}"
+                           {% endif %}
+                        >Prev</a>
+                    </li>
+                    <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
+                    <li class="page-item">
+                        <a class="page-link"
+                           {% if pager.next_page %}
+                           href="/api/users/?limit={{pager.limit}}&page={{pager.next_page}}"
+                           {% endif %}
+                           >Next</a>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
         </div>
     </div>
     <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"

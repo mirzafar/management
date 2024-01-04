@@ -13,7 +13,7 @@ class UsersListView(BaseAPIView):
     async def get(self, request, user):
         pager = Pager()
         pager.set_page(request.args.get('page', 1))
-        pager.set_limit(request.args.get('limit', 20))
+        pager.set_limit(request.args.get('limit', 10))
 
         query = StrUtils.to_str(request.args.get('query'))
         status = IntUtils.to_int(request.args.get('status'))
