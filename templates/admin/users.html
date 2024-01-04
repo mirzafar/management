@@ -4,105 +4,113 @@
     <div class="nk-block-head nk-block-head-sm">
         <div class="nk-block-between">
             <div class="nk-block-head-content">
-                <h3 class="nk-block-title page-title">Сотрудники</h3>
+                <h3 class="nk-block-title page-title"></h3>
             </div>
-            <div class="nk-block-head-content">
-                <div class="toggle-wrap nk-block-tools-toggle">
-                    <a href="#"
-                       class="btn btn-icon btn-trigger toggle-expand me-n1"
-                       data-target="pageMenu">
-                        <em class="icon ni ni-more-v"></em>
-                    </a>
-                    <div class="toggle-expand-content" data-content="pageMenu">
-                        <ul class="nk-block-tools g-3">
-                            <li>
-                                <div class="form-control-wrap">
-                                    <div class="form-icon form-icon-right"><em
-                                            class="icon ni ni-search"></em></div>
-                                    <input type="text" class="form-control" id="filter-query"
-                                           value="{{request.args.get('query', '')}}"
-                                           placeholder="Поиск"></div>
-                            </li>
-                            <li class="nk-block-tools-opt">
-                                <a href="#" data-target="addProduct"
-                                   class="toggle btn btn-icon btn-primary d-md-none">
-                                    <em class="icon ni ni-plus"></em>
-                                </a>
-                                <a href="#"
-                                   data-target="addProduct"
-                                   class="toggle btn btn-primary d-none d-md-inline-flex">
-                                    <em class="icon ni ni-plus"></em>
-                                    <span>добавить</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
-    <div class="nk-block nk-block-lg">
-        <div class="card card-bordered card-preview">
-            <table class="table table-tranx">
-                <thead>
-                <tr class="tb-tnx-head">
-                    <th class="tb-tnx-id"><span class="">#</span></th>
-                    <th class="tb-tnx-info">
-                        <span class="tb-tnx-desc d-none d-sm-inline-block">
-                            <span>ФИ</span>
-                        </span>
-                    </th>
-                    <th class="tb-tnx-amount is-alt">
-                        <span class="tb-tnx-total">Роль</span>
-                    </th>
-                    <th class="tb-tnx-amount is-alt">
-                        <span class="tb-tnx-total">Статус</span>
-                    </th>
-                    <th class="tb-tnx-action"><span>&nbsp;</span></th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for item in users %}
-                <tr class="tb-tnx-item" data-id="{{item.id}}">
-                    <td class="tb-tnx-id"><a href="/api/users/{{item.id}}/"><span>{{item.id}}</span></a></td>
-                    <td class="tb-tnx-info">
-                        <div class="tb-tnx-desc">
-                            <span class="title">{{item.first_name}} {{item.last_name}}</span>
-                        </div>
-                    </td>
-                    <td class="tb-tnx-amount is-alt">
-                        <div class="tb-tnx-total"><span class="amount">{{item.role_title}}</span></div>
-                    </td>
-                    <td class="tb-tnx-amount is-alt">
-                        <div class="tb-tnx-status">
-                            {% if item.status == 0 %}
-                            <span class="badge badge-dot bg-success">активна</span>
-                            {% elif item.status == -1 %}
-                            <span class="badge badge-dot bg-danger">заблакирована</span>
-                            {% elif item.status == -2 %}
-                            <span class="badge badge-dot bg-dark">удалена</span>
-                            {% else %}
-                            <span class="badge badge-dot bg-gray">Не определено</span>
-                            {% endif %}
-                        </div>
-                    </td>
-                    <td class="tb-tnx-action">
-                        <div class="dropdown"><a
-                                class="text-soft dropdown-toggle btn btn-icon btn-trigger"
-                                data-bs-toggle="dropdown"><em
-                                class="icon ni ni-more-h"></em></a>
-                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                <ul class="link-list-plain">
-                                    <li><a href="/api/users/{{item.id}}/">Edit</a></li>
-                                    <li><a class="js-remove">Remove</a></li>
+    <div class="nk-block">
+        <div class="card card-stretch">
+            <div class="card-inner">
+                <div class="card-title-group">
+                    <div class="card-title"><h5 class="title">Сотрудники</h5></div>
+                    <div class="nk-block-head-content">
+                        <div class="toggle-wrap nk-block-tools-toggle">
+                            <a href="#"
+                               class="btn btn-icon btn-trigger toggle-expand me-n1"
+                               data-target="pageMenu">
+                                <em class="icon ni ni-more-v"></em>
+                            </a>
+                            <div class="toggle-expand-content" data-content="pageMenu">
+                                <ul class="nk-block-tools g-3">
+                                    <li>
+                                        <div class="form-control-wrap">
+                                            <div class="form-icon form-icon-right"><em
+                                                    class="icon ni ni-search"></em></div>
+                                            <input type="text" class="form-control" id="filter-query"
+                                                   value="{{request.args.get('query', '')}}"
+                                                   placeholder="Поиск"></div>
+                                    </li>
+                                    <li class="nk-block-tools-opt">
+                                        <a href="#" data-target="addProduct"
+                                           class="toggle btn btn-icon btn-primary d-md-none">
+                                            <em class="icon ni ni-plus"></em>
+                                        </a>
+                                        <a href="#"
+                                           data-target="addProduct"
+                                           class="toggle btn btn-primary d-none d-md-inline-flex">
+                                            <em class="icon ni ni-plus"></em>
+                                            <span>добавить</span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card-inner p-0">
+                <table class="table table-tranx">
+                    <thead>
+                    <tr class="tb-tnx-head">
+                        <th class="tb-tnx-id"><span class="">#</span></th>
+                        <th class="tb-tnx-info">
+                        <span class="tb-tnx-desc d-none d-sm-inline-block">
+                            <span>ФИ</span>
+                        </span>
+                        </th>
+                        <th class="tb-tnx-amount is-alt">
+                            <span class="tb-tnx-total">Роль</span>
+                        </th>
+                        <th class="tb-tnx-amount is-alt">
+                            <span class="tb-tnx-total">Статус</span>
+                        </th>
+                        <th class="tb-tnx-action"><span>&nbsp;</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in users %}
+                    <tr class="tb-tnx-item" data-id="{{item.id}}">
+                        <td class="tb-tnx-id"><a href="/api/users/{{item.id}}/"><span># {{item.id}}</span></a></td>
+                        <td class="tb-tnx-info">
+                            <div class="tb-tnx-desc">
+                                <span class="title">{{item.first_name}} {{item.last_name}}</span>
+                            </div>
+                        </td>
+                        <td class="tb-tnx-amount is-alt">
+                            <div class="tb-tnx-total"><span class="amount">{{item.role_title}}</span></div>
+                        </td>
+                        <td class="tb-tnx-amount is-alt">
+                            <div class="tb-tnx-status">
+                                {% if item.status == 0 %}
+                                <span class="badge badge-dot bg-success">активна</span>
+                                {% elif item.status == -1 %}
+                                <span class="badge badge-dot bg-danger">заблакирована</span>
+                                {% elif item.status == -2 %}
+                                <span class="badge badge-dot bg-dark">удалена</span>
+                                {% else %}
+                                <span class="badge badge-dot bg-gray">Не определено</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="tb-tnx-action">
+                            <div class="dropdown"><a
+                                    class="text-soft dropdown-toggle btn btn-icon btn-trigger"
+                                    data-bs-toggle="dropdown"><em
+                                    class="icon ni ni-more-h"></em></a>
+                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
+                                    <ul class="link-list-plain">
+                                        <li><a href="/api/users/{{item.id}}/">Edit</a></li>
+                                        <li><a class="js-remove">Remove</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
