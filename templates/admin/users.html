@@ -1,55 +1,102 @@
 {% extends 'admin/base.html' %}
 {% block container %}
 <div class="components-preview wide-md mx-auto">
-    <div class="nk-block-head nk-block-head-lg wide-sm">
-        <div class="nk-block-head-content">
-            <div class="nk-block-head-sub"><a class="back-to"
-                                              href="../../components.html"><em
-                    class="icon ni ni-arrow-left"></em><span>Components</span></a></div>
-            <h2 class="nk-block-title fw-normal">Exclusive & Special Table</h2>
-            <div class="nk-block-des"><p class="lead"><strong>Softnio Team</strong>
-                understand the value of <strong>real case-use</strong>, so our team designed
-                some large content base table which is <strong>well optimized</strong> and
-                fit on every screen. It gives you extra ease on your project and surely you
-                loved it. </p></div>
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title">Сотрудники</h3>
+            </div>
+            <div class="nk-block-head-content">
+                <div class="toggle-wrap nk-block-tools-toggle">
+                    <a href="#"
+                       class="btn btn-icon btn-trigger toggle-expand me-n1"
+                       data-target="pageMenu">
+                        <em class="icon ni ni-more-v"></em>
+                    </a>
+                    <div class="toggle-expand-content" data-content="pageMenu">
+                        <ul class="nk-block-tools g-3">
+                            <li>
+                                <div class="form-control-wrap">
+                                    <div class="form-icon form-icon-right"><em
+                                            class="icon ni ni-search"></em></div>
+                                    <input type="text" class="form-control" id="filter-query"
+                                           value="{{request.args.get('query', '')}}"
+                                           placeholder="Поиск"></div>
+                            </li>
+                            <li>
+                                <select class="form-select" id="filter-status">
+                                    <option value="0"
+                                            {% if request.args.get('status') == '0' %} selected {% endif %}
+                                    >Активный</option>
+                                    <option value="-1"
+                                            {% if request.args.get('status') == '-1' %} selected {% endif %}
+                                    >Заблак</option>
+                                    <option value="-2"
+                                            {% if request.args.get('status') == '-2' %} selected {% endif %}
+                                    >Удаленные</option>
+                                </select>
+                            </li>
+                            <li class="nk-block-tools-opt">
+                                <a href="#" data-target="addProduct"
+                                   class="toggle btn btn-icon btn-primary d-md-none">
+                                    <em class="icon ni ni-plus"></em>
+                                </a>
+                                <a href="#"
+                                   data-target="addProduct"
+                                   class="toggle btn btn-primary d-none d-md-inline-flex">
+                                    <em class="icon ni ni-plus"></em>
+                                    <span>добавить</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="nk-block nk-block-lg">
-        <div class="nk-block-head">
-            <div class="nk-block-head-content"><h4 class="nk-block-title">Transaction List -
-                With Action</h4>
-                <p>The following table can be use for <strong class="text-primary">invoice,
-                    payment history</strong> related transaction.</p></div>
-        </div>
         <div class="card card-bordered card-preview">
             <table class="table table-tranx">
                 <thead>
                 <tr class="tb-tnx-head">
                     <th class="tb-tnx-id"><span class="">#</span></th>
-                    <th class="tb-tnx-info"><span
-                            class="tb-tnx-desc d-none d-sm-inline-block"><span>Bill For</span></span><span
-                            class="tb-tnx-date d-md-inline-block d-none"><span
-                            class="d-md-none">Date</span><span
-                            class="d-none d-md-block"><span>Issue Date</span><span>Due Date</span></span></span>
+                    <th class="tb-tnx-info">
+                        <span class="tb-tnx-desc d-none d-sm-inline-block">
+                            <span>ФИ</span>
+                        </span>
                     </th>
-                    <th class="tb-tnx-amount is-alt"><span class="tb-tnx-total">Total</span><span
-                            class="tb-tnx-status d-none d-md-inline-block">Status</span>
+                    <th class="tb-tnx-amount is-alt">
+                        <span class="tb-tnx-total">Роль</span>
+                    </th>
+                    <th class="tb-tnx-amount is-alt">
+                        <span class="tb-tnx-total">Статус</span>
                     </th>
                     <th class="tb-tnx-action"><span>&nbsp;</span></th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr class="tb-tnx-item">
-                    <td class="tb-tnx-id"><a href="#"><span>4947</span></a></td>
+                {% for item in users %}
+                <tr class="tb-tnx-item" data-id="{{item.id}}">
+                    <td class="tb-tnx-id"><a href="#"><span>{{item.id}}</span></a></td>
                     <td class="tb-tnx-info">
-                        <div class="tb-tnx-desc"><span class="title">Enterprize Year Subscription</span>
+                        <div class="tb-tnx-desc">
+                            <span class="title">{{item.first_name}} {{item.last_name}}</span>
                         </div>
-                        <div class="tb-tnx-date"><span class="date">10-05-2019</span><span
-                                class="date">10-13-2019</span></div>
                     </td>
                     <td class="tb-tnx-amount is-alt">
-                        <div class="tb-tnx-total"><span class="amount">$599.00</span></div>
-                        <div class="tb-tnx-status"><span class="badge badge-dot bg-warning">Due</span>
+                        <div class="tb-tnx-total"><span class="amount">{{item.role_title}}</span></div>
+                    </td>
+                    <td class="tb-tnx-amount is-alt">
+                        <div class="tb-tnx-status">
+                            {% if item.status == 0 %}
+                            <span class="badge badge-dot bg-success">активна</span>
+                            {% elif item.status == -1 %}
+                            <span class="badge badge-dot bg-danger">заблакирована</span>
+                            {% elif item.status == -2 %}
+                            <span class="badge badge-dot bg-dark">удалена</span>
+                            {% else %}
+                            <span class="badge badge-dot bg-gray">Не определено</span>
+                            {% endif %}
                         </div>
                     </td>
                     <td class="tb-tnx-action">
@@ -59,131 +106,220 @@
                                 class="icon ni ni-more-h"></em></a>
                             <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
                                 <ul class="link-list-plain">
-                                    <li><a href="#">View</a></li>
-                                    <li><a href="#">Edit</a></li>
-                                    <li><a href="#">Remove</a></li>
+                                    <li><a href="/api/users/{{item.id}}/">Edit</a></li>
+                                    <li><a class="js-remove">Remove</a></li>
                                 </ul>
                             </div>
                         </div>
                     </td>
                 </tr>
-                <tr class="tb-tnx-item">
-                    <td class="tb-tnx-id"><a href="#"><span>4904</span></a></td>
-                    <td class="tb-tnx-info">
-                        <div class="tb-tnx-desc"><span class="title">Maintenance Year Subscription</span>
-                        </div>
-                        <div class="tb-tnx-date"><span class="date">06-19-2019</span><span
-                                class="date">06-26-2019</span></div>
-                    </td>
-                    <td class="tb-tnx-amount is-alt">
-                        <div class="tb-tnx-total"><span class="amount">$99.00</span></div>
-                        <div class="tb-tnx-status"><span class="badge badge-dot bg-success">Paid</span>
-                        </div>
-                    </td>
-                    <td class="tb-tnx-action">
-                        <div class="dropdown"><a
-                                class="text-soft dropdown-toggle btn btn-icon btn-trigger"
-                                data-bs-toggle="dropdown"><em
-                                class="icon ni ni-more-h"></em></a>
-                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                <ul class="link-list-plain">
-                                    <li><a href="#">View</a></li>
-                                    <li><a href="#">Edit</a></li>
-                                    <li><a href="#">Remove</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="tb-tnx-item">
-                    <td class="tb-tnx-id"><a href="#"><span>4829</span></a></td>
-                    <td class="tb-tnx-info">
-                        <div class="tb-tnx-desc"><span class="title">Enterprize Year Subscription</span>
-                        </div>
-                        <div class="tb-tnx-date"><span class="date">10-04-2018</span><span
-                                class="date">10-12-2018</span></div>
-                    </td>
-                    <td class="tb-tnx-amount is-alt">
-                        <div class="tb-tnx-total"><span class="amount">$599.00</span></div>
-                        <div class="tb-tnx-status"><span class="badge badge-dot bg-success">Paid</span>
-                        </div>
-                    </td>
-                    <td class="tb-tnx-action">
-                        <div class="dropdown"><a
-                                class="text-soft dropdown-toggle btn btn-icon btn-trigger"
-                                data-bs-toggle="dropdown"><em
-                                class="icon ni ni-more-h"></em></a>
-                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                <ul class="link-list-plain">
-                                    <li><a href="#">View</a></li>
-                                    <li><a href="#">Edit</a></li>
-                                    <li><a href="#">Remove</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="tb-tnx-item">
-                    <td class="tb-tnx-id"><a href="#"><span>4830</span></a></td>
-                    <td class="tb-tnx-info">
-                        <div class="tb-tnx-desc"><span class="title">Enterprize Anniversary Subscription</span>
-                        </div>
-                        <div class="tb-tnx-date"><span class="date">12-04-2018</span><span
-                                class="date">14-12-2018</span></div>
-                    </td>
-                    <td class="tb-tnx-amount is-alt">
-                        <div class="tb-tnx-total"><span class="amount">$399.00</span></div>
-                        <div class="tb-tnx-status"><span class="badge badge-dot bg-success">Paid</span>
-                        </div>
-                    </td>
-                    <td class="tb-tnx-action">
-                        <div class="dropdown"><a
-                                class="text-soft dropdown-toggle btn btn-icon btn-trigger"
-                                data-bs-toggle="dropdown"><em
-                                class="icon ni ni-more-h"></em></a>
-                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                <ul class="link-list-plain">
-                                    <li><a href="#">View</a></li>
-                                    <li><a href="#">Edit</a></li>
-                                    <li><a href="#">Remove</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="tb-tnx-item">
-                    <td class="tb-tnx-id"><a href="#"><span>4840</span></a></td>
-                    <td class="tb-tnx-info">
-                        <div class="tb-tnx-desc"><span class="title">Enterprize Coverage Subscription</span>
-                        </div>
-                        <div class="tb-tnx-date"><span class="date">12-08-2018</span><span
-                                class="date">13-22-2018</span></div>
-                    </td>
-                    <td class="tb-tnx-amount is-alt">
-                        <div class="tb-tnx-total"><span class="amount">$99.00</span></div>
-                        <div class="tb-tnx-status"><span class="badge badge-dot bg-danger">Cancel</span>
-                        </div>
-                    </td>
-                    <td class="tb-tnx-action">
-                        <div class="dropdown"><a
-                                class="text-soft dropdown-toggle btn btn-icon btn-trigger"
-                                data-bs-toggle="dropdown"><em
-                                class="icon ni ni-more-h"></em></a>
-                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                <ul class="link-list-plain">
-                                    <li><a href="#">View</a></li>
-                                    <li><a href="#">Edit</a></li>
-                                    <li><a href="#">Remove</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
+         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+        <div class="nk-block">
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-last-name-new">Фимилия
+                        </label>
+                        <input type="text" class="form-control"
+                               name="last_name"
+                               id="cf-last-name-new">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-first-name-new">Имя
+                        </label>
+                        <input type="text" class="form-control"
+                               name="first_name"
+                               id="cf-first-name-new">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-middle-name-new">Отчества
+                        </label>
+                        <input type="text" class="form-control"
+                               name="middle_name"
+                               id="cf-middle-name-new">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label"
+                           for="cf-role-new">Роль
+                    </label>
+                    <select id="cf-role-new"
+                            class="form-select js-select2 select2-hidden-accessible"
+                            name="role_id"
+                    >
+                        <option value="">Выберите</option>
+                        {% for role in roles %}
+                        <option value="{{role.id}}">
+                            {{role.title}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label"
+                           for="cf-username-new">Username
+                    </label>
+                    <input type="text" class="form-control"
+                           name="username"
+                           id="cf-username-new">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"
+                           for="cf-password-new">Пароль
+                    </label>
+                    <input type="text" class="form-control"
+                           name="password"
+                           id="cf-password-new">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"
+                           for="cf-password2-new">Повторите пароль
+                    </label>
+                    <input type="text" class="form-control"
+                           name="reply_password"
+                           id="cf-password2-new">
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="customFileNew" data-name="photo">Фото</label>
+                    <div class="card-preview">
+                        <div class="card-inner">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card card-bordered photo-place" data-name="photo">
+                                        <img class="card-img-top" alt="">
+                                        <div class="card-inner">
+                                            <div class="form-control-wrap">
+                                                <div class="form-file">
+                                                    <input type="hidden" name="photo"
+                                                           value="{{photo}}">
+                                                    <input type="file" multiple=""
+                                                           class="form-file-input"
+                                                           id="customFileNew">
+                                                    <label class="form-file-label"
+                                                           for="customFileNew">Choose file
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"
+                           for="cf-birthday-new">birthday
+                    </label>
+                    <input type="text" class="form-control date-picker-alt"
+                           data-date-format="yyyy-mm-dd"
+                           name="birthday"
+                           id="cf-birthday-new">
+                </div>
+                <div class="col-12">
+                    <a onclick="createItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Add New</span></a>
+                </div>
+                <div class="col-12">
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+{% block js %}
+<script>
+    $('li[data-li="users"]').addClass('active')
+    $('li[data-li="users-list"]').addClass('active')
 
+    $('.js-remove').click(function () {
+        let new_id = $(this).parents('tr').data('id');
+        let new_data = getValues('.js-cont[data-id="' + new_id + '"]')
+        $.ajax({
+            type: 'DELETE',
+            dataType: 'json',
+            url: '/api/users/' + new_id,
+            data: JSON.stringify(new_data),
+            success: function (d) {
+                if (d['_success'] === true) {
+                    alertShow('success', '', true)
+                } else {
+                    alertShow('error', d['message'])
+                }
+            },
+            error: function (d) {
+                alertShow('waring')
+            }
+        });
+        return false;
+    });
+
+    $('[type="file"]').change(function () {
+        var trigger_name = $(this).parents('.photo-place').data('name');
+        var input_name = $(this).closest('.photo-place').find('[name="' + trigger_name + '"]');
+        let image = $(this).closest('.photo-place').find('img')
+        uploadImage($(this).attr('id')).then(function (data) {
+            input_name.val(String(data['file_name']));
+            image.attr('src', '/static/uploads/' + String(data['file_name']));
+        }, function (data) {
+            alert('error');
+        });
+    })
+
+    function createItem() {
+        let data = getValues('#new-data-item')
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/api/users/-1/',
+            data: JSON.stringify(data),
+            success: function (d) {
+                if (d['_success'] === true) {
+                    alertShow('success')
+                    window.location.href = '/api/users/'
+                } else {
+                    alertShow('error', d['message'])
+                }
+            },
+            error: function (d) {
+                alertShow('waring')
+            }
+        });
+    }
+
+    let urlParams = new URLSearchParams(window.location.search);
+
+    $('#filter-query').change(function () {
+        if (urlParams.has('query')) {
+            urlParams.delete('query')
+        }
+
+        urlParams.append('query', $(this).val())
+        window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + urlParams.toString()
+    })
+
+    $('#filter-status').change(function () {
+        if (urlParams.has('status')) {
+            urlParams.delete('status')
+        }
+
+        urlParams.append('status', $(this).val())
+        window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + urlParams.toString()
+    })
+
+</script>
 {% endblock %}

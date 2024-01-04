@@ -1,10 +1,8 @@
-from sanic import response
-
 from core.db import db
-from core.encoder import encoder
 from core.handlers import BaseAPIView
 from core.pager import Pager
 from core.tools import set_counters
+from utils.ints import IntUtils
 from utils.lists import ListUtils
 from utils.strs import StrUtils
 
@@ -18,13 +16,21 @@ class UsersListView(BaseAPIView):
         pager.set_limit(request.args.get('limit', 20))
 
         query = StrUtils.to_str(request.args.get('query'))
+        status = IntUtils.to_int(request.args.get('status'))
 
-        cond, cond_vars = ['u.status > {}'], [-2]
+        cond, cond_vars = [], []
 
         if query:
-            cond.append('u.first_name ILIKE {} OR u.last_name ILIKE {}')
+            cond.append('(u.first_name ILIKE {} OR u.last_name ILIKE {})')
             cond_vars.append(f'%{query}%')
             cond_vars.append(f'%{query}%')
+
+        if status is not None:
+            cond.append('u.status = {}')
+            cond_vars.append(status)
+        else:
+            cond.append('u.status = {}')
+            cond_vars.append(0)
 
         cond, _ = set_counters(' AND '.join(cond))
 
@@ -42,6 +48,14 @@ class UsersListView(BaseAPIView):
             *cond_vars
         ))
 
+        roles = ListUtils.to_list_of_dicts(await db.fetch(
+            '''
+            SELECT *
+            FROM public.roles
+            WHERE status >= 0
+            '''
+        ))
+
         pager.total = await db.fetchval(
             '''
             SELECT count(*)
@@ -50,11 +64,10 @@ class UsersListView(BaseAPIView):
             '''
         ) or 0
 
-        self.context = {
+        return self.success(request=request, user=user, data={
             '_success': True,
             'users': users,
             'pager': pager.dict(),
             'user': dict(user),
-        }
-
-        return response.json(self.context, dumps=encoder.encode)
+            'roles': roles
+        })

@@ -19,7 +19,7 @@
                             </thead>
                             <tbody>
                             {% for x in organizations %}
-                            <tr>
+                            <tr data-id="{{x.id}}">
                                 <td>
                                     {{x.title}}
                                 </td>

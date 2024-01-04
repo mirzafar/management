@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from sanic import response
-
 from core.db import db
 from core.handlers import BaseAPIView
 from core.hasher import password_to_hash
@@ -16,10 +14,7 @@ class UsersItemView(BaseAPIView):
     async def get(self, request, user, user_id):
         user_id = IntUtils.to_int(user_id)
         if not user_id:
-            return response.json({
-                '_success': False,
-                'message': 'Required param(s): user_id'
-            })
+            return self.error(message='Required param(s): user_id')
 
         customer = await db.fetchrow(
             '''
@@ -30,6 +25,9 @@ class UsersItemView(BaseAPIView):
             user_id
         )
 
+        if not customer:
+            return self.error(message='Not found: customer')
+
         roles = ListUtils.to_list_of_dicts(await db.fetch(
             '''
             SELECT *
@@ -38,12 +36,10 @@ class UsersItemView(BaseAPIView):
             '''
         ))
 
-        self.context['data'] = {
-            'user': dict(customer or {}),
+        return self.success(request=request, user=user, data={
+            'customer': dict(customer),
             'roles': roles,
-        }
-
-        return self.render_template(request=request, user=user)
+        })
 
     async def post(self, request, user, user_id):
         first_name = StrUtils.to_str(request.json.get('first_name'))
@@ -58,10 +54,7 @@ class UsersItemView(BaseAPIView):
         status = IntUtils.to_int(request.json.get('status')) or 0
 
         if not first_name or not last_name:
-            return response.json({
-                '_success': False,
-                'message': 'Required param(s): first_name or last_name'
-            })
+            return self.error(message='Required param(s): first_name or last_name')
 
         if username:
             duplicate = await db.fetchrow(
@@ -73,37 +66,22 @@ class UsersItemView(BaseAPIView):
                 username
             )
             if duplicate:
-                return response.json({
-                    '_success': False,
-                    'message': 'Duplicate: username'
-                })
+                return self.error(message='Duplicate: username')
 
         else:
-            return response.json({
-                '_success': False,
-                'message': 'Required param(s): username'
-            })
+            return self.error(message='Required param(s): username')
 
         if password:
             if password == reply_password:
                 password = password_to_hash(password)
             else:
-                return response.json({
-                    '_success': False,
-                    'message': 'Password does not match'
-                })
+                return self.error(message='Password does not match')
 
         else:
-            return response.json({
-                '_success': False,
-                'message': 'Required param(s): password'
-            })
+            return self.error(message='Required param(s): password')
 
         if not role_id:
-            return response.json({
-                '_success': False,
-                'message': 'Required param(s): role_id'
-            })
+            return self.error(message='Required param(s): role_id')
 
         user = await db.fetchrow(
             '''
@@ -124,22 +102,14 @@ class UsersItemView(BaseAPIView):
         )
 
         if not user:
-            return response.json({
-                '_success': False,
-                'message': 'Operation failed'
-            })
+            return self.error(message='Operation failed')
 
-        return response.json({
-            '_success': True
-        })
+        return self.success()
 
     async def put(self, request, user, user_id):
         user_id = IntUtils.to_int(user_id)
         if not user_id:
-            return response.json({
-                '_success': False,
-                'message': 'Required param(s): user_id'
-            })
+            return self.error(message='Required param(s): user_id')
 
         customer = await db.fetchrow(
             '''
@@ -162,10 +132,7 @@ class UsersItemView(BaseAPIView):
         status = IntUtils.to_int(request.json.get('status')) or 0
 
         if not first_name or not last_name:
-            return response.json({
-                '_success': False,
-                'message': 'Required param(s): first_name or last_name'
-            })
+            return self.error(message='Required param(s): first_name or last_name')
 
         if username:
             duplicate = await db.fetchrow(
@@ -178,34 +145,21 @@ class UsersItemView(BaseAPIView):
                 username
             )
             if duplicate:
-                return response.json({
-                    '_success': False,
-                    'message': 'Duplicate: username'
-                })
+                return self.error(message='Duplicate: username')
 
         else:
-            return response.json({
-                '_success': False,
-                'message': 'Required param(s): username'
-            })
+            return self.error(message='Required param(s): username')
 
         if password:
             if password == reply_password:
                 password = password_to_hash(password)
             else:
-                return response.json({
-                    '_success': False,
-                    'message': 'Password does not match'
-                })
-
+                return self.error(message='Password does not match')
         else:
             password = customer['password']
 
         if not role_id:
-            return response.json({
-                '_success': False,
-                'message': 'Required param(s): role_id'
-            })
+            return self.error(message='Required param(s): role_id')
 
         user = await db.fetchrow(
             '''
@@ -236,22 +190,14 @@ class UsersItemView(BaseAPIView):
         )
 
         if not user:
-            return response.json({
-                '_success': False,
-                'message': 'Operation failed'
-            })
+            return self.error(message='Operation failed')
 
-        return response.json({
-            '_success': True
-        })
+        return self.success()
 
     async def delete(self, request, user, user_id):
         user_id = IntUtils.to_int(user_id)
         if not user_id:
-            return response.json({
-                '_success': False,
-                'message': 'Required param(s): user_id'
-            })
+            return self.error(message='Required param(s): user_id')
 
         user = await db.fetchrow(
             '''
@@ -264,11 +210,6 @@ class UsersItemView(BaseAPIView):
         )
 
         if not user:
-            return response.json({
-                '_success': False,
-                'message': 'Operation failed'
-            })
+            return self.error(message='Operation failed')
 
-        return response.json({
-            '_success': True
-        })
+        return self.success()
