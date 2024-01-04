@@ -62,9 +62,6 @@
                         <th class="tb-tnx-amount is-alt">
                             <span class="tb-tnx-total">Роль</span>
                         </th>
-                        <th class="tb-tnx-amount is-alt">
-                            <span class="tb-tnx-total">Статус</span>
-                        </th>
                         <th class="tb-tnx-action"><span>&nbsp;</span></th>
                     </tr>
                     </thead>
@@ -79,19 +76,6 @@
                         </td>
                         <td class="tb-tnx-amount is-alt">
                             <div class="tb-tnx-total"><span class="amount">{{item.role_title}}</span></div>
-                        </td>
-                        <td class="tb-tnx-amount is-alt">
-                            <div class="tb-tnx-status">
-                                {% if item.status == 0 %}
-                                <span class="badge badge-dot bg-success">активна</span>
-                                {% elif item.status == -1 %}
-                                <span class="badge badge-dot bg-danger">заблакирована</span>
-                                {% elif item.status == -2 %}
-                                <span class="badge badge-dot bg-dark">удалена</span>
-                                {% else %}
-                                <span class="badge badge-dot bg-gray">Не определено</span>
-                                {% endif %}
-                            </div>
                         </td>
                         <td class="tb-tnx-action">
                             <div class="dropdown"><a
