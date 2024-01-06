@@ -110,7 +110,7 @@ class DatetimeUtils:
         return None
 
     @staticmethod
-    def parse(value, default=datetime.datetime.now(), time_index=None, *fmts) -> Optional[datetime.datetime]:
+    def parse(value, default=None, time_index=None, *fmts) -> Optional[datetime.datetime]:
         if not fmts:
             fmts = ['%Y-%m-%d %H:%M:%S', '%Y-%m-%d']
 

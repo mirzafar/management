@@ -15,9 +15,12 @@ class SalesGoodsView(BaseAPIView):
 
         query = StrUtils.to_str(request.args.get('query'))
         status = IntUtils.to_int(request.args.get('status'))
+        overhead_id = StrUtils.to_str(request.args.get('overhead_id'))
 
         filters = {
-            'status': 0
+            'status': {
+                '$nin': [-1]
+            }
         }
 
         if query:
@@ -25,6 +28,9 @@ class SalesGoodsView(BaseAPIView):
 
         if status is not None:
             filters['status'] = status
+
+        if overhead_id:
+            filters['overhead_id'] = overhead_id
 
         goods = await mongo.goods.find(filters) \
             .limit(pager.limit) \
