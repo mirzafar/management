@@ -364,7 +364,7 @@
 
         let paramsString = $.param({
             'response_type': 'json',
-            // 'overhead_id': itemId.toString(),
+            'overhead_id': itemId.toString(),
             'limit': 1000
         });
         let apiUrl = '/api/sales/goods?';
@@ -490,7 +490,10 @@
         try {
             let response = await fetch('/api/sales/goods/create/', {
                 method: 'POST',
-                body: JSON.stringify(getValues('#addGoods'))
+                body: JSON.stringify({
+                    'overhead_id': itemId.toString(),
+                    ...getValues('#addGoods')
+                })
             });
 
             response = await response.json();
