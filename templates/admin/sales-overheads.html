@@ -13,7 +13,7 @@
         <div class="card card-stretch">
             <div class="card-inner">
                 <div class="card-title-group">
-                    <div class="card-title"><h5 class="title">Накладные</h5></div>
+                    <div class="card-title"><h5 class="title" id="pageTitle">Накладные</h5></div>
                     <div class="nk-block-head-content">
                         <div class="toggle-wrap nk-block-tools-toggle">
                             <a href="#"
@@ -67,63 +67,15 @@
                         <th class="tb-tnx-action"><span>&nbsp;</span></th>
                     </tr>
                     </thead>
-                    <tbody>
-                    {% for item in items %}
-                    <tr class="tb-tnx-item" data-id="{{item._id}}">
-                        <td class="tb-tnx-id">
-                            <div class="tb-tnx-desc">
-                                <span class="title">{{item.title}}</span>
-                            </div>
-                        </td>
-                        <td class="tb-tnx-info">
-                            <div class="tb-tnx-desc">
-                                <span class="title">{{item.document_number}}</span>
-                            </div>
-                        </td>
-                        <td class="tb-tnx-amount">
-                            <div class="tb-tnx-total">
-                                <span>{{item.paid_summ}}</span>
-                            </div>
-                        </td>
-                        <td class="tb-tnx-action">
-                            <div class="dropdown"><a
-                                    class="text-soft dropdown-toggle btn btn-icon btn-trigger"
-                                    data-bs-toggle="dropdown"><em
-                                    class="icon ni ni-more-h"></em></a>
-                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                    <ul class="link-list-plain">
-                                        <li><a href="/api/sales/overheads/{{item._id}}/">Edit</a></li>
-                                        <li><a class="js-remove">Remove</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
+                    <tbody id="list_items">
                     </tbody>
                 </table>
             </div>
-            {% if pager %}
             <div class="card-inner">
-                <ul class="pagination justify-content-center justify-content-md-start">
-                    <li class="page-item">
-                        <a class="page-link"
-                           {% if pager.prev_page %}
-                           href="/api/users/?limit={{pager.limit}}&page={{pager.prev_page}}"
-                           {% endif %}
-                        >Prev</a>
-                    </li>
-                    <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
-                    <li class="page-item">
-                        <a class="page-link"
-                           {% if pager.next_page %}
-                           href="/api/users/?limit={{pager.limit}}&page={{pager.next_page}}"
-                           {% endif %}
-                        >Next</a>
-                    </li>
+                <ul class="pagination justify-content-center justify-content-md-start" id="list_pagination">
+
                 </ul>
             </div>
-            {% endif %}
         </div>
     </div>
     <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addOverhead"
@@ -244,18 +196,159 @@
     $('li[data-li="sales"]').addClass('active')
     $('li[data-li="sales-overheads"]').addClass('active')
 
-    $('.js-remove').click(async function () {
-        let new_id = $(this).parents('tr').data('id').toString();
+    let urlParams = {
+        'response_type': 'json'
+    }
+    let currentUser = {}
+
+    getListItems(urlParams);
+
+    function clearTable() {
+        $('.toggle-shown').removeClass('toggle-shown')
+        $('.content-active').removeClass('content-active')
+        $('.toggle-overlay').remove()
+        $('#list_items tr').remove()
+        $('#list_pagination li').remove()
+        $('#button_add').empty()
+        $('#new-data-item :input').val('');
+        currentUser = {}
+    }
+
+    async function getListItems(params) {
+        let paramsString = $.param(params);
+        let apiUrl = '/api/sales/overheads?';
+        if (paramsString) {
+            apiUrl += paramsString
+        }
+
         try {
-            let response = await fetch('/api/sales/overheads/' + new_id, {
+            let response = await fetch(apiUrl);
+
+            response = await response.json();
+            if (response._success === true) {
+                clearTable();
+                $.each(response.items, function (index, item) {
+                    showDataItem(index, item);
+                });
+
+                if (response.pager) {
+                    showPagination(response.pager);
+                }
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alert(`${error.message}`);
+        }
+    }
+
+    function showDataItem(index, item) {
+        let newElementTr = $('<tr>').attr({
+            'class': 'tb-tnx-item'
+        });
+
+        // Title
+        let trTitle = $('<td>').attr({
+            class: 'tb-tnx-id'
+        })
+        trTitle.append(
+            $('<div>').attr({class: 'tb-tnx-id'}).append(
+                $('<span>').attr({class: 'title'}).text(item.title)
+            )
+        )
+        newElementTr.append(trTitle)
+        $(trTitle).click(function () {
+            window.location.href = '/api/sales/overheads/' + item._id.toString()
+        })
+
+        // document_number
+        let trDocNum = $('<td>').attr({
+            class: 'tb-tnx-info'
+        })
+        trDocNum.append(
+            $('<div>').attr({class: 'tb-tnx-info'}).append(
+                $('<span>').attr({class: 'title'}).text(item.document_number)
+            )
+        )
+        newElementTr.append(trDocNum)
+
+        // paid_summ
+        let trPaidSumm = $('<td>').attr({
+            class: 'tb-tnx-amount'
+        })
+        trPaidSumm.append(
+            $('<div>').attr({class: 'tb-tnx-amount'}).append(
+                $('<span>').attr({}).text(item.paid_summ)
+            )
+        )
+        newElementTr.append(trPaidSumm)
+
+        // action
+        let trAction = $('<td>').attr({
+            class: 'tb-col-action'
+        })
+        let trActionDel = $('<a>').addClass('link-cross me-sm-n1').append(
+            $('<em>').addClass('icon ni ni-trash')
+        )
+        trAction.append(
+            trActionDel
+        )
+        newElementTr.append(trAction)
+        $(trAction).click(async function () {
+            await deleteItem(item)
+        })
+
+        $("#list_items").append(newElementTr);
+
+    }
+
+    function showPagination(pager) {
+
+        // ADD LEFT BUTTON PAGINATION
+        let newElementLiLeft = $('<li>').addClass('page-item');
+        let newElementALeft = $('<a>').addClass('page-link')
+        if (pager.prev_page) {
+            $(newElementLiLeft).on("click", function () {
+                urlParams.limit = pager.limit.toString()
+                urlParams.page = pager.prev_page.toString()
+                getListItems(urlParams);
+            });
+            newElementALeft.append($('<em>').addClass('icon ni ni-arrow-left'))
+            newElementLiLeft.append(newElementALeft)
+        }
+
+        $("#list_pagination").append(newElementLiLeft);
+
+        // ADD CURRENT
+        let newElementLiCurrent = $('<li>').addClass('page-item');
+        newElementLiCurrent.append($('<a>').addClass('page-link').text(pager.page))
+        $("#list_pagination").append(newElementLiCurrent);
+
+        // ADD RIGHT BUTTON PAGINATION
+        let newElementLiRight = $('<li>').addClass('page-item');
+        let newElementARight = $('<a>').addClass('page-link')
+        if (pager.next_page) {
+            $(newElementLiRight).on("click", function () {
+                urlParams.limit = pager.limit.toString()
+                urlParams.page = pager.next_page.toString()
+                getListItems(urlParams);
+            });
+            newElementARight.append($('<em>').addClass('icon ni ni-arrow-right'));
+            newElementLiRight.append(newElementARight);
+        }
+        $("#list_pagination").append(newElementLiRight);
+    }
+
+    async function deleteItem(item) {
+        try {
+            let response = await fetch('/api/sales/overheads/' + item._id.toString(), {
                 method: 'DELETE',
             });
 
             response = await response.json();
             if (response._success === true) {
-                // alertShow('success')
-                alert('success');
-                window.location.href = '/api/sales/overheads/';
+                await getListItems(urlParams);
             } else {
                 alert(response.message);
                 // alertShow('error', response.message);
@@ -264,7 +357,7 @@
         } catch (error) {
             alertShow('waring', `${error.message}`);
         }
-    });
+    }
 
     $('[type="file"]').change(function () {
         var trigger_name = $(this).parents('.photo-place').data('name');
@@ -291,8 +384,7 @@
 
             response = await response.json();
             if (response._success === true) {
-                alert('success');
-                window.location.href = '/api/sales/overheads/';
+                await getListItems(urlParams)
             } else {
                 alert(response.message);
             }
@@ -302,25 +394,16 @@
         }
     }
 
-    let urlParams = new URLSearchParams(window.location.search);
-
-    $('#filter-query').change(function () {
-        if (urlParams.has('query')) {
-            urlParams.delete('query')
-        }
-
-        urlParams.append('query', $(this).val())
-        window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + urlParams.toString()
+    $('#filter-query').change(async function () {
+        urlParams.query =  $(this).val();
+        await getListItems(urlParams)
     })
 
-    $('#filter-document-number').change(function () {
-        if (urlParams.has('document-number')) {
-            urlParams.delete('document-number')
-        }
-
-        urlParams.append('document-number', $(this).val())
-        window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + urlParams.toString()
+    $('#filter-document-number').change(async function () {
+        urlParams['document-number'] =  $(this).val()
+        await getListItems(urlParams)
     })
+
 
 </script>
 {% endblock %}

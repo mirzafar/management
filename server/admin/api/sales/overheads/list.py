@@ -13,6 +13,10 @@ class SalesOverheadsView(BaseAPIView):
     template_name = 'admin/sales-overheads.html'
 
     async def get(self, request, user):
+        response_type = request.args.get('response_type', 'html')
+        if response_type == 'html':
+            return self.success(request=request, user=user)
+
         pager = Pager()
         pager.set_page(request.args.get('page', 1))
         pager.set_limit(request.args.get('limit', 10))
