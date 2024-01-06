@@ -1,5 +1,6 @@
 from sanic import Blueprint
 
+from admin.api.sales import sales_bp
 from admin.api.testings.answers import answer_bp
 from admin.api.testings.complete import complete_bp
 from admin.api.testings.questions import question_bp

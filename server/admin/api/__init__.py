@@ -8,6 +8,7 @@ from admin.api.main import MainView
 from admin.api.organizations import organizations_bp
 from admin.api.profile import profile_bp
 from admin.api.roles import role_bp
+from admin.api.sales import sales_bp
 from admin.api.testings import testing_bp
 from admin.api.users import users_bp
 
@@ -26,5 +27,6 @@ api_group = Blueprint.group(
     power_bi_bp,
     profile_bp,
     organizations_bp,
+    sales_bp,
     url_prefix='/api'
 )

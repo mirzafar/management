@@ -42,10 +42,10 @@ Session(
 
 @app.listener('before_server_start')
 async def initialize_modules(_app, _loop):
+    await db.initialize(_app, _loop)
     mongo.initialize(_loop)
     auth.initialize(_app)
     await cache.initialize(_loop, maxsize=5)
-    await db.initialize(_app, _loop)
 
 
 app.blueprint([
