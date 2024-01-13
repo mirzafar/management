@@ -5,6 +5,7 @@ from sanic import response
 from core.db import db
 from core.handlers import TemplateHTTPView, auth, BaseAPIView
 from core.hasher import password_to_hash
+from core.session import session
 from utils.strs import StrUtils
 
 email_regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
@@ -16,7 +17,7 @@ class LoginAdminView(TemplateHTTPView):
     template_name = 'auth/login.html'
 
     async def get(self, request):
-        await auth.logout_user(request)
+        await auth.logout(request)
         return self.success(request=request, user={})
 
     async def post(self, request):
@@ -64,14 +65,18 @@ class LoginAdminView(TemplateHTTPView):
                 'message': 'You do not have access'
             })
 
-        await auth.login_user(request, user)
+        token = await session.create_session(request, user['id'])
+        await auth.login(request, user, token)
+
         return response.json({
             '_success': True,
-            'url': '/api/'
+            'url': '/api/',
+            'token': token,
+            'user_id': user['id'],
         })
 
 
 class LogoutAdminView(BaseAPIView):
     async def get(self, request, user):
-        await auth.logout_user(request)
+        await auth.logout(request)
         return response.redirect('/api/')

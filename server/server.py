@@ -2,7 +2,6 @@ import os
 
 from sanic import Sanic
 from sanic.exceptions import NotFound
-from sanic_session import Session, AIORedisSessionInterface
 
 from admin import admin
 from admin.api import api_group, MainView
@@ -12,6 +11,7 @@ from api.ws.chats import chat_messages
 from core.auth import auth
 from core.cache import cache
 from core.db import mongo, db
+from core.session import session
 from exceptions import not_found
 from settings import settings
 from webhooks import webhooks_bp
@@ -30,22 +30,14 @@ app.config.RESPONSE_TIMEOUT = 600
 app.config.FALLBACK_ERROR_FORMAT = 'html'
 app.config.DEBUG = True
 
-Session(
-    app=app,
-    interface=AIORedisSessionInterface(
-        redis=cache,
-        domain=settings['base_url'],
-        expiry=60 * 60 * 12
-    ),
-)
-
 
 @app.listener('before_server_start')
 async def initialize_modules(_app, _loop):
     await db.initialize(_app, _loop)
     mongo.initialize(_loop)
-    auth.initialize(_app)
     await cache.initialize(_loop, maxsize=5)
+    session.initialize(_app)
+    auth.initialize(_app)
 
 
 app.blueprint([
@@ -66,6 +58,6 @@ app.static('/static', os.path.join(settings.get('file_path'), 'static'))
 
 if __name__ == '__main__':
     try:
-        app.run('127.0.0.1', port=8102, access_log=False, auto_reload=True)
+        app.run('127.0.0.1', port=8102, access_log=False)
     except Exception as e:
         print(e)

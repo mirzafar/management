@@ -1,14 +1,18 @@
 import hashlib
+from datetime import datetime
 from functools import partial, wraps
 from inspect import isawaitable
 from typing import Optional
 
+import ujson
+from pymongo import ReturnDocument
 from sanic import response
 
-__all__ = ['auth']
-
-from core.db import db
+from core.cache import cache
+from core.db import db, mongo
 from utils.strs import StrUtils
+
+__all__ = ['auth']
 
 
 class Auth:
@@ -32,56 +36,62 @@ class Auth:
         else:
             return None
 
-    async def login_user(self, request, user):
-        token = self.generate_token(user['id'])
-        if token:
-            await db.fetchrow(
-                '''
-                UPDATE public.users
-                SET token = $2
-                WHERE id = $1
-                ''',
-                user['id'],
-                token
-            )
+    @classmethod
+    async def login(cls, request, user, token):
+        request.ctx.session['token'] = token
 
-            request.ctx.session['token'] = token
+        return await mongo.users.update_one({'user_id': user['id'], 'token': token}, {'$set': {
+            'logged_at': datetime.now(),
+            'device': request.headers.get('user-agent', None)
+        }}, upsert=True)
 
-    async def logout_user(self, request):
-        token = request.ctx.session.pop('token', None)
-
-        return token
+    @classmethod
+    async def logout(cls, request):
+        request.ctx.session['_delete'] = True
 
     @classmethod
     async def current_user(cls, request):
-        token = StrUtils.to_str(request.headers.get('X-API-Token'))
-        if not token:
-            token = request.ctx.session.get('token', None)
+        token = StrUtils.to_str(request.headers.get('X-API-Token') or request.args.get('token'))
 
-        if token is not None:
-            user = await db.fetchrow(
-                '''
-                SELECT 
-                    u.id, 
-                    u.last_name,
-                    u.first_name,
-                    u.middle_name,
-                    u.role_id,
-                    u.status,
-                    u.password,
-                    u.username,
-                    r.title AS role_title,
-                    r.key AS role_key,
-                    r.permissions AS permissions,
-                    u.photo
-                FROM public.users u
-                LEFT JOIN public.roles r ON u.role_id = r.id
-                WHERE u.token = $1
-                ''',
-                token
-            )
-            if user:
-                return dict(user)
+        if not token:
+            token = request.ctx.session.get('token')
+
+            if not token:
+                return
+
+        if not await cache.get(f'session:{token}'):
+            return
+
+        user = await mongo.users.find_one_and_update({'token': token}, {'$set': {
+            'viewed_at': datetime.now()
+        }}, return_document=ReturnDocument.AFTER)
+
+        if not user:
+            return
+
+        await cache.setex(f'session:{token}', 60 * 60 * 1, ujson.dumps(request.ctx.session))
+
+        return await db.fetchrow(
+            '''
+            SELECT 
+                u.id, 
+                u.last_name,
+                u.first_name,
+                u.middle_name,
+                u.role_id,
+                u.status,
+                u.password,
+                u.username,
+                r.title AS role_title,
+                r.key AS role_key,
+                r.permissions AS permissions,
+                u.photo
+            FROM public.users u
+            LEFT JOIN public.roles r ON u.role_id = r.id
+            WHERE u.id = $1
+            ''',
+            user['user_id']
+        )
 
     def login_required(
         self,
@@ -106,24 +116,25 @@ class Auth:
             if isawaitable(user):
                 user = user
 
-            if user is None:
-                if handle_no_auth:
-                    resp = handle_no_auth(request)
-                else:
-                    resp = self.handle_no_auth(request)
-            else:
+            if user:
                 if user_keyword is not None:
                     if user_keyword in kwargs:
                         raise RuntimeError(
                             'override user keyword %r in route' % user_keyword
                         )
 
-                    kwargs[user_keyword] = user
+                    kwargs[user_keyword] = dict(user)
 
                 resp = route(request, *args, **kwargs)
+            else:
+                if handle_no_auth:
+                    resp = handle_no_auth(request)
+                else:
+                    resp = self.handle_no_auth(request)
 
             if isawaitable(resp):
                 resp = await resp
+
             return resp
 
         return privileged
