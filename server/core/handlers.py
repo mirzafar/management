@@ -35,7 +35,10 @@ class TemplateHTTPView(HTTPMethodView):
     ):
         if request:
             resp = request.args.get('response_type')
-            response_type = resp if resp in RESPONSE_TYPES else 'html'
+            if resp and resp in RESPONSE_TYPES:
+                response_type = resp
+            else:
+                response_type = settings.get('response_type', 'html')
         else:
             response_type = 'json'
 
