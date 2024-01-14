@@ -1,5 +1,8 @@
+from sanic_openapi import doc
+
 from core.db import db
 from core.handlers import BaseAPIView
+from models import DistrictsModels
 from utils.ints import IntUtils
 from utils.strs import StrUtils
 
@@ -33,6 +36,7 @@ class DistrictsItemView(BaseAPIView):
             'district': dict(district)
         })
 
+    @doc.consumes(DistrictsModels, location='body', required=True)
     async def post(self, request, user, district_id):
         district = await db.fetchrow(
             '''
@@ -51,6 +55,7 @@ class DistrictsItemView(BaseAPIView):
             'district': dict(district)
         })
 
+    @doc.consumes(DistrictsModels, location='body', required=True)
     async def put(self, request, user, district_id):
         district_id = IntUtils.to_int(district_id)
         if not district_id:

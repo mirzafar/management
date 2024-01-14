@@ -1,7 +1,10 @@
+from sanic_openapi import doc
+
 from core.datetimes import DatetimeUtils
 from core.db import db
 from core.handlers import BaseAPIView
 from core.hasher import password_to_hash
+from models import UsersModels
 from utils.ints import IntUtils
 from utils.strs import StrUtils
 
@@ -30,6 +33,7 @@ class UsersItemView(BaseAPIView):
             'customer': dict(customer)
         })
 
+    @doc.consumes(UsersModels, location='body')
     async def post(self, request, user, user_id):
         first_name = StrUtils.to_str(request.json.get('first_name'))
         last_name = StrUtils.to_str(request.json.get('last_name'))
@@ -87,12 +91,14 @@ class UsersItemView(BaseAPIView):
             }
         )
 
+    @doc.consumes(UsersModels, location='body', required=True)
+    @doc.consumes(doc.String(description='main, reset_password'), required=True)
     async def put(self, request, user, user_id):
         user_id = IntUtils.to_int(user_id)
         if not user_id:
             return self.error(message='Отсуствует обязательный параметр "user_id: int"')
 
-        action = StrUtils.to_str(request.json.get('action'))
+        action = StrUtils.to_str(request.args.get('action'))
         if action == 'main':
             first_name = StrUtils.to_str(request.json.get('first_name'))
             last_name = StrUtils.to_str(request.json.get('last_name'))

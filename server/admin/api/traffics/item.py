@@ -1,5 +1,8 @@
+from sanic_openapi.openapi2 import doc
+
 from core.db import db
 from core.handlers import BaseAPIView
+from models import TrafficsModels
 from utils.ints import IntUtils
 from utils.strs import StrUtils
 
@@ -52,6 +55,7 @@ class TrafficsItemView(BaseAPIView):
             'traffic': dict(traffic)
         })
 
+    @doc.consumes(TrafficsModels, location='body', required=True)
     async def post(self, request, user, traffic_id):
         traffic = await db.fetchrow(
             '''
@@ -71,6 +75,7 @@ class TrafficsItemView(BaseAPIView):
             'traffic': dict(traffic)
         })
 
+    @doc.consumes(TrafficsModels, location='body', required=True)
     async def put(self, request, user, traffic_id):
         traffic_id = IntUtils.to_int(traffic_id)
         if not traffic_id:

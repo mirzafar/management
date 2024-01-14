@@ -1,5 +1,8 @@
+from sanic_openapi import doc
+
 from core.db import db
 from core.handlers import BaseAPIView
+from models import TracksModels
 from utils.ints import IntUtils
 from utils.strs import StrUtils
 
@@ -43,6 +46,7 @@ class TracksItemView(BaseAPIView):
             'track': dict(track)
         })
 
+    @doc.consumes(TracksModels, location='body', required=True)
     async def post(self, request, user, track_id):
         track = await db.fetchrow(
             '''
@@ -62,6 +66,7 @@ class TracksItemView(BaseAPIView):
             'track': dict(track)
         })
 
+    @doc.consumes(TracksModels, location='body', required=True)
     async def put(self, request, user, track_id):
         track_id = IntUtils.to_int(track_id)
         if not track_id:

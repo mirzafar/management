@@ -1,5 +1,8 @@
+from sanic_openapi import doc
+
 from core.db import db
 from core.handlers import BaseAPIView
+from models import RegionsModels
 from utils.ints import IntUtils
 from utils.strs import StrUtils
 
@@ -14,9 +17,8 @@ class RegionsItemView(BaseAPIView):
         region = await db.fetchrow(
             '''
             SELECT *
-            FROM public.regions r
-            LEFT JOIN public.districts d ON d.id = r.district_id
-            WHERE r.id = $1
+            FROM public.regions
+            WHERE id = $1
             ''',
             region_id
         ) or {}
@@ -25,6 +27,7 @@ class RegionsItemView(BaseAPIView):
             'region': dict(region)
         })
 
+    @doc.consumes(RegionsModels, location='body', required=True)
     async def post(self, request, user, region_id):
         region = await db.fetchrow(
             '''
@@ -43,6 +46,7 @@ class RegionsItemView(BaseAPIView):
             'region': dict(region)
         })
 
+    @doc.consumes(RegionsModels, location='body', required=True)
     async def put(self, request, user, region_id):
         region_id = IntUtils.to_int(region_id)
         if not region_id:
