@@ -27,18 +27,8 @@ class RegionsView(BaseAPIView):
 
         regions = ListUtils.to_list_of_dicts(await db.fetch(
             '''
-            SELECT r.*,
-                (
-                    CASE WHEN d.id IS NULL THEN NULL
-                    ELSE jsonb_build_object(
-                        'id', d.id,
-                        'title', d.title,
-                        'number', d.number
-                    )
-                    END
-                ) AS district
-            FROM public.regions r
-            LEFT JOIN public.districts d ON d.id = r.district_id
+            SELECT *
+            FROM public.regions
             WHERE %s
             ORDER BY id DESC
             %s

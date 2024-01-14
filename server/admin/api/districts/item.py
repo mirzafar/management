@@ -13,9 +13,18 @@ class DistrictsItemView(BaseAPIView):
 
         district = await db.fetchrow(
             '''
-            SELECT *
-            FROM public.districts
-            WHERE id = $1
+            SELECT d.*,
+                (
+                    CASE WHEN r.id IS NULL THEN NULL
+                    ELSE jsonb_build_object(
+                        'id', r.id,
+                        'title', r.title
+                    )
+                    END
+                ) AS region
+            FROM public.districts d
+            LEFT JOIN public.regions r ON d.region_id = r.id
+            WHERE d.id = $1
             ''',
             district_id
         ) or {}
@@ -27,12 +36,12 @@ class DistrictsItemView(BaseAPIView):
     async def post(self, request, user, district_id):
         district = await db.fetchrow(
             '''
-            INSERT INTO public.districts(title, number)
+            INSERT INTO public.districts(title, region_id)
             VALUES ($1, $2)
             RETURNING *
             ''',
             StrUtils.to_str(request.json.get('title')),
-            IntUtils.to_int(request.json.get('number'))
+            IntUtils.to_int(request.json.get('region_id'))
         )
 
         if not district:
@@ -50,13 +59,13 @@ class DistrictsItemView(BaseAPIView):
         district = await db.fetchrow(
             '''
             UPDATE public.districts
-            SET title = $2, number = $3
+            SET title = $2, region_id = $3
             WHERE id = $1
             RETURNING *
             ''',
             district_id,
             StrUtils.to_str(request.json.get('title')),
-            IntUtils.to_int(request.json.get('number'))
+            IntUtils.to_int(request.json.get('region_id'))
         )
 
         if not district:

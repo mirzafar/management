@@ -17,18 +17,27 @@ class DistrictsView(BaseAPIView):
         query = StrUtils.to_str(request.args.get('query'))
         status = IntUtils.to_int(request.args.get('status'), default=0)
 
-        cond, cond_vars = ['status = {}'], [status]
+        cond, cond_vars = ['d.status = {}'], [status]
 
         if query:
-            cond.append('title ILIKE {}')
+            cond.append('d.title ILIKE {}')
             cond_vars.append(f'%{query}%')
 
         cond, _ = set_counters(' AND '.join(cond))
 
         districts = ListUtils.to_list_of_dicts(await db.fetch(
             '''
-            SELECT *
-            FROM public.districts
+            SELECT d.*,
+                (
+                    CASE WHEN r.id IS NULL THEN NULL
+                    ELSE jsonb_build_object(
+                        'id', r.id,
+                        'title', r.title
+                    )
+                    END
+                ) AS region
+            FROM public.districts d
+            LEFT JOIN public.regions r ON d.region_id = r.id
             WHERE %s
             ORDER BY id DESC
             %s
@@ -39,7 +48,7 @@ class DistrictsView(BaseAPIView):
         total = await db.fetchval(
             '''
             SELECT count(*)
-            FROM public.districts
+            FROM public.districts d
             WHERE %s
             ''' % cond,
             *cond_vars

@@ -15,7 +15,7 @@ class LoginAdminView(TemplateHTTPView):
         return self.success(request=request)
 
     async def post(self, request):
-        if not request.args:
+        if not request.json:
             return response.json({
                 '_success': False,
                 'message': 'Отсуствует обязательный параметр(ы)'

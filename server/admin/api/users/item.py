@@ -65,8 +65,8 @@ class UsersItemView(BaseAPIView):
         user = await db.fetchrow(
             '''
             INSERT INTO public.users
-            (last_name, first_name, middle_name, role_id, password, username, photo, birthday)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            (last_name, first_name, middle_name, password, username, photo, birthday)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *
             ''',
             last_name,

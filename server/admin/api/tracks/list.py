@@ -17,10 +17,10 @@ class TracksView(BaseAPIView):
         query = StrUtils.to_str(request.args.get('query'))
         status = IntUtils.to_int(request.args.get('status'), default=0)
 
-        cond, cond_vars = ['status = {}'], [status]
+        cond, cond_vars = ['t.status = {}'], [status]
 
         if query:
-            cond.append('title ILIKE {}')
+            cond.append('t.title ILIKE {}')
             cond_vars.append(f'%{query}%')
 
         cond, _ = set_counters(' AND '.join(cond))
@@ -33,6 +33,7 @@ class TracksView(BaseAPIView):
                     ELSE jsonb_build_object(
                         'id', r.id,
                         'title', r.title,
+                        'number', r.number
                     )
                     END
                 ) AS region,
@@ -40,14 +41,13 @@ class TracksView(BaseAPIView):
                     CASE WHEN d.id IS NULL THEN NULL
                     ELSE jsonb_build_object(
                         'id', d.id,
-                        'title', d.title,
-                        'number', d.number
+                        'title', d.title
                     )
                     END
                 ) AS district
             FROM public.tracks t
-            LEFT JOIN public.regions r ON r.id = t.region_id
-            LEFT JOIN public.districts d ON d.id = r.district_id
+            LEFT JOIN public.districts d ON d.id = t.district_id
+            LEFT JOIN public.regions r ON r.id = d.region_id
             WHERE %s
             ORDER BY id DESC
             %s
@@ -58,7 +58,7 @@ class TracksView(BaseAPIView):
         total = await db.fetchval(
             '''
             SELECT count(*)
-            FROM public.tracks
+            FROM public.tracks t
             WHERE %s
             ''' % cond,
             *cond_vars

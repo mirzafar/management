@@ -11,6 +11,7 @@ class UsersListView(BaseAPIView):
     template_name = 'admin/users.html'
 
     async def get(self, request, user):
+        print('->>')
         pager = Pager()
         pager.set_page(request.args.get('page', 1))
         pager.set_limit(request.args.get('limit', 10))

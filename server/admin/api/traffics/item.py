@@ -18,12 +18,31 @@ class TrafficsItemView(BaseAPIView):
                     CASE WHEN tk.id IS NULL THEN NULL
                     ELSE jsonb_build_object(
                         'id', tk.id,
-                        'title', tk.title,
+                        'title', tk.title
                     )
                     END
-                ) AS track
+                ) AS track,
+                ( 
+                    CASE WHEN d.id IS NULL THEN NULL
+                    ELSE jsonb_build_object(
+                        'id', d.id,
+                        'title', d.title
+                    )
+                    END
+                ) AS district,
+                ( 
+                    CASE WHEN r.id IS NULL THEN NULL
+                    ELSE jsonb_build_object(
+                        'id', r.id,
+                        'title', r.title,
+                        'number', r.number
+                    )
+                    END
+                ) AS region
             FROM public.traffics t
             LEFT JOIN public.tracks tk ON t.track_id = tk.id
+            LEFT JOIN public.districts d ON tk.district_id = d.id
+            LEFT JOIN public.regions r ON d.region_id = r.id
             WHERE t.id = $1
             ''',
             traffic_id
