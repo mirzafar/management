@@ -7,8 +7,7 @@ from utils.lists import ListUtils
 from utils.strs import StrUtils
 
 
-class UsersListView(BaseAPIView):
-    template_name = 'admin/users.html'
+class RegionsView(BaseAPIView):
 
     async def get(self, request, user):
         pager = Pager()
@@ -16,28 +15,30 @@ class UsersListView(BaseAPIView):
         pager.set_limit(request.args.get('limit', 10))
 
         query = StrUtils.to_str(request.args.get('query'))
-        status = IntUtils.to_int(request.args.get('status'))
+        status = IntUtils.to_int(request.args.get('status'), default=0)
 
-        cond, cond_vars = [], []
+        cond, cond_vars = ['status = {}'], [status]
 
         if query:
-            cond.append('(u.first_name ILIKE {} OR u.last_name ILIKE {})')
+            cond.append('title ILIKE {}')
             cond_vars.append(f'%{query}%')
-            cond_vars.append(f'%{query}%')
-
-        if status is not None:
-            cond.append('u.status = {}')
-            cond_vars.append(status)
-        else:
-            cond.append('u.status = {}')
-            cond_vars.append(0)
 
         cond, _ = set_counters(' AND '.join(cond))
 
-        users = ListUtils.to_list_of_dicts(await db.fetch(
+        regions = ListUtils.to_list_of_dicts(await db.fetch(
             '''
-            SELECT u.*
-            FROM public.users u
+            SELECT r.*,
+                (
+                    CASE WHEN d.id IS NULL THEN NULL
+                    ELSE jsonb_build_object(
+                        'id', d.id,
+                        'title', d.title,
+                        'number', d.number
+                    )
+                    END
+                ) AS district
+            FROM public.regions r
+            LEFT JOIN public.districts d ON d.id = r.district_id
             WHERE %s
             ORDER BY id DESC
             %s
@@ -48,7 +49,7 @@ class UsersListView(BaseAPIView):
         total = await db.fetchval(
             '''
             SELECT count(*)
-            FROM public.users u
+            FROM public.regions
             WHERE %s
             ''' % cond,
             *cond_vars
@@ -56,6 +57,6 @@ class UsersListView(BaseAPIView):
 
         return self.success(request=request, user=user, data={
             '_success': True,
-            'users': users,
+            'regions': regions,
             'total': total,
         })

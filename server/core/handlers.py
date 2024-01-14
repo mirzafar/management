@@ -49,7 +49,7 @@ class TemplateHTTPView(HTTPMethodView):
             data = DictUtils.as_dict(data) or {}
             data.update({
                 'base_url': settings['base_url'],
-                '_user': user,
+                '_user': user or {},
             })
 
             template = env.get_template(self.template_name)

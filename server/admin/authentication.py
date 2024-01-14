@@ -1,5 +1,3 @@
-import re
-
 from sanic import response
 
 from core.db import db
@@ -8,43 +6,40 @@ from core.hasher import password_to_hash
 from core.session import session
 from utils.strs import StrUtils
 
-email_regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
-phone_regex = "^\\+?[1-9][0-9]{7,14}$"
-password_regex = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
-
 
 class LoginAdminView(TemplateHTTPView):
     template_name = 'auth/login.html'
 
     async def get(self, request):
         await auth.logout(request)
-        return self.success(request=request, user={})
+        return self.success(request=request)
 
     async def post(self, request):
+        if not request.args:
+            return response.json({
+                '_success': False,
+                'message': 'Отсуствует обязательный параметр(ы)'
+            })
+
         username = StrUtils.to_str(request.json.get('username'))
         password = StrUtils.to_str(request.json.get('password'))
 
-        if not username or not password:
+        if not username:
             return response.json({
                 '_success': False,
-                'message': 'Required param(s)'
+                'message': 'Отсуствует обязательный параметр "username: str"'
+            })
+
+        if not password:
+            return response.json({
+                '_success': False,
+                'message': 'Отсуствует обязательный параметр "password: str"'
             })
 
         user = await db.fetchrow(
             '''
-            SELECT 
-                u.id, 
-                u.last_name,
-                u.first_name,
-                u.middle_name,
-                u.role_id,
-                u.status,
-                u.password,
-                u.username,
-                r.title AS role_title,
-                u.photo
+            SELECT *
             FROM public.users u
-            LEFT JOIN public.roles r ON u.role_id = r.id
             WHERE u.username = $1 AND u.password = $2
             ''',
             username,
@@ -56,13 +51,19 @@ class LoginAdminView(TemplateHTTPView):
         else:
             return response.json({
                 '_success': False,
-                'message': 'User not found'
+                'message': 'Пользователь не найден(-o, -а) в системе'
             })
 
-        if user['status'] == -2:
+        if user['status'] == -1:
             return response.json({
                 '_success': False,
-                'message': 'You do not have access'
+                'message': 'Пользователь заблокирован(-о, -а) в системе'
+            })
+
+        elif user['status'] == -2:
+            return response.json({
+                '_success': False,
+                'message': 'Пользователь удален(-о, -а) из системы'
             })
 
         token = await session.create_session(request, user['id'])
@@ -79,4 +80,4 @@ class LoginAdminView(TemplateHTTPView):
 class LogoutAdminView(BaseAPIView):
     async def get(self, request, user):
         await auth.logout(request)
-        return response.redirect('/api/')
+        return response.redirect('/')

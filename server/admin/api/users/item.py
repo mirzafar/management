@@ -1,10 +1,8 @@
-from datetime import datetime
-
+from core.datetimes import DatetimeUtils
 from core.db import db
 from core.handlers import BaseAPIView
 from core.hasher import password_to_hash
 from utils.ints import IntUtils
-from utils.lists import ListUtils
 from utils.strs import StrUtils
 
 
@@ -26,35 +24,23 @@ class UsersItemView(BaseAPIView):
         )
 
         if not customer:
-            return self.error(message='Not found: customer')
-
-        roles = ListUtils.to_list_of_dicts(await db.fetch(
-            '''
-            SELECT *
-            FROM public.roles
-            WHERE status >= 0
-            '''
-        ))
+            return self.error(message='Пользователь не найден(-o, -а) в системе')
 
         return self.success(request=request, user=user, data={
-            'customer': dict(customer),
-            'roles': roles,
+            'customer': dict(customer)
         })
 
     async def post(self, request, user, user_id):
         first_name = StrUtils.to_str(request.json.get('first_name'))
         last_name = StrUtils.to_str(request.json.get('last_name'))
         middle_name = StrUtils.to_str(request.json.get('middle_name'))
-        birthday = StrUtils.to_str(request.json.get('birthday'))
+        birthday = DatetimeUtils.parse(request.json.get('birthday'))
         username = StrUtils.to_str(request.json.get('username'))
-        role_id = IntUtils.to_int(request.json.get('role_id'))
         password = StrUtils.to_str(request.json.get('password'))
-        reply_password = StrUtils.to_str(request.json.get('reply_password'))
         photo = StrUtils.to_str(request.json.get('photo'))
-        status = IntUtils.to_int(request.json.get('status')) or 0
 
         if not first_name or not last_name:
-            return self.error(message='Required param(s): first_name or last_name')
+            return self.error(message='Отсуствует обязательный параметры "first_name: str, last_name: str"')
 
         if username:
             duplicate = await db.fetchrow(
@@ -66,138 +52,136 @@ class UsersItemView(BaseAPIView):
                 username
             )
             if duplicate:
-                return self.error(message='Duplicate: username')
+                return self.error(
+                    message='Пользователь с этими значениями уже существует. Дубликат не может быть создан'
+                )
 
         else:
-            return self.error(message='Required param(s): username')
+            return self.error(message='Отсуствует обязательный параметр "username: str"')
 
-        if password:
-            if password == reply_password:
-                password = password_to_hash(password)
-            else:
-                return self.error(message='Password does not match')
-
-        else:
-            return self.error(message='Required param(s): password')
-
-        if not role_id:
-            return self.error(message='Required param(s): role_id')
+        if not password:
+            return self.error(message='Отсуствует обязательный параметр "password: str"')
 
         user = await db.fetchrow(
             '''
             INSERT INTO public.users
-            (last_name, first_name, middle_name, role_id, password, username, photo, birthday, status)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            (last_name, first_name, middle_name, role_id, password, username, photo, birthday)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *
             ''',
             last_name,
             first_name,
             middle_name,
-            role_id,
-            password,
+            password_to_hash(password),
             username,
             photo,
-            datetime.strptime(birthday, '%Y-%m-%d') if birthday else None,
-            status,
+            birthday,
         )
 
         if not user:
-            return self.error(message='Operation failed')
+            return self.error(message='Операция не выполнена')
 
-        return self.success()
+        return self.success(
+            data={
+                'user': dict(user)
+            }
+        )
 
     async def put(self, request, user, user_id):
         user_id = IntUtils.to_int(user_id)
         if not user_id:
-            return self.error(message='Required param(s): user_id')
+            return self.error(message='Отсуствует обязательный параметр "user_id: int"')
 
-        customer = await db.fetchrow(
-            '''
-            SELECT *
-            FROM public.users
-            WHERE id = $1
-            ''',
-            user_id
-        )
+        action = StrUtils.to_str(request.json.get('action'))
+        if action == 'main':
+            first_name = StrUtils.to_str(request.json.get('first_name'))
+            last_name = StrUtils.to_str(request.json.get('last_name'))
+            middle_name = StrUtils.to_str(request.json.get('middle_name'))
+            birthday = DatetimeUtils.parse(request.json.get('birthday'))
+            username = StrUtils.to_str(request.json.get('username'))
+            photo = StrUtils.to_str(request.json.get('photo'))
+            status = IntUtils.to_int(request.json.get('status')) or 0
 
-        first_name = StrUtils.to_str(request.json.get('first_name'))
-        last_name = StrUtils.to_str(request.json.get('last_name'))
-        middle_name = StrUtils.to_str(request.json.get('middle_name'))
-        birthday = StrUtils.to_str(request.json.get('birthday'))
-        username = StrUtils.to_str(request.json.get('username'))
-        role_id = IntUtils.to_int(request.json.get('role_id'))
-        password = StrUtils.to_str(request.json.get('password'))
-        reply_password = StrUtils.to_str(request.json.get('reply_password'))
-        photo = StrUtils.to_str(request.json.get('photo'))
-        status = IntUtils.to_int(request.json.get('status')) or 0
+            if not first_name or not last_name:
+                return self.error(message='Отсуствует обязательный параметры "first_name: str, last_name: str"')
 
-        if not first_name or not last_name:
-            return self.error(message='Required param(s): first_name or last_name')
+            if username:
+                duplicate = await db.fetchrow(
+                    '''
+                    SELECT *
+                    FROM public.users
+                    WHERE id <> $1 AND username = $2
+                    ''',
+                    user_id,
+                    username
+                )
+                if duplicate:
+                    return self.error(
+                        message='Пользователь с этими значениями уже существует. Дубликат не может быть создан'
+                    )
 
-        if username:
-            duplicate = await db.fetchrow(
+            else:
+                return self.error(message='Отсуствует обязательный параметр "username: str"')
+
+            user = await db.fetchrow(
                 '''
-                SELECT *
-                FROM public.users
-                WHERE id <> $1 AND username = $2
+                UPDATE public.users
+                SET 
+                    last_name = $2,
+                    first_name = $3, 
+                    middle_name = $4, 
+                    username = $5, 
+                    photo = $6, 
+                    birthday = $7,
+                    status = $8
+                WHERE id = $1
+                RETURNING *
                 ''',
                 user_id,
-                username
+                last_name,
+                first_name,
+                middle_name,
+                username,
+                photo,
+                birthday,
+                status
             )
-            if duplicate:
-                return self.error(message='Duplicate: username')
 
-        else:
-            return self.error(message='Required param(s): username')
+            if not user:
+                return self.error(message='Операция не выполнена')
 
-        if password:
-            if password == reply_password:
-                password = password_to_hash(password)
-            else:
-                return self.error(message='Password does not match')
-        else:
-            password = customer['password']
+            return self.success(data={
+                'user': dict(user)
+            })
 
-        if not role_id:
-            return self.error(message='Required param(s): role_id')
+        elif action == 'reset_password':
+            password = StrUtils.to_str(request.json.get('password'))
+            if not password:
+                return self.error(message='Отсуствует обязательный параметр "password: str"')
 
-        user = await db.fetchrow(
-            '''
-            UPDATE public.users
-            SET 
-                last_name = $2,
-                first_name = $3, 
-                middle_name = $4, 
-                role_id = $5, 
-                password = $6, 
-                username = $7, 
-                photo = $8, 
-                birthday = $9,
-                status = $10
-            WHERE id = $1
-            RETURNING *
-            ''',
-            user_id,
-            last_name,
-            first_name,
-            middle_name,
-            role_id,
-            password,
-            username,
-            photo,
-            datetime.strptime(birthday, '%Y-%m-%d') if birthday else None,
-            status
-        )
+            user = await db.fetchrow(
+                '''
+                UPDATE public.users
+                SET password = $2
+                WHERE id = $1
+                RETURNING *
+                ''',
+                user_id,
+                password_to_hash(password)
+            )
+            if not user:
+                return self.error(message='Операция не выполнена')
 
-        if not user:
-            return self.error(message='Operation failed')
+            return self.success(data={
+                'user': dict(user)
+            })
 
         return self.success()
 
     async def delete(self, request, user, user_id):
         user_id = IntUtils.to_int(user_id)
         if not user_id:
-            return self.error(message='Required param(s): user_id')
+            return self.error(message='Отсуствует обязательный параметр "user_id: int"')
 
         user = await db.fetchrow(
             '''
@@ -210,6 +194,8 @@ class UsersItemView(BaseAPIView):
         )
 
         if not user:
-            return self.error(message='Operation failed')
+            return self.error(message='Операция не выполнена')
 
-        return self.success()
+        return self.success(data={
+            'user': dict(user)
+        })
