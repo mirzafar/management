@@ -37,11 +37,11 @@ class Cache:
 
         # self.subscriber = await aioredis.create_redis_pool(settings['redis'], loop=loop)
 
-        connection = await aio_pika.connect_robust(
-            settings['mq'], loop=loop
-        )
-
-        self.channel = await connection.channel()  # type: aio_pika.Channel
+        # connection = await aio_pika.connect_robust(
+        #     settings['mq'], loop=loop
+        # )
+        #
+        # self.channel = await connection.channel()  # type: aio_pika.Channel
 
     def __getattr__(self, attr):
         return functools.partial(getattr(self.pool, attr))
