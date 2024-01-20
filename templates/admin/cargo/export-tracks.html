@@ -1,0 +1,303 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="nk-block-head nk-block-head-sm">
+    <div class="nk-block-between">
+        <div class="nk-block-head-content"><h3 class="nk-block-title page-title"></h3>
+        </div>
+        <div class="nk-block-head-content">
+            <div class="toggle-wrap nk-block-tools-toggle">
+                <a href="#"
+                   class="btn btn-icon btn-trigger toggle-expand me-n1"
+                   data-target="pageMenu">
+                    <em class="icon ni ni-menu-alt-r"></em>
+                </a>
+                <div class="toggle-expand-content" data-content="pageMenu">
+                    <ul class="nk-block-tools g-3">
+                        <li class="nk-block-tools-opt">
+                            <select class="form-select" id="statusTrack">
+                                {% for x in statuses %}
+                                <option value="{{x.key}}">{{x.value}}</option>
+                                {% endfor %}
+                            </select>
+                        </li>
+                        <li class="nk-block-tools-opt">
+                            <label data-bs-toggle="modal"
+                                   class="btn btn-primary"
+                                   href="#addIncome"
+                                   for="fileExel"
+                            >
+                                <em class="icon ni ni-plus"></em><span>Импорт</span>
+                            </label>
+                            <input type="file" id="fileExel" style="display: none" accept=".xls, .xlsx">
+                        </li>
+                        <li class="nk-block-tools-opt">
+                            <a href="#" data-target="addOverhead"
+                               class="toggle btn btn-icon btn-primary d-md-none">
+                                <em class="icon ni ni-plus"></em>
+                            </a>
+                            <a href="#"
+                               data-target="addOverhead"
+                               class="toggle btn btn-primary d-none d-md-inline-flex">
+                                <em class="icon ni ni-plus"></em>
+                                <span>добавить</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="nk-block">
+    <div class="card card-bordered card-stretch">
+        <div class="card-inner-group">
+            <div class="card-inner position-relative card-tools-toggle">
+                <div class="card-title-group">
+                    <div class="card-title"><h5 class="title">Income List</h5></div>
+                </div>
+            </div>
+            <div class="card-inner p-0">
+                <table class="table table-tranx">
+                    <thead>
+                    <tr class="tb-tnx-head">
+                        <th class="tb-tnx-id"><span class="">Трек номер</span></th>
+                        <th class="tb-tnx-amount"><span>&nbsp;</span></th>
+                        <th class="tb-tnx-amount"><span>&nbsp;</span></th>
+                    </tr>
+                    </thead>
+                    <tbody id="list_items">
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-inner">
+                <div class="nk-block-between-md g-3">
+                    <div class="g">
+                        <span id="excelTotal"></span>
+                    </div>
+                    <div class="g" id="excelAction">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="nk-add-product toggle-slide toggle-slide-right" data-content="addOverhead"
+     data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+    <div class="nk-block">
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-track-id">Track Id
+                    </label>
+                    <input type="text" class="form-control"
+                           name="track_id"
+                           id="cf-track-id">
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-status">Статус
+                    </label>
+                    <select class="form-select" id="cf-status" name="status">
+                        {% for x in statuses %}
+                        <option value="{{x.key}}">{{x.value}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-12">
+                <a onclick="createItem()" class="btn btn-primary"><em
+                        class="icon ni ni-plus"></em><span>Добавить</span></a>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    let statuses = {}
+    let total = 0
+    let nextStatusId = null
+    let nextStatusTitle = null
+
+    $('li[data-li="cargo"]').addClass('active')
+    $('li[data-li="cargo-export"]').addClass('active')
+    $('#fileExel').change(function () {
+        let trigger_name = $(this).parents('.photo-place').data('name');
+        let input_name = $(this).closest('.photo-place').find('[name="' + trigger_name + '"]');
+        uploadImage($(this).attr('id')).then(async function (data) {
+            if (data._success) {
+                nextStatusId = parseInt($('#statusTrack option:selected').val())
+                nextStatusTitle = $('#statusTrack option:selected').text()
+                await exelToData(data.file_name);
+            } else {
+                alert(data.message);
+            }
+        }, function (data) {
+            alert('error');
+        });
+    })
+
+    async function exelToData(filePath) {
+        try {
+            let response = await fetch('/api/cargo/export/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    'action': 'excel_to_data',
+                    'file_path': filePath,
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                clearTable();
+                statuses = response.statuses
+                $.each(response.items, function (index, item) {
+                    showDataItem(index, item);
+                });
+                if (response.items.length >= 0) {
+                    total = response.items.length
+
+                    $('#excelTotal').append(
+                        $('<h6>').text(`Тотал: ${total}`)
+                    )
+                    $('#excelAction').append(
+                        $('<a>').addClass('btn btn-success').text('Загрузить')
+                    )
+
+                    $('#excelAction').click(async function () {
+                        let trackIds = []
+                        $.each($('#list_items').find('tr'), function (index, item) {
+                            let info = getValues(`#${item.id}`)
+                            trackIds.push(info.track_id)
+                        })
+                        await insertTracks(trackIds)
+                    })
+                }
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alert(`${error.message}`);
+        }
+    }
+
+    function clearTable() {
+        $('#list_items tr').remove()
+        $('#excelTotal').empty()
+        $('#excelAction').empty()
+    }
+
+    async function insertTracks(trackIds) {
+        try {
+            let response = await fetch('/api/cargo/export/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    'action': 'insert',
+                    'track_ids': trackIds,
+                    'status': nextStatusId
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                location.reload()
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alert(`${error.message}`);
+        }
+    }
+
+    function showDataItem(index, item) {
+        let newElementTr = $('<tr>').attr({
+            class: 'tb-tnx-item',
+            id: item.track_id
+        });
+
+        // Track id
+        let trTrackId = $('<td>').attr({
+            class: 'tb-tnx-id'
+        })
+        trTrackId.append(
+            $('<div>').attr({class: 'tb-tnx-id'}).append(
+                $('<div>').addClass('col-lg-4').append(
+                    $('<input>').attr({class: 'form-control', type: 'text', name: 'track_id'}).val(item.track_id)
+                )
+            )
+        )
+        newElementTr.append(trTrackId)
+
+        // Prev status
+        let trPrevStatus = $('<td>').attr({
+            class: 'tb-tnx-info'
+        })
+        let textStatus = nextStatusTitle
+
+        if (item.status && item.status !== nextStatusId) {
+            textStatus = `${statuses[item.status]} → ${nextStatusTitle}`
+        }
+
+        trPrevStatus.append(
+            $('<div>').attr({class: 'tb-tnx-info'}).append(
+                $('<span>').attr({class: 'title'}).text(textStatus)
+            )
+        )
+        newElementTr.append(trPrevStatus)
+
+        $("#list_items").append(newElementTr);
+
+        // action
+        let trAction = $('<td>').attr({
+            class: 'tb-col-action'
+        })
+        let trActionDel = $('<a>').addClass('link-cross me-sm-n1').append(
+            $('<em>').addClass('icon ni ni-trash')
+        )
+        trAction.append(
+            trActionDel
+        )
+        newElementTr.append(trAction)
+        $(trAction).click(async function () {
+            newElementTr.remove()
+            total = total - 1
+            $('#excelTotal').empty().append(
+                $('<h6>').text(`Тотал: ${total}`)
+            )
+        })
+
+    }
+
+    async function createItem() {
+        try {
+            let response = await fetch('/api/cargo/export/', {
+                method: 'POST',
+                body: JSON.stringify(getValues('#new-data-item'))
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+
+</script>
+{% endblock %}

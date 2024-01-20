@@ -199,7 +199,6 @@
     let urlParams = {
         'response_type': 'json'
     }
-    let currentUser = {}
 
     getListItems(urlParams);
 
@@ -211,7 +210,6 @@
         $('#list_pagination li').remove()
         $('#button_add').empty()
         $('#new-data-item :input').val('');
-        currentUser = {}
     }
 
     async function getListItems(params) {

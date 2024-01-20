@@ -1,0 +1,301 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="nk-block-head nk-block-head-sm">
+    <div class="nk-block-between">
+        <div class="nk-block-head-content">
+            <ul class="nk-block-tools g-3">
+                <li class="nk-block-tools-opt">
+                    <a href="#" data-target="addOverhead"
+                       class="toggle btn btn-icon btn-primary d-md-none">
+                        <em class="icon ni ni-plus"></em>
+                    </a>
+                    <a href="#"
+                       data-target="addOverhead"
+                       class="toggle btn btn-primary d-none d-md-inline-flex">
+                        <em class="icon ni ni-plus"></em>
+                        <span>добавить</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="nk-block">
+    <div class="row g-gs">
+        <div class="col-xxl-5">
+            <div class="card card-bordered card-stretch">
+                <div class="card-inner-group">
+                    <div class="card-inner position-relative card-tools-toggle">
+                        <div class="card-title-group">
+                            <div class="card-tools">
+                                <div class="form-inline flex-nowrap gx-3">
+
+                                </div>
+                            </div>
+                            <div class="card-tools me-n1">
+                                <ul class="btn-toolbar gx-1">
+                                    <li>
+                                        <div class="form-control-wrap">
+                                            <div class="form-icon form-icon-right"><em
+                                                    class="icon ni ni-search"></em></div>
+                                            <input type="text" class="form-control" id="filter-query"
+                                                   value="{{request.args.get('query', '')}}"
+                                                   placeholder="Поиск по название"></div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-search search-wrap" data-search="groupSearch">
+                            <div class="card-body">
+                                <div class="search-content"><a href="#"
+                                                               class="search-back btn btn-icon toggle-search"
+                                                               data-target="groupSearch"><em
+                                        class="icon ni ni-arrow-left"></em></a><input
+                                        type="text"
+                                        class="form-control border-transparent form-focus-none"
+                                        placeholder="Search by blood group">
+                                    <button class="search-submit btn btn-icon"><em
+                                            class="icon ni ni-search"></em></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-inner p-0">
+                        <table class="table table-tranx">
+                            <thead>
+                            <tr class="tb-tnx-head">
+                                <th class="tb-tnx-id"><span class="">Track Id</span></th>
+                                <th class="tb-tnx-info"><span class="">Статус</span></th>
+                                <th class="tb-tnx-action"><span>&nbsp;</span></th>
+                            </tr>
+                            </thead>
+                            <tbody id="list_items">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-inner">
+                        <ul class="pagination justify-content-center justify-content-md-start" id="list_pagination">
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="nk-add-product toggle-slide toggle-slide-right" data-content="addOverhead"
+     data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+    <div class="nk-block">
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-track-id">Track Id
+                    </label>
+                    <input type="text" class="form-control"
+                           name="track_id"
+                           id="cf-track-id">
+                </div>
+            </div>
+            <div class="col-12">
+                <a onclick="createItem()" class="btn btn-primary"><em
+                        class="icon ni ni-plus"></em><span>Добавить</span></a>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    async function createItem() {
+        try {
+            let response = await fetch('/api/cargo/customer/', {
+                method: 'POST',
+                body: JSON.stringify(getValues('#new-data-item'))
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    let urlParams = {
+        'response_type': 'json'
+    }
+
+    let trackStatuses = {}
+
+    getListItems(urlParams);
+
+    function clearTable() {
+        $('.toggle-shown').removeClass('toggle-shown')
+        $('.content-active').removeClass('content-active')
+        $('.toggle-overlay').remove()
+        $('#list_items tr').remove()
+        $('#list_pagination li').remove()
+        $('#button_add').empty()
+        $('#new-data-item :input').val('');
+    }
+
+    async function getListItems(params) {
+        let paramsString = $.param(params);
+        let apiUrl = '/api/cargo/tracks?';
+        if (paramsString) {
+            apiUrl += paramsString
+        }
+
+        try {
+            let response = await fetch(apiUrl);
+
+            response = await response.json();
+            if (response._success === true) {
+                clearTable();
+                trackStatuses = response.statuses
+                $.each(response.items, function (index, item) {
+                    showDataItem(index, item);
+                });
+
+                if (response.pager) {
+                    showPagination(response.pager);
+                }
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alert(`${error.message}`);
+        }
+    }
+
+    function showDataItem(index, item) {
+        let newElementTr = $('<tr>').attr({
+            'class': 'tb-tnx-item'
+        });
+
+        // Track Id
+        let trTitle = $('<td>').attr({
+            class: 'tb-tnx-id'
+        })
+        trTitle.append(
+            $('<div>').attr({class: 'tb-tnx-id'}).append(
+                $('<span>').attr({class: 'title'}).text(item.track_id)
+            )
+        )
+        newElementTr.append(trTitle)
+        $(trTitle).click(function () {
+            window.location.href = '/api/sales/overheads/' + item._id.toString()
+        })
+
+        // Status
+        let trDocNum = $('<td>').attr({
+            class: 'tb-tnx-info'
+        })
+        trDocNum.append(
+            $('<div>').attr({class: 'tb-tnx-info'}).append(
+                $('<span>').attr({class: 'title'}).text(trackStatuses[item.status])
+            )
+        )
+        newElementTr.append(trDocNum)
+
+        // action
+        let trAction = $('<td>').attr({
+            class: 'tb-col-action'
+        })
+        let trActionDel = $('<a>').addClass('link-cross me-sm-n1').append(
+            $('<em>').addClass('icon ni ni-trash')
+        )
+        trAction.append(
+            trActionDel
+        )
+        newElementTr.append(trAction)
+        $(trAction).click(async function () {
+            await deleteItem(item)
+        })
+
+        $("#list_items").append(newElementTr);
+
+    }
+
+    function showPagination(pager) {
+
+        // ADD LEFT BUTTON PAGINATION
+        let newElementLiLeft = $('<li>').addClass('page-item');
+        let newElementALeft = $('<a>').addClass('page-link')
+        if (pager.prev_page) {
+            $(newElementLiLeft).on("click", function () {
+                urlParams.limit = pager.limit.toString()
+                urlParams.page = pager.prev_page.toString()
+                getListItems(urlParams);
+            });
+            newElementALeft.append($('<em>').addClass('icon ni ni-arrow-left'))
+            newElementLiLeft.append(newElementALeft)
+        }
+
+        $("#list_pagination").append(newElementLiLeft);
+
+        // ADD CURRENT
+        let newElementLiCurrent = $('<li>').addClass('page-item');
+        newElementLiCurrent.append($('<a>').addClass('page-link').text(pager.page))
+        $("#list_pagination").append(newElementLiCurrent);
+
+        // ADD RIGHT BUTTON PAGINATION
+        let newElementLiRight = $('<li>').addClass('page-item');
+        let newElementARight = $('<a>').addClass('page-link')
+        if (pager.next_page) {
+            $(newElementLiRight).on("click", function () {
+                urlParams.limit = pager.limit.toString()
+                urlParams.page = pager.next_page.toString()
+                getListItems(urlParams);
+            });
+            newElementARight.append($('<em>').addClass('icon ni ni-arrow-right'));
+            newElementLiRight.append(newElementARight);
+        }
+        $("#list_pagination").append(newElementLiRight);
+    }
+
+    async function deleteItem(item) {
+        try {
+            let response = await fetch('/api/cargo/customer/', {
+                method: 'DELETE',
+                body: JSON.stringify({
+                    track_id: item.track_id
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                await getListItems(urlParams);
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    $('#filter-query').change(async function () {
+        urlParams.query = $(this).val();
+        await getListItems(urlParams)
+    })
+
+    $('#filter-document-number').change(async function () {
+        urlParams['document-number'] = $(this).val()
+        await getListItems(urlParams)
+    })
+
+</script>
+
+{% endblock %}

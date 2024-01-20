@@ -22,22 +22,49 @@
                             <div class="form-group">
                                 <div class="form-label-group">
                                     <label class="form-label"
-                                           for="default-01">username
+                                           for="last_name">Фамилия
+                                    </label>
+                                </div>
+                                <div class="form-control-wrap">
+                                    <input type="text"
+                                           name="last_name"
+                                           class="form-control form-control-lg"
+                                           id="last_name"
+                                    >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-label-group">
+                                    <label class="form-label"
+                                           for="first_name">Имя
+                                    </label>
+                                </div>
+                                <div class="form-control-wrap">
+                                    <input type="text"
+                                           name="first_name"
+                                           class="form-control form-control-lg"
+                                           id="first_name"
+                                    >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-label-group">
+                                    <label class="form-label"
+                                           for="username">Имя пользователя
                                     </label>
                                 </div>
                                 <div class="form-control-wrap">
                                     <input type="text"
                                            name="username"
                                            class="form-control form-control-lg"
-                                           id="default-01"
-                                           value="mirzafar"
-                                           placeholder="Enter your username">
+                                           id="username"
+                                    >
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="form-label-group">
                                     <label class="form-label"
-                                           for="password">password
+                                           for="password">Пароль
                                     </label>
                                 </div>
                                 <div class="form-control-wrap">
@@ -49,14 +76,31 @@
                                     </a>
                                     <input type="password" class="form-control form-control-lg" id="password"
                                            name="password"
-                                           value="qwerty"
-                                           placeholder="Enter your password">
+                                    >
                                 </div>
                             </div>
                             <div class="form-group">
-                                <button onclick="login()" class="btn btn-lg btn-primary btn-block">Sign in</button>
+                                <div class="form-label-group">
+                                    <label class="form-label"
+                                           for="reply_password">Повторный пароль
+                                    </label>
+                                </div>
+                                <div class="form-control-wrap">
+                                    <a href="#"
+                                       class="form-icon form-icon-right passcode-switch lg"
+                                       data-target="password"><em
+                                            class="passcode-icon icon-show icon ni ni-eye"></em><em
+                                            class="passcode-icon icon-hide icon ni ni-eye-off"></em>
+                                    </a>
+                                    <input type="password" class="form-control form-control-lg" id="reply_password"
+                                           name="reply_password"
+                                    >
+                                </div>
                             </div>
-                            <div class="form-note-s2 text-center pt-4"> <a
+                            <div class="form-group">
+                                <button onclick="register()" class="btn btn-lg btn-primary btn-block">Sign in</button>
+                            </div>
+                            <div class="form-note-s2 text-center pt-4"><a
                                     href="/admin/register/">Создайте аккаунт</a></div>
 
                         </div>
@@ -82,7 +126,27 @@
 <script src="/static/js/bundle55a0.js?ver=3.2.0"></script>
 <script src="/static/js/scripts55a0.js?ver=3.2.0"></script>
 <script src="/static/js/demo-settings55a0.js?ver=3.2.0"></script>
-<script src="/static/js/admin/auth.js"></script>
+<script>
+    async function register() {
+        try {
+            let response = await fetch('/admin/register/', {
+                method: 'POST',
+                body: JSON.stringify(getValues('#data-items'))
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                location.href = response.url
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alert(`${error.message}`);
+        }
+
+    }
+</script>
 
 </body>
 </html>

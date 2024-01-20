@@ -1,7 +1,9 @@
 from sanic import Blueprint
 
+from admin.api.cargo import cargo_bp
 from admin.api.districts import districts_bp
 from admin.api.main import MainView
+from admin.api.profile import profile_bp
 from admin.api.regions import regions_bp
 from admin.api.tracks import tracks_bp
 from admin.api.traffics import traffics_bp
@@ -18,5 +20,7 @@ api_group = Blueprint.group(
     regions_bp,
     districts_bp,
     traffics_bp,
+    cargo_bp,
+    profile_bp,
     url_prefix='/api'
 )

@@ -32,10 +32,8 @@ class RolesView(BaseAPIView):
             '''
         ))
 
-        self.context['data'] = {
+        return self.success(request=request, user=user, data={
             'roles': roles,
             'total': total,
             'permissions': permissions or [],
-        }
-
-        return self.render_template(request, user)
+        })
