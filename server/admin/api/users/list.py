@@ -36,8 +36,9 @@ class UsersListView(BaseAPIView):
 
         users = ListUtils.to_list_of_dicts(await db.fetch(
             '''
-            SELECT u.*
+            SELECT u.*, r.title AS role_title
             FROM public.users u
+            LEFT JOIN public.roles r ON u.role_id = r.id
             WHERE %s
             ORDER BY id DESC
             %s
@@ -54,8 +55,17 @@ class UsersListView(BaseAPIView):
             *cond_vars
         ) or 0
 
+        roles = ListUtils.to_list_of_dicts(await db.fetch(
+            '''
+            SELECT *
+            FROM public.roles
+            WHERE status >= 0
+            '''
+        ))
+
         return self.success(request=request, user=user, data={
             '_success': True,
             'users': users,
             'total': total,
+            'roles': roles
         })

@@ -6,6 +6,7 @@ from core.handlers import BaseAPIView
 from core.hasher import password_to_hash
 from models import UsersModels
 from utils.ints import IntUtils
+from utils.lists import ListUtils
 from utils.strs import StrUtils
 
 
@@ -29,8 +30,17 @@ class UsersItemView(BaseAPIView):
         if not customer:
             return self.error(message='Пользователь не найден(-o, -а) в системе')
 
+        roles = ListUtils.to_list_of_dicts(await db.fetch(
+            '''
+            SELECT *
+            FROM public.roles
+            WHERE status >= 0
+            '''
+        ))
+
         return self.success(request=request, user=user, data={
-            'customer': dict(customer)
+            'customer': dict(customer),
+            'roles': roles,
         })
 
     @doc.consumes(UsersModels, location='body')
@@ -42,6 +52,7 @@ class UsersItemView(BaseAPIView):
         username = StrUtils.to_str(request.json.get('username'))
         password = StrUtils.to_str(request.json.get('password'))
         photo = StrUtils.to_str(request.json.get('photo'))
+        role_id = IntUtils.to_int(request.json.get('role_id'))
 
         if not first_name or not last_name:
             return self.error(message='Отсуствует обязательный параметры "first_name: str, last_name: str"')
@@ -69,8 +80,8 @@ class UsersItemView(BaseAPIView):
         user = await db.fetchrow(
             '''
             INSERT INTO public.users
-            (last_name, first_name, middle_name, password, username, photo, birthday)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            (last_name, first_name, middle_name, password, username, photo, birthday, role_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *
             ''',
             last_name,
@@ -80,6 +91,7 @@ class UsersItemView(BaseAPIView):
             username,
             photo,
             birthday,
+            role_id
         )
 
         if not user:
@@ -107,6 +119,7 @@ class UsersItemView(BaseAPIView):
             username = StrUtils.to_str(request.json.get('username'))
             photo = StrUtils.to_str(request.json.get('photo'))
             status = IntUtils.to_int(request.json.get('status')) or 0
+            role_id = IntUtils.to_int(request.json.get('role_id'))
 
             if not first_name or not last_name:
                 return self.error(message='Отсуствует обязательный параметры "first_name: str, last_name: str"')
@@ -139,7 +152,8 @@ class UsersItemView(BaseAPIView):
                     username = $5, 
                     photo = $6, 
                     birthday = $7,
-                    status = $8
+                    status = $8,
+                    role_id = $9
                 WHERE id = $1
                 RETURNING *
                 ''',
@@ -150,7 +164,8 @@ class UsersItemView(BaseAPIView):
                 username,
                 photo,
                 birthday,
-                status
+                status,
+                role_id
             )
 
             if not user:
