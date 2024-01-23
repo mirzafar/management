@@ -1,7 +1,6 @@
 from datetime import datetime
 
-import polars as pl
-from polars.exceptions import ColumnNotFoundError
+import openpyxl
 from pymongo import UpdateOne
 
 from core.db import mongo
@@ -38,14 +37,20 @@ class ExportTracksView(BaseAPIView):
             if not file_path:
                 return self.error(message='Отсуствует обязательный параметр "file_path: str"')
 
-            excel = pl.read_excel(
-                source='/'.join(settings['root_dir'].split('/')[:-1]) + '/static/uploads/' + file_path,
-                read_csv_options={"has_header": False}
+            workbook = openpyxl.load_workbook(
+                '/'.join(settings['root_dir'].split('/')[:-1]) + '/static/uploads/' + file_path
             )
-            try:
-                tracks = ListUtils.to_list_of_strs(excel.get_column(f'column_{number_column}').to_list(), distinct=True)
-            except (ColumnNotFoundError,):
-                return self.error(message='Операция не выполнена')
+
+            tracks = []
+            for row in workbook['Sheet1'].iter_rows(values_only=True):
+                try:
+                    chunks = ListUtils.to_list_of_strs(list(row)[number_column - 1])
+                    if chunks:
+                        tracks.append(chunks)
+                except (Exception,):
+                    pass
+
+            workbook.close()
 
             if tracks:
                 data = await mongo.tracks.find({'track_id': {'$in': tracks}}).to_list(length=None) or []
