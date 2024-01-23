@@ -19,7 +19,6 @@ asyncpg = "*"
 sanic-openapi = "*"
 websockets = "==10.0"
 polars = "*"
-xlsx2csv = "*"
 
 [dev-packages]
 
