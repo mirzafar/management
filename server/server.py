@@ -1,21 +1,16 @@
 import os
 
 from sanic import Sanic
-from sanic.exceptions import NotFound
 from sanic_openapi import openapi2_blueprint
 
-from admin import admin
-from admin.api import api_group, MainView
-from api.core.collection import CollectionView
+from admin import LoginAdminView, LogoutAdminView
+from admin.api import api_group
 from api.core.upload import UploadView
-# from api.ws.chats import chat_messages
 from core.auth import auth
 from core.cache import cache
 from core.db import mongo, db
 from core.session import session
-from exceptions import not_found
 from settings import settings
-from webhooks import webhooks_bp
 
 app = Sanic(name='demo')
 
@@ -42,19 +37,13 @@ async def initialize_modules(_app, _loop):
 
 
 app.blueprint([
-    admin,
     api_group,
-    # webhooks_bp,
     openapi2_blueprint
 ])
 
-# app.add_route(CollectionView.as_view(), '/collection/<collection_name>/<action>/')
-app.add_route(UploadView.as_view(), '/upload/')
-app.add_route(MainView.as_view(), '/')
-# app.add_websocket_route(chat_messages, '/ws/chats/')
-
-# Errors
-app.error_handler.add(NotFound, not_found)
+app.add_route(UploadView.as_view(), '/api/upload/')
+app.add_route(LoginAdminView.as_view(), '/api/login/')
+app.add_route(LogoutAdminView.as_view(), '/api/logout/')
 
 app.static('/static', os.path.join(settings.get('file_path'), 'static'))
 
