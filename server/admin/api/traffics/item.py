@@ -1,6 +1,6 @@
 from sanic_openapi.openapi2 import doc
 
-from core.db import db
+from core.db import db, mongo
 from core.handlers import BaseAPIView
 from models import TrafficsModels
 from utils.ints import IntUtils
@@ -51,8 +51,17 @@ class TrafficsItemView(BaseAPIView):
             traffic_id
         ) or {}
 
+        if traffic:
+            traffic = dict(traffic)
+            item = await mongo.traffics.find_one({'id': traffic_id}) or {}
+            traffic.update({
+                'video_path': item.get('video_path', None),
+                'counters': item.get('counters', None),
+                'state': item.get('state', None),
+            })
+
         return self.success(request=request, user=user, data={
-            'traffic': dict(traffic)
+            'traffic': traffic
         })
 
     @doc.consumes(TrafficsModels, location='body', required=True)
@@ -71,6 +80,16 @@ class TrafficsItemView(BaseAPIView):
         if not traffic:
             return self.error(message='Операция не выполнена')
 
+        await mongo.traffics.update_one({'id': traffic['id']}, {'$set': {
+            'video_path': StrUtils.to_str(request.json.get('video_path')),
+            'counters': {
+                'cars': 0,
+                'trucks': 0,
+                'buses': 0,
+            },
+            'state': 0 if request.json.get('video_path') else -2,
+        }}, upsert=True)
+
         return self.success(data={
             'traffic': dict(traffic)
         })
@@ -80,6 +99,10 @@ class TrafficsItemView(BaseAPIView):
         traffic_id = IntUtils.to_int(traffic_id)
         if not traffic_id:
             return self.error(message='Отсуствует обязательный параметр "traffic_id: int"')
+
+        traffic = await mongo.traffics.find_one({'id': traffic_id})
+        if traffic and traffic.get('state') in [1, 2]:
+            return self.error(message='Редактирование запрещено')
 
         traffic = await db.fetchrow(
             '''
@@ -96,6 +119,16 @@ class TrafficsItemView(BaseAPIView):
 
         if not traffic:
             return self.error(message='Операция не выполнена')
+
+        await mongo.traffics.update_one({'id': traffic_id}, {'$set': {
+            'video_path': StrUtils.to_str(request.json.get('video_path')),
+            'counters': {
+                'cars': 0,
+                'trucks': 0,
+                'buses': 0,
+            },
+            'state': 0 if request.json.get('video_path') else -2,
+        }}, upsert=True)
 
         return self.success(data={
             'track': dict(traffic)
@@ -118,6 +151,10 @@ class TrafficsItemView(BaseAPIView):
 
         if not traffic:
             return self.error(message='Операция не выполнена')
+
+        await mongo.traffics.update_one({'id': traffic['id']}, {'$set': {
+            'state': -1,
+        }}, upsert=True)
 
         return self.success(data={
             'traffic': dict(traffic)
