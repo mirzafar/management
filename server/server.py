@@ -14,7 +14,7 @@ from settings import settings
 
 app = Sanic(name='demo')
 
-app.config.AUTH_LOGIN_URL = '/admin/login/'
+app.config.AUTH_LOGIN_URL = '/api/login/'
 app.config.ACCESS_LOG = False
 app.config.DB_HOST = settings.get('db', {}).get('host', '127.0.0.1')
 app.config.DB_DATABASE = settings.get('db', {}).get('database', 'maindb')
