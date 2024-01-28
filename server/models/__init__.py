@@ -38,6 +38,5 @@ class TrafficsModels:
 
 
 class UsersLoginModels:
-    title = doc.String()
-    description = doc.String()
-    track_id = doc.Integer()
+    username = doc.String()
+    password = doc.String()
