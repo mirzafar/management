@@ -25,6 +25,7 @@ app.config.DB_POOL_MAX_SIZE = 25
 app.config.RESPONSE_TIMEOUT = 600
 app.config.FALLBACK_ERROR_FORMAT = 'html'
 app.config.DEBUG = True
+app.config['API_SCHEMES'] = ['https']
 
 
 @app.listener('before_server_start')
