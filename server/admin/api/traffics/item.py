@@ -58,6 +58,7 @@ class TrafficsItemView(BaseAPIView):
                 'video_path': item.get('video_path', None),
                 'counters': item.get('counters', None),
                 'state': item.get('state', None),
+                'video_path_processed': item.get('video_path_processed', None)
             })
 
         return self.success(request=request, user=user, data={
