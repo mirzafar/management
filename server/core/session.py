@@ -56,7 +56,7 @@ class Session:
                 await cache.delete(f'session:{session_id}')
                 await mongo.users.delete_one({'token': session_id})
             else:
-                await cache.setex(f'session:{session_id}', 60 * 1, ujson.dumps(request.ctx.session))
+                await cache.setex(f'session:{session_id}', 60 * 60 * 1, ujson.dumps(request.ctx.session))
 
     @classmethod
     async def create_session(cls, request, user_id):
@@ -66,7 +66,7 @@ class Session:
 
         request.ctx.session_id = session_id
 
-        await cache.setex(f'session:{session_id}', 60 * 1, ujson.dumps({'user_id': user_id}))
+        await cache.setex(f'session:{session_id}', 60 * 60 * 1, ujson.dumps({'user_id': user_id}))
 
         return session_id
 
