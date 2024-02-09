@@ -26,9 +26,9 @@ app.config.RESPONSE_TIMEOUT = 600
 app.config.FALLBACK_ERROR_FORMAT = 'html'
 app.config.DEBUG = True
 app.config['API_SCHEMES'] = ['https']
-app.config["API_SECURITY"] = [{"ApiKeyAuth": []}]
-app.config["API_SECURITY_DEFINITIONS"] = {
-    'ApiKeyAuth': {'type': "apiKey", 'in': 'header', 'name': "X-API-Token"}
+app.config['API_SECURITY'] = [{'ApiKeyAuth': []}]
+app.config['API_SECURITY_DEFINITIONS'] = {
+    'ApiKeyAuth': {'type': 'apiKey', 'in': 'header', 'name': 'X-API-Token'}
 }
 
 
