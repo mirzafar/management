@@ -51,16 +51,6 @@ class TrafficsItemView(BaseAPIView):
             traffic_id
         ) or {}
 
-        if traffic:
-            traffic = dict(traffic)
-            item = await mongo.traffics.find_one({'id': traffic_id}) or {}
-            traffic.update({
-                'video_path': item.get('video_path', None),
-                'counters': item.get('counters', None),
-                'state': item.get('state', None),
-                'video_path_processed': item.get('video_path_processed', None)
-            })
-
         return self.success(request=request, user=user, data={
             'traffic': traffic
         })
@@ -69,27 +59,24 @@ class TrafficsItemView(BaseAPIView):
     async def post(self, request, user, traffic_id):
         traffic = await db.fetchrow(
             '''
-            INSERT INTO public.traffics(title, description, track_id)
-            VALUES ($1, $2, $3)
+            INSERT INTO public.traffics(title, description, track_id, video_path, counters, state)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *
             ''',
             StrUtils.to_str(request.json.get('title')),
             StrUtils.to_str(request.json.get('description')),
             IntUtils.to_int(request.json.get('track_id')),
-        )
-
-        if not traffic:
-            return self.error(message='Операция не выполнена')
-
-        await mongo.traffics.update_one({'id': traffic['id']}, {'$set': {
-            'video_path': StrUtils.to_str(request.json.get('video_path')),
-            'counters': {
+            StrUtils.to_str(request.json.get('video_path')),
+            {
                 'cars': 0,
                 'trucks': 0,
                 'buses': 0,
             },
-            'state': 0 if request.json.get('video_path') else -2,
-        }}, upsert=True)
+            0 if request.json.get('video_path') else -2
+        )
+
+        if not traffic:
+            return self.error(message='Операция не выполнена')
 
         return self.success(data={
             'traffic': dict(traffic)
@@ -108,28 +95,20 @@ class TrafficsItemView(BaseAPIView):
         traffic = await db.fetchrow(
             '''
             UPDATE public.traffics
-            SET title = $2, description = $3, track_id = $4
+            SET title = $2, description = $3, track_id = $4, video_path = $5, state = $6
             WHERE id = $1
             RETURNING *
             ''',
             traffic_id,
             StrUtils.to_str(request.json.get('title')),
             StrUtils.to_str(request.json.get('description')),
-            IntUtils.to_int(request.json.get('track_id'))
+            IntUtils.to_int(request.json.get('track_id')),
+            StrUtils.to_str(request.json.get('video_path')),
+            0 if request.json.get('video_path') else -2
         )
 
         if not traffic:
             return self.error(message='Операция не выполнена')
-
-        await mongo.traffics.update_one({'id': traffic_id}, {'$set': {
-            'video_path': StrUtils.to_str(request.json.get('video_path')),
-            'counters': {
-                'cars': 0,
-                'trucks': 0,
-                'buses': 0,
-            },
-            'state': 0 if request.json.get('video_path') else -2,
-        }}, upsert=True)
 
         return self.success(data={
             'track': dict(traffic)
@@ -152,10 +131,6 @@ class TrafficsItemView(BaseAPIView):
 
         if not traffic:
             return self.error(message='Операция не выполнена')
-
-        await mongo.traffics.update_one({'id': traffic['id']}, {'$set': {
-            'state': -1,
-        }}, upsert=True)
 
         return self.success(data={
             'traffic': dict(traffic)
