@@ -15,9 +15,15 @@ class TrafficsView(BaseAPIView):
         pager.set_limit(request.args.get('limit', 10))
 
         query = StrUtils.to_str(request.args.get('query'))
-        status = IntUtils.to_int(request.args.get('status'), default=0)
+        status = IntUtils.to_int(request.args.get('status'))
 
-        cond, cond_vars = ['t.status = {}'], [status]
+        cond, cond_vars = [], []
+
+        if status is None:
+            cond.append('t.status >= 0')
+        else:
+            cond.append('t.status >= 0')
+            cond_vars.append(status)
 
         if query:
             cond.append('t.title ILIKE {}')

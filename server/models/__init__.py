@@ -32,9 +32,8 @@ class TrafficsModels:
     description = doc.String()
     track_id = doc.Integer()
     video_path = doc.String()
-    counters = doc.Dictionary(description='counts car, trucks, buses')
-    status = doc.Integer(description='-1: delete; 0: active')
-    state = doc.Integer(description='-1: deleted video file; -2: file not found; 0: in queue; 1: in progress; 2: done')
+    counters = doc.Dictionary(description='counts car, truck, bus')
+    status = doc.Integer(description='-1: delete; 0: in queue; 1: in progress; 2: success done; 3: error done')
 
 
 class UsersLoginModels:

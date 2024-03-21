@@ -57,22 +57,20 @@ class TrafficsItemView(BaseAPIView):
 
     @doc.consumes(TrafficsModels, location='body', required=True)
     async def post(self, request, user, traffic_id):
+        video_path = StrUtils.to_str(request.json.get('video_path'))
+        if not video_path:
+            return self.error(message=f'Отсуствует обязательный параметры "video_path: int"')
+
         traffic = await db.fetchrow(
             '''
-            INSERT INTO public.traffics(title, description, track_id, video_path, counters, state)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO public.traffics(title, description, track_id, video_path)
+            VALUES ($1, $2, $3, $4)
             RETURNING *
             ''',
             StrUtils.to_str(request.json.get('title')),
             StrUtils.to_str(request.json.get('description')),
             IntUtils.to_int(request.json.get('track_id')),
-            StrUtils.to_str(request.json.get('video_path')),
-            {
-                'cars': 0,
-                'trucks': 0,
-                'buses': 0,
-            },
-            0 if request.json.get('video_path') else -2
+            video_path
         )
 
         if not traffic:
@@ -88,14 +86,29 @@ class TrafficsItemView(BaseAPIView):
         if not traffic_id:
             return self.error(message='Отсуствует обязательный параметр "traffic_id: int"')
 
-        traffic = await mongo.traffics.find_one({'id': traffic_id})
-        if traffic and traffic.get('state') in [1, 2]:
+        status = await db.fetchval(
+            '''
+            SELECT status
+            FROM public.traffics
+            WHERE id = $1
+            ''',
+            traffic_id
+        )
+
+        if not status:
+            return self.error(message='Трафик не найдена')
+
+        if status in [1, 2]:
             return self.error(message='Редактирование запрещено')
+
+        video_path = StrUtils.to_str(request.json.get('video_path'))
+        if not video_path:
+            return self.error(message=f'Отсуствует обязательный параметры "video_path: int"')
 
         traffic = await db.fetchrow(
             '''
             UPDATE public.traffics
-            SET title = $2, description = $3, track_id = $4, video_path = $5, state = $6
+            SET title = $2, description = $3, track_id = $4, video_path = $5
             WHERE id = $1
             RETURNING *
             ''',
@@ -103,8 +116,7 @@ class TrafficsItemView(BaseAPIView):
             StrUtils.to_str(request.json.get('title')),
             StrUtils.to_str(request.json.get('description')),
             IntUtils.to_int(request.json.get('track_id')),
-            StrUtils.to_str(request.json.get('video_path')),
-            0 if request.json.get('video_path') else -2
+            video_path
         )
 
         if not traffic:

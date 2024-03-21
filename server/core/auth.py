@@ -10,6 +10,7 @@ from sanic import response
 
 from core.cache import cache
 from core.db import db, mongo
+from local_settings import settings
 from utils.strs import StrUtils
 
 __all__ = ['auth']
@@ -139,8 +140,19 @@ class Auth:
         return request.ctx.session
 
     def handle_no_auth(self, request):
-        u = self.login_url or request.app.url_for(self.login_endpoint)
-        return response.redirect(u)
+        if settings['response_type'] in ['json']:
+            return response.json(
+                headers={
+                    'X-authentication': 'expired_token'
+                },
+                body={
+                    'success': False,
+                    'error_reason': 'expired_token'
+                },
+                status=401
+            )
+        else:
+            return response.redirect(self.login_url or request.app.url_for(self.login_endpoint))
 
 
 auth = Auth()
