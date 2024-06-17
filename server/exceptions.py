@@ -11,12 +11,21 @@ env = Environment(
     autoescape=select_autoescape()
 )
 
+_exceptions_instance = None
 
-def not_found(request, exception):
-    template = env.get_template('errors/404.html')
-    rendered = template.render(
-        request=request,
-        app=request.app,
-        url_for=request.app.url_for
-    )
-    return response.HTTPResponse(rendered, content_type='text/html')
+
+class ExceptionsView:
+    @classmethod
+    def instance(cls):
+        global _exceptions_instance
+        if not _exceptions_instance:
+            _exceptions_instance = cls()
+        return _exceptions_instance
+
+    @classmethod
+    def not_found(cls, request, exception):
+        return response.HTTPResponse(env.get_template('errors/404.html').render(
+            request=request,
+            app=request.app,
+            url_for=request.app.url_for
+        ), content_type='text/html')

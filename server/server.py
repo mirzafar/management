@@ -1,20 +1,22 @@
 import os
 
 from sanic import Sanic
+from sanic.exceptions import NotFound
 from sanic_openapi import openapi2_blueprint
 
-from admin import LoginAdminView, LogoutAdminView
+from admin import admin_bp
 from admin.api import api_group
 from api.core.upload import UploadView
 from core.auth import auth
 from core.cache import cache
 from core.db import mongo, db
 from core.session import session
+from exceptions import ExceptionsView
 from settings import settings
 
 app = Sanic(name='demo')
 
-app.config.AUTH_LOGIN_URL = '/api/login/'
+app.config.AUTH_LOGIN_URL = '/admin/login/'
 app.config.ACCESS_LOG = False
 app.config.DB_HOST = settings.get('db', {}).get('host', '127.0.0.1')
 app.config.DB_DATABASE = settings.get('db', {}).get('database', 'maindb')
@@ -43,12 +45,13 @@ async def initialize_modules(_app, _loop):
 
 app.blueprint([
     api_group,
+    admin_bp,
     openapi2_blueprint
 ])
 
-app.add_route(UploadView.as_view(), '/api/upload/')
-app.add_route(LoginAdminView.as_view(), '/api/login/')
-app.add_route(LogoutAdminView.as_view(), '/api/logout/')
+app.add_route(UploadView.as_view(), '/upload/')
+
+app.error_handler.add(NotFound, ExceptionsView.instance().not_found)
 
 app.static('/static', os.path.join(settings.get('file_path'), 'static'))
 

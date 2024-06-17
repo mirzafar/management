@@ -1,11 +1,9 @@
 from sanic import response
-from sanic_openapi import doc
 
 from core.db import db
 from core.handlers import TemplateHTTPView, auth, BaseAPIView
 from core.hasher import password_to_hash
 from core.session import session
-from models import UsersLoginModels
 from utils.strs import StrUtils
 
 
@@ -16,7 +14,6 @@ class LoginAdminView(TemplateHTTPView):
         await auth.logout(request)
         return self.success(request=request)
 
-    @doc.consumes(UsersLoginModels, location='body')
     async def post(self, request):
         if not request.json:
             return response.json({

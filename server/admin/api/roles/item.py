@@ -8,58 +8,40 @@ from utils.strs import StrUtils
 
 
 class RolesItemView(BaseAPIView):
-    template_name = 'adminn/category_item.html'
+    template_name = 'admin/roles-item.html'
 
-    async def get(self, request, user, category_id):
-        self.context['data'] = dict(await db.fetchrow(
+    async def get(self, request, user, role_id):
+        role_id = IntUtils.to_int(role_id)
+        if not role_id:
+            return self.error(message='Отсуствует обязательный параметр "role_id"')
+
+        item = await db.fetchrow(
             '''
             SELECT *
-            FROM public.categories
+            FROM public.roles
             WHERE id = $1
             ''',
-            category_id
-        ) or {})
+            role_id
+        ) or {}
 
-        return self.render_template(
-            request=request,
-            user=user
-        )
+        permissions = ListUtils.to_list_of_dicts(await db.fetch(
+            '''
+            SELECT *
+            FROM public.permissions
+            WHERE status = 0
+            '''
+        ))
 
-    async def post(self, request, user, role_id):
+        return self.success(request=request, user=user, data={'role': dict(item), 'permissions': permissions or []})
+
+    async def put(self, request, user, role_id):
         title = StrUtils.to_str(request.json.get('title'))
         description = StrUtils.to_str(request.json.get('description'))
         permissions = ListUtils.to_list_of_strs(request.json.get('permissions'))
 
-        if role_id == 'new':
-            data = await db.fetchrow(
-                '''
-                INSERT INTO public.roles(title, description, permissions)
-                VALUES ($1, $2, $3)
-                RETURNING *
-                ''',
-                title,
-                description,
-                permissions,
-            )
-
-            if data:
-                return response.json({
-                    '_success': True,
-                    'data': dict(data)
-                })
-
-            else:
-                return response.json({
-                    '_success': False,
-                    'message': 'Operation failed'
-                })
-
         role_id = IntUtils.to_int(role_id)
         if not role_id:
-            return response.json({
-                '_success': False,
-                'message': 'Required param(s): category_id'
-            })
+            return self.error(message='Отсуствует обязательный параметр "role_id"')
 
         data = await db.fetchrow(
             '''
@@ -75,23 +57,14 @@ class RolesItemView(BaseAPIView):
         )
 
         if not data:
-            return response.json({
-                '_success': False,
-                'message': 'Operation failed'
-            })
+            return self.error(message='Операция не выполнена')
 
-        return response.json({
-            '_success': True,
-            'data': dict(data)
-        })
+        return self.success()
 
     async def delete(self, request, user, role_id):
         role_id = IntUtils.to_int(role_id)
         if not role_id:
-            return response.json({
-                '_success': False,
-                'message': 'Required param(s): category_id'
-            })
+            return self.error(message='Отсуствует обязательный параметр "role_id"')
 
         data = await db.fetchrow(
             '''
@@ -104,12 +77,6 @@ class RolesItemView(BaseAPIView):
         )
 
         if not data:
-            return response.json({
-                '_success': False,
-                'message': 'Operation failed'
-            })
+            return self.error(message='Операция не выполнена')
 
-        return response.json({
-            '_success': True,
-            'data': dict(data)
-        })
+        return self.success()

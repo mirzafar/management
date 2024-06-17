@@ -40,19 +40,11 @@
                                     <label class="form-label"
                                            for="cf-password-new">Пароль
                                     </label>
-                                    <input type="text" class="form-control"
+                                    <input type="password" class="form-control"
                                            name="password"
                                            id="cf-password-new">
                                 </div>
 
-                                <div class="form-group">
-                                    <label class="form-label"
-                                           for="cf-password2-new">Повторите пароль
-                                    </label>
-                                    <input type="text" class="form-control"
-                                           name="reply_password"
-                                           id="cf-password2-new">
-                                </div>
                                 <div class="form-group">
                                     <label class="form-label"
                                            for="cf-role">Роль
@@ -156,6 +148,7 @@
 {% block js %}
 <script>
     $('li[data-li="users"]').addClass('active')
+    $('li[data-li="users-list"]').addClass('active')
 
     $('[type="file"]').change(function () {
         var trigger_name = $(this).parents('.photo-place').data('name');
@@ -174,12 +167,16 @@
 
     function saveItem() {
         let data = getValues('#data-item')
+        data.action = 'main'
+        console.log(itemId)
+        console.log(data)
         $.ajax({
             type: 'PUT',
             dataType: 'json',
             url: '/api/users/' + itemId,
             data: JSON.stringify(data),
             success: function (d) {
+                console.log(d)
                 if (d['_success'] === true) {
                     alertShow('success')
                     window.location.href = '/api/users/'

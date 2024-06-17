@@ -6,6 +6,7 @@ from core.handlers import BaseAPIView
 from core.hasher import password_to_hash
 from models import UsersModels
 from utils.ints import IntUtils
+from utils.lists import ListUtils
 from utils.strs import StrUtils
 
 
@@ -29,11 +30,19 @@ class UsersItemView(BaseAPIView):
         if not customer:
             return self.error(message='Пользователь не найден(-o, -а) в системе')
 
+        roles = ListUtils.to_list_of_dicts(await db.fetch(
+            '''
+            SELECT *
+            FROM public.roles
+            WHERE status = 0
+            '''
+        ))
+
         return self.success(request=request, user=user, data={
-            'customer': dict(customer)
+            'customer': dict(customer),
+            'roles': roles
         })
 
-    @doc.consumes(UsersModels, location='body')
     async def post(self, request, user, user_id):
         first_name = StrUtils.to_str(request.json.get('first_name'))
         last_name = StrUtils.to_str(request.json.get('last_name'))
@@ -91,14 +100,12 @@ class UsersItemView(BaseAPIView):
             }
         )
 
-    @doc.consumes(UsersModels, location='body', required=True)
-    @doc.consumes(doc.String(description='main, reset_password'), required=True)
     async def put(self, request, user, user_id):
         user_id = IntUtils.to_int(user_id)
         if not user_id:
             return self.error(message='Отсуствует обязательный параметр "user_id: int"')
 
-        action = StrUtils.to_str(request.args.get('action'))
+        action = StrUtils.to_str(request.json.get('action'))
         if action == 'main':
             first_name = StrUtils.to_str(request.json.get('first_name'))
             last_name = StrUtils.to_str(request.json.get('last_name'))
@@ -106,7 +113,7 @@ class UsersItemView(BaseAPIView):
             birthday = DatetimeUtils.parse(request.json.get('birthday'))
             username = StrUtils.to_str(request.json.get('username'))
             photo = StrUtils.to_str(request.json.get('photo'))
-            status = IntUtils.to_int(request.json.get('status')) or 0
+            password = StrUtils.to_str(request.json.get('password'))
 
             if not first_name or not last_name:
                 return self.error(message='Отсуствует обязательный параметры "first_name: str, last_name: str"')
@@ -129,6 +136,9 @@ class UsersItemView(BaseAPIView):
             else:
                 return self.error(message='Отсуствует обязательный параметр "username: str"')
 
+            if not password:
+                return self.error(message='Отсуствует обязательный параметр "password: str"')
+
             user = await db.fetchrow(
                 '''
                 UPDATE public.users
@@ -139,7 +149,7 @@ class UsersItemView(BaseAPIView):
                     username = $5, 
                     photo = $6, 
                     birthday = $7,
-                    status = $8
+                    password = $8
                 WHERE id = $1
                 RETURNING *
                 ''',
@@ -150,7 +160,7 @@ class UsersItemView(BaseAPIView):
                 username,
                 photo,
                 birthday,
-                status
+                password_to_hash(password)
             )
 
             if not user:
@@ -182,7 +192,7 @@ class UsersItemView(BaseAPIView):
                 'user': dict(user)
             })
 
-        return self.success()
+        return self.error()
 
     async def delete(self, request, user, user_id):
         user_id = IntUtils.to_int(user_id)

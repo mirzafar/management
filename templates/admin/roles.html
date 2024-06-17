@@ -13,7 +13,7 @@
         <div class="card card-stretch">
             <div class="card-inner">
                 <div class="card-title-group">
-                    <div class="card-title"><h5 class="title">Сотрудники</h5></div>
+                    <div class="card-title"><h5 class="title">Роли</h5></div>
                     <div class="nk-block-head-content">
                         <div class="toggle-wrap nk-block-tools-toggle">
                             <a href="#"
@@ -56,20 +56,26 @@
                         <th class="tb-tnx-id"><span class="">#</span></th>
                         <th class="tb-tnx-info">
                         <span class="tb-tnx-desc d-none d-sm-inline-block">
-                            <span>ФИ</span>
+                            <span>Название</span>
                         </span>
+                        </th>
+                        <th class="tb-tnx-amount is-alt">
+                            <span class="tb-tnx-total">Разрешение</span>
                         </th>
                         <th class="tb-tnx-action"><span>&nbsp;</span></th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for item in users %}
+                    {% for item in roles %}
                     <tr class="tb-tnx-item" data-id="{{item.id}}">
-                        <td class="tb-tnx-id"><a href="/api/users/{{item.id}}/"><span># {{item.id}}</span></a></td>
+                        <td class="tb-tnx-id"><a href="/api/roles/{{item.id}}/"><span># {{item.id}}</span></a></td>
                         <td class="tb-tnx-info">
                             <div class="tb-tnx-desc">
-                                <span class="title">{{item.first_name}} {{item.last_name}}</span>
+                                <span class="title">{{item.title}}</span>
                             </div>
+                        </td>
+                        <td class="tb-tnx-amount is-alt">
+                            <div class="tb-tnx-total"><span class="amount">{{item.permissions|join(', ')}}</span></div>
                         </td>
                         <td class="tb-tnx-action">
                             <div class="dropdown"><a
@@ -78,7 +84,7 @@
                                     class="icon ni ni-more-h"></em></a>
                                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
                                     <ul class="link-list-plain">
-                                        <li><a href="/api/users/{{item.id}}/">Edit</a></li>
+                                        <li><a href="/api/roles/{{item.id}}/">Edit</a></li>
                                         <li><a class="js-remove">Remove</a></li>
                                     </ul>
                                 </div>
@@ -105,7 +111,7 @@
                            {% if pager.next_page %}
                            href="/api/users/?limit={{pager.limit}}&page={{pager.next_page}}"
                            {% endif %}
-                           >Next</a>
+                        >Next</a>
                     </li>
                 </ul>
             </div>
@@ -119,66 +125,25 @@
                 <div class="col-12">
                     <div class="form-group">
                         <label class="form-label"
-                               for="cf-last-name-new">Фимилия
+                               for="cf-title">Название
                         </label>
                         <input type="text" class="form-control"
-                               name="last_name"
-                               id="cf-last-name-new">
+                               name="title"
+                               id="cf-title">
                     </div>
                 </div>
                 <div class="col-12">
                     <div class="form-group">
-                        <label class="form-label"
-                               for="cf-first-name-new">Имя
-                        </label>
-                        <input type="text" class="form-control"
-                               name="first_name"
-                               id="cf-first-name-new">
+                        <textarea name="description" class="form-control"></textarea>
                     </div>
                 </div>
                 <div class="col-12">
-                    <label class="form-label"
-                           for="cf-username-new">Логин
-                    </label>
-                    <input type="text" class="form-control"
-                           name="username"
-                           id="cf-username-new">
-                </div>
-                <div class="col-md-12">
-                    <label class="form-label"
-                           for="cf-password-new">Пароль
-                    </label>
-                    <input type="password" class="form-control"
-                           name="password"
-                           id="cf-password-new">
-                </div>
-                <div class="col-12">
-                    <label class="form-label" for="customFileNew" data-name="photo">Фото</label>
-                    <div class="card-preview">
-                        <div class="card-inner">
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="card card-bordered photo-place" data-name="photo">
-                                        <img class="card-img-top" alt="">
-                                        <div class="card-inner">
-                                            <div class="form-control-wrap">
-                                                <div class="form-file">
-                                                    <input type="hidden" name="photo"
-                                                           value="{{photo}}">
-                                                    <input type="file" multiple=""
-                                                           class="form-file-input"
-                                                           id="customFileNew" accept="image/*">
-                                                    <label class="form-file-label"
-                                                           for="customFileNew">Choose file
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <select multiple class="form-select" name="permissions">
+                            {% for pr in permissions %}
+                            <option value="{{pr.key}}">{{pr.title}}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
                 <div class="col-12">
@@ -198,26 +163,23 @@
 {% block js %}
 <script>
     $('li[data-li="users"]').addClass('active')
-    $('li[data-li="users-list"]').addClass('active')
+    $('li[data-li="user-roles"]').addClass('active')
 
     $('.js-remove').click(async function () {
         let new_id = $(this).parents('tr').data('id');
         let new_data = getValues('.js-cont[data-id="' + new_id + '"]')
 
         try {
-            let response = await fetch('/api/users/' + new_id, {
+            let response = await fetch('/api/roles/' + new_id, {
                 method: 'DELETE',
                 body: JSON.stringify(new_data)
             });
 
             response = await response.json();
             if (response._success === true) {
-                // alertShow('success')
-                alert('success');
-                window.location.href = '/api/users/';
+                window.location.href = '/api/roles/';
             } else {
                 alert(response.message);
-                // alertShow('error', response.message);
             }
 
         } catch (error) {
@@ -243,15 +205,14 @@
 
     async function createItem() {
         try {
-            let response = await fetch('/api/users/-1/', {
+            let response = await fetch('/api/roles/', {
                 method: 'POST',
                 body: JSON.stringify(getValues('#new-data-item'))
             });
 
             response = await response.json();
             if (response._success === true) {
-                alert('success');
-                window.location.href = '/api/users/';
+                window.location.href = '/api/roles/';
             } else {
                 alert(response.message);
             }

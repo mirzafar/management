@@ -19,7 +19,7 @@ class Session:
 
     @classmethod
     def is_protected_path(cls, path) -> bool:
-        if path.startswith('/api/login') or path.startswith('/api/logout'):
+        if path.startswith('/api') or path.startswith('/admin'):
             return True
         return False
 
