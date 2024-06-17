@@ -15,7 +15,7 @@
                                     </label>
                                     <input type="text" class="form-control"
                                            name="last_name"
-                                           value="{{employee.last_name}}"
+                                           value="{{client.last_name}}"
                                            id="cf-last-name">
                                 </div>
                                 <div class="form-group">
@@ -24,7 +24,7 @@
                                     </label>
                                     <input type="text" class="form-control"
                                            name="first_name"
-                                           value="{{employee.first_name}}"
+                                           value="{{client.first_name}}"
                                            id="cf-first-name">
                                 </div>
                                 <div class="form-group">
@@ -32,45 +32,18 @@
                                            for="cf-middle-name">Отчества
                                     </label>
                                     <input type="text" class="form-control"
-                                           value="{{employee.middle_name}}"
+                                           value="{{client.middle_name}}"
                                            name="middle_name"
                                            id="cf-middle-name">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label"
-                                           for="cf-password-new">Пароль
-                                    </label>
-                                    <input type="password" class="form-control"
-                                           name="password"
-                                           id="cf-password-new">
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label"
-                                           for="cf-role">Роль
-                                    </label>
-                                    <select id="cf-role"
-                                            class="form-select js-select2 select2-hidden-accessible"
-                                            name="role_id"
-                                    >
-                                        <option value="">Выберите</option>
-                                        {% for role in roles %}
-                                        <option value="{{role.id}}"
-                                                {% if employee.role_id== role.id %}
-                                                selected
-                                                {% endif %}>{{role.title}}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label"
-                                           for="cf-username">Username
+                                           for="cf-phone-new">Телефон номер
                                     </label>
                                     <input type="text" class="form-control"
-                                           value="{{employee.username}}"
-                                           name="username"
-                                           id="cf-username">
+                                           name="phone"
+                                           value="{{client.phone}}"
+                                           id="cf-phone-new">
                                 </div>
 
                                 <div class="form-group">
@@ -81,15 +54,15 @@
                                                 <div class="col-lg-8">
                                                     <div class="card card-bordered photo-place" data-name="photo">
                                                         <img class="card-img-top"
-                                                             {% if employee.photo %}
-                                                             src="/static/uploads/{{employee.photo}}/"
+                                                             {% if client.photo %}
+                                                             src="/static/uploads/{{client.photo}}/"
                                                              {% endif %}
                                                              alt="">
                                                         <div class="card-inner">
                                                             <div class="form-control-wrap">
                                                                 <div class="form-file">
                                                                     <input type="hidden" name="photo"
-                                                                           value="{{employee.photo}}">
+                                                                           value="{{client.photo}}">
                                                                     <input type="file" multiple=""
                                                                            class="form-file-input"
                                                                            id="customFile">
@@ -109,28 +82,6 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label"
-                                           for="cf-birthday">birthday
-                                    </label>
-                                    <input type="text" class="form-control date-picker-alt"
-                                           data-date-format="yyyy-mm-dd"
-                                           value="{% if employee.birthday %}{{employee.birthday}}{% endif %}"
-                                           name="birthday"
-                                           id="cf-birthday">
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label"
-                                           for="cf-phone-no">Phone No
-                                    </label>
-                                    <input type="text"
-                                           name="phone_number"
-                                           value="{{employee.phone_number}}"
-                                           class="form-control"
-                                           id="cf-phone-no">
-                                </div>
-
-                                <div class="form-group">
                                     <button onclick="saveItem()" type="submit" class="btn btn-lg btn-primary">
                                         Сохранить
                                     </button>
@@ -147,8 +98,8 @@
 
 {% block js %}
 <script>
-    $('li[data-li="users"]').addClass('active')
-    $('li[data-li="users-list"]').addClass('active')
+    $('li[data-li="clients"]').addClass('active')
+    $('li[data-li="clients-list"]').addClass('active')
 
     $('[type="file"]').change(function () {
         var trigger_name = $(this).parents('.photo-place').data('name');
@@ -173,13 +124,13 @@
         $.ajax({
             type: 'PUT',
             dataType: 'json',
-            url: '/api/users/' + itemId,
+            url: '/api/clients/' + itemId,
             data: JSON.stringify(data),
             success: function (d) {
                 console.log(d)
                 if (d['_success'] === true) {
                     alertShow('success')
-                    window.location.href = '/api/users/'
+                    window.location.href = '/api/clients/'
                 } else {
                     alertShow('error', d['message'])
                 }

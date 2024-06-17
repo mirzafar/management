@@ -11,7 +11,7 @@ class ProfileView(BaseAPIView):
     template_name = 'admin/profile.html'
 
     async def get(self, request, user):
-        customer = await db.fetchrow(
+        employee = await db.fetchrow(
             '''
             SELECT *
             FROM public.users
@@ -29,7 +29,7 @@ class ProfileView(BaseAPIView):
         ))
 
         return self.success(request=request, user=user, data={
-            'customer': dict(customer),
+            'employee': dict(employee),
             'roles': roles,
         })
 

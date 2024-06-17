@@ -18,7 +18,7 @@ class UsersItemView(BaseAPIView):
         if not user_id:
             return self.error(message='Required param(s): user_id')
 
-        customer = await db.fetchrow(
+        employee = await db.fetchrow(
             '''
             SELECT *
             FROM public.users
@@ -27,7 +27,7 @@ class UsersItemView(BaseAPIView):
             user_id
         )
 
-        if not customer:
+        if not employee:
             return self.error(message='Пользователь не найден(-o, -а) в системе')
 
         roles = ListUtils.to_list_of_dicts(await db.fetch(
@@ -39,7 +39,7 @@ class UsersItemView(BaseAPIView):
         ))
 
         return self.success(request=request, user=user, data={
-            'customer': dict(customer),
+            'employee': dict(employee),
             'roles': roles
         })
 

@@ -16,7 +16,7 @@
                                     </label>
                                     <input type="text" class="form-control"
                                            name="last_name"
-                                           value="{{customer.last_name}}"
+                                           value="{{employee.last_name}}"
                                            id="cf-last-name">
                                 </div>
                                 <div class="form-group">
@@ -25,7 +25,7 @@
                                     </label>
                                     <input type="text" class="form-control"
                                            name="first_name"
-                                           value="{{customer.first_name}}"
+                                           value="{{employee.first_name}}"
                                            id="cf-first-name">
                                 </div>
                                 <div class="form-group">
@@ -33,7 +33,7 @@
                                            for="cf-middle-name">Отчества
                                     </label>
                                     <input type="text" class="form-control"
-                                           value="{{customer.middle_name}}"
+                                           value="{{employee.middle_name}}"
                                            name="middle_name"
                                            id="cf-middle-name">
                                 </div>
@@ -48,7 +48,7 @@
                                         <option value="">Выберите</option>
                                         {% for role in roles %}
                                         <option value="{{role.id}}"
-                                                {% if customer.role_id== role.id %}
+                                                {% if employee.role_id== role.id %}
                                                 selected
                                                 {% endif %}>{{role.title}}
                                         </option>
@@ -60,7 +60,7 @@
                                            for="cf-username">Username
                                     </label>
                                     <input type="text" class="form-control"
-                                           value="{{customer.username}}"
+                                           value="{{employee.username}}"
                                            name="username"
                                            id="cf-username">
                                 </div>
@@ -72,14 +72,14 @@
                                             <div class="row">
                                                 <div class="col-lg-8">
                                                     <div class="card card-bordered photo-place" data-name="photo">
-                                                        <img src="/static/uploads/{{customer.photo}}/"
+                                                        <img src="/static/uploads/{{employee.photo}}/"
                                                              class="card-img-top"
                                                              alt="">
                                                         <div class="card-inner">
                                                             <div class="form-control-wrap">
                                                                 <div class="form-file">
                                                                     <input type="hidden" name="photo"
-                                                                           value="{{customer.photo}}">
+                                                                           value="{{employee.photo}}">
                                                                     <input type="file" multiple=""
                                                                            class="form-file-input"
                                                                            id="customFile">
@@ -104,7 +104,7 @@
                                     </label>
                                     <input type="text" class="form-control date-picker-alt"
                                            data-date-format="yyyy-mm-dd"
-                                           value="{{customer.birthday}}"
+                                           value="{{employee.birthday}}"
                                            name="birthday"
                                            id="cf-birthday">
                                 </div>
