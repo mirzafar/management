@@ -1,0 +1,117 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="nk-content-body">
+    <div class="nk-block nk-block-lg">
+        <div class="card">
+            <div class="card-aside-wrap">
+                <div class="card-content">
+                    <ul class="nav nav-tabs nav-tabs-mb-icon nav-tabs-card" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link active" data-bs-toggle="tab"
+                                                                    href="#tabItem2" aria-selected="false" role="tab"
+                                                                    tabindex="-1"><em
+                                class="icon ni ni-property"></em><span>Список</span></a></li>
+                    </ul>
+                    <div class="card-inner">
+                        <div class="tab-content">
+                            <div class="tab-pane show active" id="tabItem2" role="tabpanel">
+                                <div class="nk-block">
+                                    <div class="card">
+                                        <div class="nk-tb-list nk-tb-ulist is-compact">
+                                            <div class="nk-tb-item nk-tb-head">
+                                                <div class="nk-tb-col"><span class="sub-text"> # ID </span></div>
+                                                <div class="nk-tb-col tb-col-sm"><span class="sub-text">Причина</span>
+                                                </div>
+                                                <div class="nk-tb-col tb-col-md"><span
+                                                        class="sub-text">Дата приема</span></div>
+                                                <div class="nk-tb-col"><span class="sub-text">Status</span></div>
+                                                <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                                            </div>
+                                            {% for visit in visits %}
+                                            <div class="nk-tb-item">
+                                                <div class="nk-tb-col"><span>{{visit.id}}</span></div>
+                                                <div class="nk-tb-col tb-col-md"><span>{{visit.reason}}</span></div>
+                                                <div class="nk-tb-col tb-col-sm"><span>{{visit.time}}</span></div>
+                                                <div class="nk-tb-col">
+                                                    <span class="tb-status {% if visit.state.title %}
+                                                        {{visit.state.color}}
+                                                        {% endif %}">
+                                                        {% if visit.state.title %}
+                                                        {{visit.state.title}}
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
+                                                <div class="nk-tb-col nk-tb-col-tools">
+                                                    <ul class="nk-tb-actions gx-2">
+                                                        <li class="nk-tb-action-hidden"><a
+                                                                href="/api/visits/{{visit.id}}/"
+                                                                class="btn btn-sm btn-icon btn-trigger"
+                                                                data-bs-toggle="tooltip"
+                                                                data-bs-placement="top"
+                                                                aria-label="Edit"
+                                                                data-bs-original-title="Edit"><em
+                                                                class="icon ni ni-edit-fill"></em></a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $('li[data-li="visits"]').addClass('active')
+    $('li[data-li="visits-list"]').addClass('active')
+
+    $('[type="file"]').change(function () {
+        var trigger_name = $(this).parents('.photo-place').data('name');
+        var input_name = $(this).closest('.photo-place').find('[name="' + trigger_name + '"]');
+        let image = $(this).closest('.photo-place').find('img')
+        uploadImage($(this).attr('id')).then(function (data) {
+            input_name.val(String(data['file_name']));
+            image.attr('src', '/static/uploads/' + String(data['file_name']));
+        }, function (data) {
+            alert('error');
+        });
+    })
+
+    let currUrl = window.location.href.split('/')
+    let itemId = currUrl[currUrl.length - 1] || currUrl[currUrl.length - 2]
+
+    function saveItem() {
+        let data = getValues('#data-item')
+        data.action = 'main'
+        console.log(itemId)
+        console.log(data)
+        $.ajax({
+            type: 'PUT',
+            dataType: 'json',
+            url: '/api/clients/' + itemId,
+            data: JSON.stringify(data),
+            success: function (d) {
+                console.log(d)
+                if (d['_success'] === true) {
+                    alertShow('success')
+                    window.location.href = '/api/clients/'
+                } else {
+                    alertShow('error', d['message'])
+                }
+            },
+            error: function (d) {
+                alertShow('waring')
+            }
+        });
+    }
+
+</script>
+
+{% endblock %}

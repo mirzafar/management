@@ -32,7 +32,7 @@
                                     >
                                         {% for pr in permissions %}
                                         <option value="{{pr.key}}"
-                                                {% if pr.key in role.permissions %}
+                                                {% if pr.key in (role.permissions or []) %}
                                                 selected
                                                 {% endif %}>{{pr.title}}
                                         </option>

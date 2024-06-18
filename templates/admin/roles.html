@@ -75,7 +75,11 @@
                             </div>
                         </td>
                         <td class="tb-tnx-amount is-alt">
-                            <div class="tb-tnx-total"><span class="amount">{{item.permissions|join(', ')}}</span></div>
+                            <div class="tb-tnx-total"><span class="amount">
+                                {% if item.permissions %}
+                                {{item.permissions|join(', ')}}
+                                {% endif %}
+                            </span></div>
                         </td>
                         <td class="tb-tnx-action">
                             <div class="dropdown"><a

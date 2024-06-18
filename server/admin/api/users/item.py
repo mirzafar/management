@@ -136,9 +136,6 @@ class UsersItemView(BaseAPIView):
             else:
                 return self.error(message='Отсуствует обязательный параметр "username: str"')
 
-            if not password:
-                return self.error(message='Отсуствует обязательный параметр "password: str"')
-
             user = await db.fetchrow(
                 '''
                 UPDATE public.users
@@ -148,8 +145,7 @@ class UsersItemView(BaseAPIView):
                     middle_name = $4, 
                     username = $5, 
                     photo = $6, 
-                    birthday = $7,
-                    password = $8
+                    birthday = $7
                 WHERE id = $1
                 RETURNING *
                 ''',
@@ -159,12 +155,23 @@ class UsersItemView(BaseAPIView):
                 middle_name,
                 username,
                 photo,
-                birthday,
-                password_to_hash(password)
+                birthday
             )
 
             if not user:
                 return self.error(message='Операция не выполнена')
+
+            if password:
+                await db.fetchrow(
+                    '''
+                    UPDATE public.users
+                    SET password = $2
+                    WHERE id = $1
+                    RETURNING *
+                    ''',
+                    user_id,
+                    password_to_hash(password)
+                )
 
             return self.success(data={
                 'user': dict(user)

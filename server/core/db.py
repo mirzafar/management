@@ -73,6 +73,10 @@ class DBProxy:
         async with self.pool.acquire() as db:
             return await db.fetchrow(*args, **kwargs)
 
+    async def executemany(self, *args, **kwargs):
+        async with self.pool.acquire() as db:
+            return await db.executemany(*args, **kwargs)
+
     async def fetchval(self, *args, **kwargs):
         async with self.pool.acquire() as db:
             return await db.fetchval(*args, **kwargs)
