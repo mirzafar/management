@@ -9,6 +9,7 @@ from admin.api.roles import role_bp
 from admin.api.tracks import tracks_bp
 from admin.api.traffics import traffics_bp
 from admin.api.users import users_bp
+from admin.api.visits import visits_bp
 
 main_bp = Blueprint('main', url_prefix='/')
 
@@ -19,6 +20,7 @@ api_group = Blueprint.group(
     role_bp,
     users_bp,
     clients_bp,
+    visits_bp,
     profile_bp,
     tracks_bp,
     regions_bp,

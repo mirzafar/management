@@ -6,110 +6,13 @@
             <div class="card-aside-wrap">
                 <div class="card-content">
                     <ul class="nav nav-tabs nav-tabs-mb-icon nav-tabs-card" role="tablist">
-                        <li class="nav-item" role="presentation"><a class="nav-link" data-bs-toggle="tab"
-                                                                    href="#tabItem1" aria-selected="true" role="tab"><em
-                                class="icon ni ni-user-circle-fill"></em><span>Личные данных</span></a></li>
                         <li class="nav-item" role="presentation"><a class="nav-link active" data-bs-toggle="tab"
                                                                     href="#tabItem2" aria-selected="false" role="tab"
                                                                     tabindex="-1"><em
-                                class="icon ni ni-property"></em><span>Список посещении</span></a></li>
+                                class="icon ni ni-property"></em><span>Список</span></a></li>
                     </ul>
                     <div class="card-inner">
                         <div class="tab-content">
-                            <div class="tab-pane" id="tabItem1" role="tabpanel">
-                                <div class="row g-gs">
-                                    <div class="col-lg-12">
-                                        <div class="card card-bordered h-100">
-                                            <div class="card-inner" id="data-item">
-                                                <div class="card-head"><h5 class="card-title"></h5></div>
-                                                <div>
-                                                    <div class="form-group">
-                                                        <label class="form-label"
-                                                               for="cf-last-name">Фимилия
-                                                        </label>
-                                                        <input type="text" class="form-control"
-                                                               name="last_name"
-                                                               value="{{client.last_name}}"
-                                                               id="cf-last-name">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label class="form-label"
-                                                               for="cf-first-name">Имя
-                                                        </label>
-                                                        <input type="text" class="form-control"
-                                                               name="first_name"
-                                                               value="{{client.first_name}}"
-                                                               id="cf-first-name">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label class="form-label"
-                                                               for="cf-middle-name">Отчества
-                                                        </label>
-                                                        <input type="text" class="form-control"
-                                                               value="{{client.middle_name}}"
-                                                               name="middle_name"
-                                                               id="cf-middle-name">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label class="form-label"
-                                                               for="cf-phone-new">Телефон номер
-                                                        </label>
-                                                        <input type="text" class="form-control"
-                                                               name="phone"
-                                                               value="{{client.phone}}"
-                                                               id="cf-phone-new">
-                                                    </div>
-
-                                                    <div class="form-group">
-                                                        <label class="form-label" for="customFile" data-name="photo">Фото</label>
-                                                        <div class="card-preview">
-                                                            <div class="card-inner">
-                                                                <div class="row">
-                                                                    <div class="col-lg-8">
-                                                                        <div class="card card-bordered photo-place"
-                                                                             data-name="photo">
-                                                                            <img class="card-img-top"
-                                                                                 {% if client.photo %}
-                                                                                 src="/static/uploads/{{client.photo}}/"
-                                                                                 {% endif %}
-                                                                                 alt="">
-                                                                            <div class="card-inner">
-                                                                                <div class="form-control-wrap">
-                                                                                    <div class="form-file">
-                                                                                        <input type="hidden"
-                                                                                               name="photo"
-                                                                                               value="{{client.photo}}">
-                                                                                        <input type="file" multiple=""
-                                                                                               class="form-file-input"
-                                                                                               id="customFile">
-                                                                                        <label class="form-file-label"
-                                                                                               for="customFile">Choose
-                                                                                            file
-                                                                                        </label>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-
-                                                    <div class="form-group">
-                                                        <button onclick="saveItem()" type="submit"
-                                                                class="btn btn-lg btn-primary">
-                                                            Сохранить
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="tab-pane show active" id="tabItem2" role="tabpanel">
                                 <div class="nk-block nk-block-between">
                                     <div class="nk-block-head"><h6 class="title"></h6>
@@ -277,125 +180,78 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content"><a href="#" class="close" data-bs-dismiss="modal"><em
                 class="icon ni ni-cross-sm"></em></a>
-            <div class="modal-body modal-body-md" id="new-data-item">
+            <div class="modal-body modal-body-md">
                 <!--h5 class="modal-title">Diagnosis Info</h5-->
                 <div class="row g-gs">
                     <div class="col-md-12">
                         <div class="form-group">
                             <label class="form-label" for="reportType">Причина</label>
                             <div class="form-control-wrap">
-                                <input name="reason" type="text" class="form-control" id="reportType"
-                                       placeholder="Причина">
+                                <input type="text" class="form-control" id="reportType"
+                                       placeholder="Report Type">
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label" for="count-lesson">Количество уроков</label>
-                            <div class="form-control-wrap">
-                                <input type="number" min="1" value="1" name="count_lesson" class="form-control"
-                                       id="count-lesson">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group"><label class="form-label">Дата</label>
+                        <div class="form-group"><label class="form-label">Date</label>
                             <div class="form-control-wrap">
                                 <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
-                                <input type="text" name="datetime" class="form-control date-picker"
-                                       data-date-format="dd-mm-yyyy"
+                                <input type="text" class="form-control date-picker" data-date-format="dd-mm-yyyy"
                                        placeholder="dd-mm-yyyy"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="form-group"><label class="form-label">Описание</label>
-                            <div class="form-control-wrap">
-                                <textarea class="form-control" name="description"></textarea>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
-                                <li>
-                                    <a onclick="createItem()" data-bs-dismiss="modal"
-                                       class="btn btn-primary">Добавить</a>
-                                </li>
-                                <li><a href="#" class="link link-light" data-bs-dismiss="modal">Cancel</a></li>
-                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    {% endblock %}
+</div>
+{% endblock %}
 
-    {% block js %}
-    <script>
-        $('li[data-li="clients"]').addClass('active')
-        $('li[data-li="clients-list"]').addClass('active')
+{% block js %}
+<script>
+    $('li[data-li="clients"]').addClass('active')
+    $('li[data-li="clients-visits"]').addClass('active')
 
-        $('[type="file"]').change(function () {
-            var trigger_name = $(this).parents('.photo-place').data('name');
-            var input_name = $(this).closest('.photo-place').find('[name="' + trigger_name + '"]');
-            let image = $(this).closest('.photo-place').find('img')
-            uploadImage($(this).attr('id')).then(function (data) {
-                input_name.val(String(data['file_name']));
-                image.attr('src', '/static/uploads/' + String(data['file_name']));
-            }, function (data) {
-                alert('error');
-            });
-        })
+    $('[type="file"]').change(function () {
+        var trigger_name = $(this).parents('.photo-place').data('name');
+        var input_name = $(this).closest('.photo-place').find('[name="' + trigger_name + '"]');
+        let image = $(this).closest('.photo-place').find('img')
+        uploadImage($(this).attr('id')).then(function (data) {
+            input_name.val(String(data['file_name']));
+            image.attr('src', '/static/uploads/' + String(data['file_name']));
+        }, function (data) {
+            alert('error');
+        });
+    })
 
-        let currUrl = window.location.href.split('/')
-        let itemId = currUrl[currUrl.length - 1] || currUrl[currUrl.length - 2]
+    let currUrl = window.location.href.split('/')
+    let itemId = currUrl[currUrl.length - 1] || currUrl[currUrl.length - 2]
 
-        function saveItem() {
-            let data = getValues('#data-item')
-            data.action = 'main'
-            console.log(itemId)
-            console.log(data)
-            $.ajax({
-                type: 'PUT',
-                dataType: 'json',
-                url: '/api/clients/' + itemId,
-                data: JSON.stringify(data),
-                success: function (d) {
-                    console.log(d)
-                    if (d['_success'] === true) {
-                        alertShow('success')
-                        window.location.href = '/api/clients/'
-                    } else {
-                        alertShow('error', d['message'])
-                    }
-                },
-                error: function (d) {
-                    alertShow('waring')
-                }
-            });
-        }
-
-        async function createItem() {
-            try {
-                let data = getValues('#new-data-item')
-                data.client_id = itemId
-                let response = await fetch('/api/visits/', {
-                    method: 'POST',
-                    body: JSON.stringify(data)
-                });
-
-                response = await response.json();
-                if (response._success === true) {
-                    alert('success');
-                    window.location.href = '/api/visits/';
+    function saveItem() {
+        let data = getValues('#data-item')
+        data.action = 'main'
+        console.log(itemId)
+        console.log(data)
+        $.ajax({
+            type: 'PUT',
+            dataType: 'json',
+            url: '/api/clients/' + itemId,
+            data: JSON.stringify(data),
+            success: function (d) {
+                console.log(d)
+                if (d['_success'] === true) {
+                    alertShow('success')
+                    window.location.href = '/api/clients/'
                 } else {
-                    alert(response.message);
+                    alertShow('error', d['message'])
                 }
-
-            } catch (error) {
-                alertShow('waring', `${error.message}`);
+            },
+            error: function (d) {
+                alertShow('waring')
             }
-        }
+        });
+    }
 
-    </script>
+</script>
 
-    {% endblock %}
+{% endblock %}
