@@ -1,0 +1,232 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="components-preview wide-md mx-auto">
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title"></h3>
+            </div>
+
+        </div>
+    </div>
+    <div class="nk-block">
+        <div class="card card-stretch">
+            <div class="card-inner">
+                <div class="card-title-group">
+                    <div class="card-title"><h5 class="title">Роли</h5></div>
+                    <div class="nk-block-head-content">
+                        <div class="toggle-wrap nk-block-tools-toggle">
+                            <a href="#"
+                               class="btn btn-icon btn-trigger toggle-expand me-n1"
+                               data-target="pageMenu">
+                                <em class="icon ni ni-more-v"></em>
+                            </a>
+                            <div class="toggle-expand-content" data-content="pageMenu">
+                                <ul class="nk-block-tools g-3">
+                                    <li class="nk-block-tools-opt">
+                                        <a href="#" data-target="addProduct"
+                                           class="toggle btn btn-icon btn-primary d-md-none">
+                                            <em class="icon ni ni-plus"></em>
+                                        </a>
+                                        <a href="#"
+                                           data-target="addProduct"
+                                           class="toggle btn btn-primary d-none d-md-inline-flex">
+                                            <em class="icon ni ni-plus"></em>
+                                            <span>добавить</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-inner p-0">
+                <table class="table table-tranx">
+                    <thead>
+                    <tr class="tb-tnx-head">
+                        <th class="tb-tnx-id"><span class="">#</span></th>
+                        <th class="tb-tnx-info">
+                        <span class="tb-tnx-desc d-none d-sm-inline-block">
+                            <span>Название</span>
+                        </span>
+                        </th>
+                        <th class="tb-tnx-action"><span>&nbsp;</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for reason in reasons %}
+                    <tr class="tb-tnx-item" data-id="{{reason.id}}">
+                        <td class="tb-tnx-id"><a href="/api/visits/reasons/{{reason.id}}/"><span># {{reason.id}}</span></a>
+                        </td>
+                        <td class="tb-tnx-info">
+                            <div class="tb-tnx-desc">
+                                <span class="title">{{reason.title}}</span>
+                            </div>
+                        </td>
+                        <td class="tb-tnx-action">
+                            <div class="dropdown"><a
+                                    class="text-soft dropdown-toggle btn btn-icon btn-trigger"
+                                    data-bs-toggle="dropdown"><em
+                                    class="icon ni ni-more-h"></em></a>
+                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
+                                    <ul class="link-list-plain">
+                                        <li><a data-target="updateProduct" class="toggle"
+                                               onclick="openItem({{reason.id}})">Edit</a>
+                                        </li>
+                                        <li><a class="js-remove">Remove</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
+         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+        <div class="nk-block">
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-title">Название
+                        </label>
+                        <input type="text" class="form-control"
+                               name="title"
+                               id="cf-title">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <a onclick="createItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Добавить</span></a>
+                </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+        </div>
+    </div>
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="updateProduct"
+         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar
+         id="update-data-item">
+        <div class="nk-block">
+            <div class="row g-3">
+                <input type="hidden" id="up-id" name="id">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-title">Название
+                        </label>
+                        <input type="text" class="form-control"
+                               name="title"
+                               id="up-title">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <a onclick="updateItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Изменить</span></a>
+                </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    $('li[data-li="visits"]').addClass('active')
+    $('li[data-li="visits-reasons"]').addClass('active')
+
+    $('.js-remove').click(async function () {
+        let new_id = $(this).parents('tr').data('id');
+        let new_data = getValues('.js-cont[data-id="' + new_id + '"]')
+
+        try {
+            let response = await fetch('/api/visits/reasons/' + new_id, {
+                method: 'DELETE',
+                body: JSON.stringify(new_data)
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.href = '/api/visits/reasons/';
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    });
+
+    async function createItem() {
+        try {
+            let response = await fetch('/api/visits/reasons/', {
+                method: 'POST',
+                body: JSON.stringify(getValues('#new-data-item'))
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.href = '/api/visits/reasons/';
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function updateItem() {
+        try {
+            let data = getValues('#update-data-item')
+            let response = await fetch(`/api/visits/reasons/${data.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(data)
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.href = '/api/visits/reasons/';
+            } else {
+                alert(response.message);
+            }
+            console.log()
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function openItem(item_id) {
+        try {
+            let response = await fetch(`/api/visits/reasons/${item_id}?response_type=json`, {
+                method: 'GET'
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                $('#up-title').val(response.reason.title)
+                $('#up-id').val(response.reason.id)
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+</script>
+{% endblock %}

@@ -1,10 +1,7 @@
-from sanic_openapi import doc
-
 from core.datetimes import DatetimeUtils
 from core.db import db
 from core.handlers import BaseAPIView
 from core.hasher import password_to_hash
-from models import UsersModels
 from utils.ints import IntUtils
 from utils.lists import ListUtils
 from utils.strs import StrUtils
@@ -50,6 +47,7 @@ class UsersItemView(BaseAPIView):
         birthday = DatetimeUtils.parse(request.json.get('birthday'))
         username = StrUtils.to_str(request.json.get('username'))
         password = StrUtils.to_str(request.json.get('password'))
+        role_id = IntUtils.to_int(request.json.get('role_id'))
         photo = StrUtils.to_str(request.json.get('photo'))
 
         if not first_name or not last_name:
@@ -78,8 +76,8 @@ class UsersItemView(BaseAPIView):
         user = await db.fetchrow(
             '''
             INSERT INTO public.users
-            (last_name, first_name, middle_name, password, username, photo, birthday)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            (last_name, first_name, middle_name, password, username, photo, birthday, role_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *
             ''',
             last_name,
@@ -89,6 +87,7 @@ class UsersItemView(BaseAPIView):
             username,
             photo,
             birthday,
+            role_id
         )
 
         if not user:
@@ -110,6 +109,7 @@ class UsersItemView(BaseAPIView):
             first_name = StrUtils.to_str(request.json.get('first_name'))
             last_name = StrUtils.to_str(request.json.get('last_name'))
             middle_name = StrUtils.to_str(request.json.get('middle_name'))
+            role_id = IntUtils.to_int(request.json.get('role_id'))
             birthday = DatetimeUtils.parse(request.json.get('birthday'))
             username = StrUtils.to_str(request.json.get('username'))
             photo = StrUtils.to_str(request.json.get('photo'))
@@ -145,7 +145,8 @@ class UsersItemView(BaseAPIView):
                     middle_name = $4, 
                     username = $5, 
                     photo = $6, 
-                    birthday = $7
+                    birthday = $7,
+                    role_id = $8
                 WHERE id = $1
                 RETURNING *
                 ''',
@@ -155,7 +156,8 @@ class UsersItemView(BaseAPIView):
                 middle_name,
                 username,
                 photo,
-                birthday
+                birthday,
+                role_id
             )
 
             if not user:

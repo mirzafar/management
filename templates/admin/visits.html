@@ -19,26 +19,28 @@
                                         <div class="nk-tb-list nk-tb-ulist is-compact">
                                             <div class="nk-tb-item nk-tb-head">
                                                 <div class="nk-tb-col"><span class="sub-text"> # ID </span></div>
-                                                <div class="nk-tb-col tb-col-sm"><span class="sub-text">Причина</span>
+                                                <div class="nk-tb-col tb-col-md"><span class="sub-text">Причина</span>
                                                 </div>
-                                                <div class="nk-tb-col tb-col-md"><span
+                                                <div class="nk-tb-col tb-col-sm"><span
                                                         class="sub-text">Дата приема</span></div>
-                                                <div class="nk-tb-col"><span class="sub-text">Status</span></div>
+                                                <div class="nk-tb-col tb-col-sm"><span class="sub-text">Клиент</span>
+                                                </div>
                                                 <div class="nk-tb-col nk-tb-col-tools text-end"></div>
                                             </div>
                                             {% for visit in visits %}
                                             <div class="nk-tb-item">
                                                 <div class="nk-tb-col"><span>{{visit.id}}</span></div>
                                                 <div class="nk-tb-col tb-col-md"><span>{{visit.reason}}</span></div>
-                                                <div class="nk-tb-col tb-col-sm"><span>{{visit.time}}</span></div>
-                                                <div class="nk-tb-col">
-                                                    <span class="tb-status {% if visit.state.title %}
-                                                        {{visit.state.color}}
-                                                        {% endif %}">
-                                                        {% if visit.state.title %}
-                                                        {{visit.state.title}}
-                                                        {% endif %}
-                                                    </span>
+                                                <div class="nk-tb-col tb-col-sm">
+                                                    <span>{{visit.time or ''}}</span>
+                                                </div>
+                                                <div class="nk-tb-col tb-col-sm">
+                                                    {% if visit.customer.photo %}
+                                                    <div class="user-avatar sm bg-blue"><img
+                                                            src="/static/uploads/{{visit.customer.photo}}/"
+                                                            alt=""></div>
+                                                    {% endif %}
+                                                    <span>{{visit.customer.first_name|capitalize}} {{visit.customer.last_name[:1]|capitalize}}</span>
                                                 </div>
                                                 <div class="nk-tb-col nk-tb-col-tools">
                                                     <ul class="nk-tb-actions gx-2">

@@ -29,7 +29,8 @@ class ClientsItemView(BaseAPIView):
                 jsonb_build_object(
                     'id', u.id,
                     'first_name', u.first_name,
-                    'last_name', u.last_name
+                    'last_name', u.last_name,
+                    'photo', u.photo
                 ) AS employee,
                 jsonb_build_object(
                     'id', vs.id,

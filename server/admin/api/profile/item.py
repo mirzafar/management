@@ -65,9 +65,6 @@ class ProfileView(BaseAPIView):
             else:
                 return self.error(message='Required param(s): username')
 
-            if not role_id:
-                return self.error(message='Required param(s): role_id')
-
             user = await db.fetchrow(
                 '''
                 UPDATE public.users

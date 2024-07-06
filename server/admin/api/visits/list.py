@@ -38,17 +38,12 @@ class VisitsView(BaseAPIView):
                 jsonb_build_object(
                     'id', cu.id,
                     'first_name', cu.first_name,
-                    'last_name', cu.last_name
-                ) AS customer,
-                jsonb_build_object(
-                    'id', vs.id,
-                    'title', vs.title,
-                    'color', vs.color
-                ) AS state
+                    'last_name', cu.last_name,
+                    'photo', cu.photo
+                ) AS customer
             FROM public.visits v
             LEFT JOIN public.users u ON v.user_id = u.id
             LEFT JOIN public.clients cu ON v.client_id = cu.id
-            LEFT JOIN public.visit_state vs ON v.state_id = vs.id
             WHERE %s
             ORDER BY v.id DESC
             %s
@@ -84,8 +79,8 @@ class VisitsView(BaseAPIView):
         item = await db.fetchrow(
             '''
             INSERT INTO public.visits
-            (reason, description, client_id, user_id, time, state_id)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            (reason, description, client_id, user_id, time, state_id, count_lesson)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *
             ''',
             reason,
@@ -93,7 +88,8 @@ class VisitsView(BaseAPIView):
             client_id,
             user_id,
             time,
-            state_id
+            state_id,
+            count_lesson
         )
 
         if not item:

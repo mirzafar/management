@@ -119,57 +119,62 @@
                                     </div>
                                 </div>
                                 <div class="nk-block">
-                                    <div class="card-inner p-0">
-                                        <table class="table table-tranx">
-                                            <thead>
-                                            <tr class="tb-tnx-head">
-                                                <th class="tb-tnx-id"><span class=""># ID</span></th>
-                                                <th class="tb-tnx-info">
-                                                    <span class="tb-tnx-desc d-none d-sm-inline-block">
-                                                        <span>Причина</span>
-                                                    </span>
-                                                </th>
-                                                <th class="tb-tnx-amount is-alt">
-                                                    <span class="tb-tnx-total">Дата приема</span>
-                                                </th>
-                                                <th class="tb-tnx-action"><span>&nbsp;</span></th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {% for item in visits %}
-                                            <tr class="tb-tnx-item" data-id="{{item.id}}">
-                                                <td class="tb-tnx-id"><a href="/api/visits/{{item.id}}/"><span># {{item.id}}</span></a>
-                                                </td>
-                                                <td class="tb-tnx-info">
-                                                    <div class="tb-tnx-desc">
-                                                        <span class="title">{{item.reason}}</span>
-                                                    </div>
-                                                </td>
-                                                <td class="tb-tnx-amount is-alt">
-                                                    <div class="tb-tnx-total"><span class="amount">
-                                                        {% if item.time %}
-                                                        {{item.time}}
-                                                        {% endif %}
-                                                    </span>
-                                                    </div>
-                                                </td>
-                                                <td class="tb-tnx-action">
-                                                    <div class="dropdown"><a
-                                                            class="text-soft dropdown-toggle btn btn-icon btn-trigger"
-                                                            data-bs-toggle="dropdown"><em
-                                                            class="icon ni ni-more-h"></em></a>
-                                                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                                            <ul class="link-list-plain">
-                                                                <li><a href="/api/visits/{{item.id}}/">Edit</a></li>
-                                                                <li><a class="js-remove">Remove</a></li>
+                                    <div class="row g-gs">
+                                        {% for visit in visits %}
+                                        <div class="col-sm-6 col-xl-4">
+                                            <div class="card h-100">
+                                                <div class="card-inner">
+                                                    <div class="project">
+                                                        <div class="project-details"><p>{{visit.reason}}</p></div>
+                                                        <div class="project-progress">
+                                                            <div class="project-progress-details">
+                                                                <div class="project-progress-task"><em
+                                                                        class="icon ni ni-check-round-cut"></em><span>{{visit.count_lesson or 0}}</span>
+                                                                </div>
+                                                                <div class="project-progress-percent">93.5%</div>
+                                                            </div>
+                                                            <div class="progress progress-pill progress-md bg-light">
+                                                                <div class="progress-bar" data-progress="93.5"
+                                                                     style="width: 93.5%;"></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="project-meta">
+                                                            <ul class="project-users g-1">
+                                                                {% if visit.employee.photo %}
+                                                                <li>
+                                                                    <div class="user-avatar sm bg-blue"><img
+                                                                            src="/static/uploads/{{visit.employee.photo}}/"
+                                                                            alt=""></div>
+                                                                </li>
+                                                                {% else %}
+                                                                {% if visit.employee.first_name or
+                                                                visit.employee.last_name%}
+                                                                <li>
+                                                                    <div class="user-avatar sm bg-primary">
+                                                                            <span>
+                                                                                {% if visit.employee.first_name %}
+                                                                                    {{visit.employee.first_name[:1]|upper}}
+                                                                                {% else %}
+                                                                                    {{visit.employee.last_name[:1]|upper}}
+                                                                                {% endif %}
+                                                                            </span></div>
+                                                                </li>
+                                                                {% endif %}
+                                                                {% endif %}
                                                             </ul>
+                                                            {% if visit.time %}
+                                                            <span class="badge badge-dim bg-warning"><em
+                                                                    class="icon ni ni-clock"></em>
+                                                                <span>
+                                                                        {{visit.time.strftime('%Y-%m-%d')}}
+                                                            </span></span>
+                                                            {% endif %}
                                                         </div>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
                                     </div>
                                 </div>
                             </div>
