@@ -13,7 +13,7 @@ class ClientsView(BaseAPIView):
     async def get(self, request, user):
         pager = Pager()
         pager.set_page(request.args.get('page', 1))
-        pager.set_limit(request.args.get('limit', 10))
+        pager.set_limit(request.args.get('limit', 20))
 
         query = StrUtils.to_str(request.args.get('query'))
 
@@ -37,18 +37,18 @@ class ClientsView(BaseAPIView):
             *cond_vars
         ))
 
-        total = await db.fetchval(
+        pager.set_total(await db.fetchval(
             '''
             SELECT count(*)
             FROM public.clients cu
             WHERE %s
             ''' % cond,
             *cond_vars
-        ) or 0
+        ) or 0)
 
         return self.success(request=request, user=user, data={
             'clients': clients,
-            'total': total
+            'pager': pager.dict()
         })
 
     async def post(self, request, user):
@@ -78,4 +78,6 @@ class ClientsView(BaseAPIView):
         if not user:
             return self.error(message='Операция не выполнена')
 
-        return self.success()
+        return self.success(data={
+            'employee': dict(user)
+        })

@@ -13,7 +13,7 @@
         <div class="card card-stretch">
             <div class="card-inner">
                 <div class="card-title-group">
-                    <div class="card-title"><h5 class="title">Роли</h5></div>
+                    <div class="card-title"><h5 class="title">Причины</h5></div>
                     <div class="nk-block-head-content">
                         <div class="toggle-wrap nk-block-tools-toggle">
                             <a href="#"
@@ -61,7 +61,7 @@
                         </td>
                         <td class="tb-tnx-info">
                             <div class="tb-tnx-desc">
-                                <span class="title">{{reason.title}}</span>
+                                <span class="title">{{reason.title[:20]}} {% if reason.title|length > 20  %}...{% endif %}</span>
                             </div>
                         </td>
                         <td class="tb-tnx-action">
@@ -95,9 +95,7 @@
                         <label class="form-label"
                                for="cf-title">Название
                         </label>
-                        <input type="text" class="form-control"
-                               name="title"
-                               id="cf-title">
+                        <textarea class="form-control" name="title" id="cf-title"></textarea>
                     </div>
                 </div>
                 <div class="col-12">
@@ -123,9 +121,7 @@
                         <label class="form-label"
                                for="up-title">Название
                         </label>
-                        <input type="text" class="form-control"
-                               name="title"
-                               id="up-title">
+                        <textarea class="form-control" name="title" id="up-title"></textarea>
                     </div>
                 </div>
                 <div class="col-12">
@@ -202,7 +198,6 @@
             } else {
                 alert(response.message);
             }
-            console.log()
 
         } catch (error) {
             alertShow('waring', `${error.message}`);
@@ -217,7 +212,7 @@
 
             response = await response.json();
             if (response._success === true) {
-                $('#up-title').val(response.reason.title)
+                $('#up-title').text(response.reason.title)
                 $('#up-id').val(response.reason.id)
             } else {
                 alert(response.message);

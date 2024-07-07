@@ -1,200 +1,188 @@
 {% extends 'admin/base.html' %}
 {% block container %}
-<div class="components-preview wide-md mx-auto">
-    <div class="nk-block-head nk-block-head-sm">
-        <div class="nk-block-between">
-            <div class="nk-block-head-content">
-                <h3 class="nk-block-title page-title"></h3>
+<div class="nk-block-head nk-block-head-sm">
+    <div class="nk-block-between">
+        <div class="nk-block-head-content"><h3 class="nk-block-title page-title">Клинты</h3></div>
+        <div class="nk-block-head-content">
+            <div class="toggle-wrap nk-block-tools-toggle"><a
+                    class="btn btn-icon btn-trigger toggle-expand me-n1"
+                    data-target="more-options"><em
+                    class="icon ni ni-more-v"></em></a>
+                <div class="toggle-expand-content" data-content="more-options" style="display: none;">
+                    <ul class="nk-block-tools g-3">
+                        <li>
+                            <div class="form-control-wrap">
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-search"></em></div>
+                                <input type="text" class="form-control" id="filter-query"
+                                       value="{{request.args.get('query', '')}}"
+                                       placeholder="Поиск">
+                            </div>
+                        </li>
+                        <li class="nk-block-tools-opt">
+                            <a href="#" data-target="addProduct"
+                               class="toggle btn btn-icon btn-primary d-md-none">
+                                <em class="icon ni ni-plus"></em>
+                            </a>
+                            <a href="#"
+                               data-target="addProduct"
+                               class="toggle btn btn-primary d-none d-md-inline-flex">
+                                <em class="icon ni ni-plus"></em>
+                                <span>добавить</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-
         </div>
     </div>
-    <div class="nk-block">
-        <div class="card card-stretch">
+</div>
+<div class="row g-gs">
+    {% for item in clients %}
+    <div class="col-sm-6 col-lg-4 col-xxl-3">
+        <div class="card card-bordered">
             <div class="card-inner">
-                <div class="card-title-group">
-                    <div class="card-title"><h5 class="title">Клиенты</h5></div>
-                    <div class="nk-block-head-content">
-                        <div class="toggle-wrap nk-block-tools-toggle">
-                            <a href="#"
-                               class="btn btn-icon btn-trigger toggle-expand me-n1"
-                               data-target="pageMenu">
-                                <em class="icon ni ni-more-v"></em>
-                            </a>
-                            <div class="toggle-expand-content" data-content="pageMenu">
-                                <ul class="nk-block-tools g-3">
-                                    <li>
-                                        <div class="form-control-wrap">
-                                            <div class="form-icon form-icon-right"><em
-                                                    class="icon ni ni-search"></em></div>
-                                            <input type="text" class="form-control" id="filter-query"
-                                                   value="{{request.args.get('query', '')}}"
-                                                   placeholder="Поиск"></div>
-                                    </li>
-                                    <li class="nk-block-tools-opt">
-                                        <a href="#" data-target="addProduct"
-                                           class="toggle btn btn-icon btn-primary d-md-none">
-                                            <em class="icon ni ni-plus"></em>
-                                        </a>
-                                        <a href="#"
-                                           data-target="addProduct"
-                                           class="toggle btn btn-primary d-none d-md-inline-flex">
-                                            <em class="icon ni ni-plus"></em>
-                                            <span>добавить</span>
-                                        </a>
+                <div class="team">
+                    <div class="team-options">
+                        <div class="drodown"><a href="#"
+                                                class="dropdown-toggle btn btn-sm btn-icon btn-trigger"
+                                                data-bs-toggle="dropdown"><em
+                                class="icon ni ni-more-h"></em></a>
+
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <ul class="link-list-opt no-bdr">
+                                    <li onclick="removeItem({{item.id}})"><a><em class="icon ni ni-trash-fill"></em>Удалить</a>
                                     </li>
                                 </ul>
                             </div>
                         </div>
                     </div>
+                    <div class="user-card user-card-s2">
+                        <div class="user-avatar lg bg-primary"><img
+                                src="{% if item.photo %}/static/uploads/{{item.photo}}/{% else %}/static/images/no-avatar.jpg{% endif %}"
+                                alt=""></div>
+                        <div class="user-info"><h6>{{item.first_name}} {{item.last_name}}</h6>
+                        </div>
+                    </div>
+                    <ul class="team-info">
+                        <li><span>Дата регистрация</span><span>{{item.created_at.strftime('%Y-%m-%d') if item.created_at else null}}</span>
+                        </li>
+                        <li><span>Телефон</span><span>{{item.phone or null}}</span></li>
+                    </ul>
+                    <div class="team-view"><a href="/api/clients/{{item.id}}/"
+                                              class="btn btn-block btn-dim btn-primary"><span>Просмотр</span></a>
+                    </div>
                 </div>
             </div>
-            <div class="card-inner p-0">
-                <table class="table table-tranx">
-                    <thead>
-                    <tr class="tb-tnx-head">
-                        <th class="tb-tnx-id"><span class="">#</span></th>
-                        <th class="tb-tnx-info">
-                        <span class="tb-tnx-desc d-none d-sm-inline-block">
-                            <span>ФИ</span>
-                        </span>
-                        </th>
-                        <th class="tb-tnx-action"><span>&nbsp;</span></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for item in clients %}
-                    <tr class="tb-tnx-item" data-id="{{item.id}}">
-                        <td class="tb-tnx-id"><a href="/api/clients/{{item.id}}/"><span># {{item.id}}</span></a></td>
-                        <td class="tb-tnx-info">
-                            <div class="tb-tnx-desc">
-                                <span class="title">{{item.first_name}} {{item.last_name}}</span>
-                            </div>
-                        </td>
-                        <td class="tb-tnx-action">
-                            <div class="dropdown"><a
-                                    class="text-soft dropdown-toggle btn btn-icon btn-trigger"
-                                    data-bs-toggle="dropdown"><em
-                                    class="icon ni ni-more-h"></em></a>
-                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                    <ul class="link-list-plain">
-                                        <li><a href="/api/clients/{{item.id}}/">Edit</a></li>
-                                        <li><a class="js-remove">Remove</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% if pager %}
-            <div class="card-inner">
-                <ul class="pagination justify-content-center justify-content-md-start">
-                    <li class="page-item">
-                        <a class="page-link"
-                           {% if pager.prev_page %}
-                           href="/api/clients/?limit={{pager.limit}}&page={{pager.prev_page}}"
-                           {% endif %}
-                        >Prev</a>
-                    </li>
-                    <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
-                    <li class="page-item">
-                        <a class="page-link"
-                           {% if pager.next_page %}
-                           href="/api/clients/?limit={{pager.limit}}&page={{pager.next_page}}"
-                           {% endif %}
-                        >Next</a>
-                    </li>
-                </ul>
-            </div>
-            {% endif %}
         </div>
     </div>
-    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
-         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
-        <div class="nk-block">
-            <div class="row g-3">
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="cf-last-name-new">Фимилия
-                        </label>
-                        <input type="text" class="form-control"
-                               name="last_name"
-                               id="cf-last-name-new">
-                    </div>
+    {% endfor %}
+</div>
+
+{% if pager %}
+<div class="card-inner">
+    <ul class="pagination justify-content-center justify-content-md-start">
+        <li class="page-item">
+            <a class="page-link"
+               {% if pager.prev_page %}
+               href="/api/clients/?page={{pager.prev_page}}"
+               {% endif %}
+            >Prev</a>
+        </li>
+        <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
+        <li class="page-item">
+            <a class="page-link"
+               {% if pager.next_page %}
+               href="/api/clients/?page={{pager.next_page}}"
+               {% endif %}
+            >Next</a>
+        </li>
+    </ul>
+</div>
+{% endif %}
+
+
+<div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
+     data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+    <div class="nk-block">
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-last-name-new">Фимилия
+                    </label>
+                    <input type="text" class="form-control"
+                           name="last_name"
+                           id="cf-last-name-new">
                 </div>
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="cf-first-name-new">Имя
-                        </label>
-                        <input type="text" class="form-control"
-                               name="first_name"
-                               id="cf-first-name-new">
-                    </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-first-name-new">Имя
+                    </label>
+                    <input type="text" class="form-control"
+                           name="first_name"
+                           id="cf-first-name-new">
                 </div>
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="cf-middle-name-new">Отчетсво
-                        </label>
-                        <input type="text" class="form-control"
-                               name="middle_name"
-                               id="cf-middle-name-new">
-                    </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-middle-name-new">Отчетсво
+                    </label>
+                    <input type="text" class="form-control"
+                           name="middle_name"
+                           id="cf-middle-name-new">
                 </div>
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="cf-phone-new">Телефон номер
-                        </label>
-                        <input type="text" class="form-control"
-                               name="phone"
-                               id="cf-phone-new">
-                    </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-phone-new">Телефон номер
+                    </label>
+                    <input type="text" class="form-control"
+                           name="phone"
+                           id="cf-phone-new">
                 </div>
-                <div class="col-12">
-                    <label class="form-label" for="customFileNew" data-name="photo">Фото</label>
-                    <div class="card-preview">
-                        <div class="card-inner">
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="card card-bordered photo-place" data-name="photo">
-                                        <img class="card-img-top" alt="">
-                                        <div class="card-inner">
-                                            <div class="form-control-wrap">
-                                                <div class="form-file">
-                                                    <input type="hidden" name="photo"
-                                                           value="{{photo}}">
-                                                    <input type="file" multiple=""
-                                                           class="form-file-input"
-                                                           id="customFileNew" accept="image/*">
-                                                    <label class="form-file-label"
-                                                           for="customFileNew">Choose file
-                                                    </label>
-                                                </div>
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="customFileNew" data-name="photo">Фото</label>
+                <div class="card-preview">
+                    <div class="card-inner">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card card-bordered photo-place" data-name="photo">
+                                    <img class="card-img-top" alt="">
+                                    <div class="card-inner">
+                                        <div class="form-control-wrap">
+                                            <div class="form-file">
+                                                <input type="hidden" name="photo"
+                                                       value="{{photo}}">
+                                                <input type="file" multiple=""
+                                                       class="form-file-input"
+                                                       id="customFileNew" accept="image/*">
+                                                <label class="form-file-label"
+                                                       for="customFileNew">Choose file
+                                                </label>
                                             </div>
                                         </div>
-
                                     </div>
+
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-12">
-                    <a onclick="createItem()" class="btn btn-primary"><em
-                            class="icon ni ni-plus"></em><span>Добавить</span></a>
-                </div>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
             </div>
+            <div class="col-12">
+                <a onclick="createItem()" class="btn btn-primary"><em
+                        class="icon ni ni-plus"></em><span>Добавить</span></a>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
         </div>
     </div>
 </div>
@@ -203,29 +191,6 @@
 <script>
     $('li[data-li="clients"]').addClass('active')
     $('li[data-li="clients-list"]').addClass('active')
-
-    $('.js-remove').click(async function () {
-        let new_id = $(this).parents('tr').data('id');
-        let new_data = getValues('.js-cont[data-id="' + new_id + '"]')
-
-        try {
-            let response = await fetch('/api/clients/' + new_id, {
-                method: 'DELETE',
-                body: JSON.stringify(new_data)
-            });
-
-            response = await response.json();
-            if (response._success === true) {
-                alertShow('success')
-                window.location.href = '/api/clients/';
-            } else {
-                alertShow('error', response.message);
-            }
-
-        } catch (error) {
-            alertShow('waring', `${error.message}`);
-        }
-    });
 
     $('[type="file"]').change(function () {
         var trigger_name = $(this).parents('.photo-place').data('name');
@@ -252,10 +217,29 @@
 
             response = await response.json();
             if (response._success === true) {
-                alert('success');
-                window.location.href = '/api/clients/';
+                alertShow('success')
+                window.location.href = `/api/clients/${response.employee.id}`;
             } else {
                 alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function removeItem(itemId) {
+        try {
+            let response = await fetch('/api/clients/' + itemId, {
+                method: 'DELETE'
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success')
+                window.location.href = '/api/clients/';
+            } else {
+                alertShow('error', response.message);
             }
 
         } catch (error) {

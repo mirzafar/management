@@ -30,9 +30,10 @@
                                             {% for visit in visits %}
                                             <div class="nk-tb-item">
                                                 <div class="nk-tb-col"><span>{{visit.id}}</span></div>
-                                                <div class="nk-tb-col tb-col-md"><span>{{visit.reason}}</span></div>
+                                                <div class="nk-tb-col tb-col-md"><span>{{visit.reason[:20] if visit.reason else ''}}</span>
+                                                </div>
                                                 <div class="nk-tb-col tb-col-sm">
-                                                    <span>{{visit.time or ''}}</span>
+                                                    <span>{{visit.created_at or ''}}</span>
                                                 </div>
                                                 <div class="nk-tb-col tb-col-sm">
                                                     {% if visit.customer.photo %}
@@ -57,8 +58,30 @@
                                             </div>
                                             {% endfor %}
                                         </div>
+
                                     </div>
                                 </div>
+                                {% if pager %}
+                                <div class="card-inner">
+                                    <ul class="pagination justify-content-center justify-content-md-start">
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                               {% if pager.prev_page %}
+                                               href="/api/visits/?page={{pager.prev_page}}"
+                                               {% endif %}
+                                            >{% if pager.prev_page %}Prev{% else %}&nbsp;{% endif %}</a>
+                                        </li>
+                                        <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                               {% if pager.next_page %}
+                                               href="/api/visits/?page={{pager.next_page}}"
+                                               {% endif %}
+                                            >{% if pager.next_page %}Prev{% else %}&nbsp;{% endif %}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

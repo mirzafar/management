@@ -29,7 +29,7 @@
                                                         </label>
                                                         <input type="text" class="form-control"
                                                                name="last_name"
-                                                               value="{{client.last_name}}"
+                                                               value="{{client.last_name or ''}}"
                                                                id="cf-last-name">
                                                     </div>
                                                     <div class="form-group">
@@ -38,7 +38,7 @@
                                                         </label>
                                                         <input type="text" class="form-control"
                                                                name="first_name"
-                                                               value="{{client.first_name}}"
+                                                               value="{{client.first_name or ''}}"
                                                                id="cf-first-name">
                                                     </div>
                                                     <div class="form-group">
@@ -46,7 +46,7 @@
                                                                for="cf-middle-name">Отчества
                                                         </label>
                                                         <input type="text" class="form-control"
-                                                               value="{{client.middle_name}}"
+                                                               value="{{client.middle_name or ''}}"
                                                                name="middle_name"
                                                                id="cf-middle-name">
                                                     </div>
@@ -56,7 +56,7 @@
                                                         </label>
                                                         <input type="text" class="form-control"
                                                                name="phone"
-                                                               value="{{client.phone}}"
+                                                               value="{{client.phone or ''}}"
                                                                id="cf-phone-new">
                                                     </div>
 
@@ -65,7 +65,7 @@
                                                         <div class="card-preview">
                                                             <div class="card-inner">
                                                                 <div class="row">
-                                                                    <div class="col-lg-8">
+                                                                    <div class="col-lg-4">
                                                                         <div class="card card-bordered photo-place"
                                                                              data-name="photo">
                                                                             <img class="card-img-top"
@@ -74,20 +74,20 @@
                                                                                  {% endif %}
                                                                                  alt="">
                                                                             <div class="card-inner">
+                                                                                <input type="hidden"
+                                                                                       name="photo"
+                                                                                       value="{{client.photo}}">
                                                                                 <div class="form-control-wrap">
                                                                                     <div class="form-file">
-                                                                                        <input type="hidden"
-                                                                                               name="photo"
-                                                                                               value="{{client.photo}}">
                                                                                         <input type="file" multiple=""
                                                                                                class="form-file-input"
                                                                                                id="customFile">
                                                                                         <label class="form-file-label"
-                                                                                               for="customFile">Choose
-                                                                                            file
+                                                                                               for="customFile"> Выбрать
                                                                                         </label>
                                                                                     </div>
                                                                                 </div>
+                                                                                <br/>
                                                                             </div>
 
                                                                         </div>
@@ -121,53 +121,52 @@
                                 <div class="nk-block">
                                     <div class="row g-gs">
                                         {% for visit in visits %}
-                                        <div class="col-sm-6 col-xl-4">
+                                        <div class="col-sm-6 col-xl-4" onclick="openVisitLesson({{visit.id}})">
                                             <div class="card h-100">
                                                 <div class="card-inner">
                                                     <div class="project">
-                                                        <div class="project-details"><p>{{visit.reason}}</p></div>
+                                                        <div class="project-details"><p>{{visit.reason[:20] if visit.reason else ''}}</p></div>
                                                         <div class="project-progress">
                                                             <div class="project-progress-details">
                                                                 <div class="project-progress-task"><em
                                                                         class="icon ni ni-check-round-cut"></em><span>{{visit.count_lesson or 0}}</span>
                                                                 </div>
-                                                                <div class="project-progress-percent">93.5%</div>
+                                                                <div class="project-progress-percent">{{visit.percent_process}}%</div>
                                                             </div>
                                                             <div class="progress progress-pill progress-md bg-light">
-                                                                <div class="progress-bar" data-progress="93.5"
+                                                                <div class="progress-bar" data-progress="{{visit.percent_process}}"
                                                                      style="width: 93.5%;"></div>
                                                             </div>
                                                         </div>
                                                         <div class="project-meta">
                                                             <ul class="project-users g-1">
-                                                                {% if visit.employee.photo %}
+                                                                {% if visit.author.photo %}
                                                                 <li>
                                                                     <div class="user-avatar sm bg-blue"><img
-                                                                            src="/static/uploads/{{visit.employee.photo}}/"
+                                                                            src="/static/uploads/{{visit.author.photo}}/"
                                                                             alt=""></div>
                                                                 </li>
                                                                 {% else %}
-                                                                {% if visit.employee.first_name or
-                                                                visit.employee.last_name%}
+                                                                {% if visit.author.first_name or
+                                                                visit.author.last_name%}
                                                                 <li>
                                                                     <div class="user-avatar sm bg-primary">
                                                                             <span>
-                                                                                {% if visit.employee.first_name %}
-                                                                                    {{visit.employee.first_name[:1]|upper}}
+                                                                                {% if visit.author.first_name %}
+                                                                                    {{visit.author.first_name[:1]|upper}}
                                                                                 {% else %}
-                                                                                    {{visit.employee.last_name[:1]|upper}}
+                                                                                    {{visit.author.last_name[:1]|upper}}
                                                                                 {% endif %}
                                                                             </span></div>
                                                                 </li>
                                                                 {% endif %}
                                                                 {% endif %}
                                                             </ul>
-                                                            {% if visit.time %}
-                                                            <span class="badge badge-dim bg-warning"><em
-                                                                    class="icon ni ni-clock"></em>
-                                                                <span>
-                                                                        {{visit.time.strftime('%Y-%m-%d')}}
-                                                            </span></span>
+                                                            {% if visit.created_at %}
+                                                            <span class="badge badge-dim bg-success">
+                                                                <em class="icon ni ni-clock"></em>
+                                                                <span> {{visit.created_at.strftime('%Y-%m-%d')}}</span>
+                                                            </span>
                                                             {% endif %}
                                                         </div>
                                                     </div>
@@ -190,14 +189,11 @@
         <div class="modal-content"><a href="#" class="close" data-bs-dismiss="modal"><em
                 class="icon ni ni-cross-sm"></em></a>
             <div class="modal-body modal-body-md" id="new-data-item">
-                <!--h5 class="modal-title">Diagnosis Info</h5-->
                 <div class="row g-gs">
                     <div class="col-md-12">
-                        <div class="form-group">
-                            <label class="form-label" for="reportType">Причина</label>
-                            <div class="form-control-wrap">
-                                <input name="reason" type="text" class="form-control" id="reportType"
-                                       placeholder="Причина">
+                        <div class="form-group"><label class="form-label">Причины</label>
+                            <div class="form-control-wrap" id="VisitReason">
+
                             </div>
                         </div>
                     </div>
@@ -207,29 +203,6 @@
                             <div class="form-control-wrap">
                                 <input type="number" min="1" value="1" name="count_lesson" class="form-control"
                                        id="count-lesson">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group"><label class="form-label">Дата</label>
-                            <div class="form-control-wrap">
-                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
-                                <input type="text" name="time" class="form-control date-picker"
-                                       data-date-format="yyyy-mm-dd"
-                                       placeholder="yyyy-mm-dd"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group"><label class="form-label">Ответственный</label>
-                            <div class="form-control-wrap" id="VisitUsers">
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group"><label class="form-label">Статус</label>
-                            <div class="form-control-wrap" id="VisitStates">
-
                             </div>
                         </div>
                     </div>
@@ -273,6 +246,15 @@
         });
     })
 
+    $('.js-remove-photo').on("click", function () {
+        var trigger_name = $(this).parents('.photo-place').data('name');
+        alert(trigger_name)
+        var input_name = $(this).closest('.photo-place').find('[name="' + trigger_name + '"]');
+        let image = $(this).closest('.photo-place').find('img')
+        input_name.val('');
+        image.attr('src', '');
+    })
+
     let currUrl = window.location.href.split('/')
     let itemId = currUrl[currUrl.length - 1] || currUrl[currUrl.length - 2]
 
@@ -309,7 +291,6 @@
 
             response = await response.json();
             if (response._success === true) {
-                alert('success');
                 window.location.href = '/api/clients/' + itemId;
             } else {
                 alert(response.message);
@@ -345,23 +326,23 @@
 
     }
 
-    async function showStates() {
+    async function showReasons() {
         try {
-            let response = await fetch('/api/visits/states?response_type=json', {
+            let response = await fetch('/api/visits/reasons?response_type=json', {
                 method: 'GET',
             });
 
             response = await response.json()
-            let states = $('<select>')
+            let reasons = $('<select>')
                 .addClass('form-control')
-                .attr("name", "state_id")
+                .attr("name", "reason_id")
             ;
 
-            $.each(response.states, function (index, item) {
-                states.append($('<option>').attr("value", item.id).text(item.title));
+            $.each(response.reasons, function (index, item) {
+                reasons.append($('<option>').attr("value", item.id).text(item.title));
             });
 
-            $('#VisitStates').append(states);
+            $('#VisitReason').append(reasons);
 
 
         } catch (error) {
@@ -370,8 +351,8 @@
 
     }
 
-    showStates()
     showUsers()
+    showReasons()
 
     $('.js-remove').click(async function () {
         let new_id = $(this).parents('tr').data('id');
@@ -394,6 +375,10 @@
             alertShow('waring', `${error.message}`);
         }
     });
+
+    function openVisitLesson(visit_id) {
+        window.location.href = `/api/visits/${visit_id}`
+    }
 
 </script>
 

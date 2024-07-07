@@ -1,4 +1,3 @@
-from core.datetimes import DatetimeUtils
 from core.db import db
 from core.handlers import BaseAPIView
 from utils.ints import IntUtils
@@ -16,7 +15,7 @@ class VisitsItemView(BaseAPIView):
 
         visit = await db.fetchrow(
             '''
-            SELECT *
+            SELECT id, description, client_id, count_lesson, reason_id, percent_process, is_active
             FROM public.visits
             WHERE id = $1
             ''',
@@ -39,11 +38,8 @@ class VisitsItemView(BaseAPIView):
         })
 
     async def put(self, request, user, visit_id):
-        reason = StrUtils.to_str(request.json.get('reason'))
+        reason_id = IntUtils.to_int(request.json.get('reason_id'))
         description = StrUtils.to_str(request.json.get('description'))
-        user_id = IntUtils.to_int(request.json.get('user_id'))
-        state_id = IntUtils.to_int(request.json.get('state_id'))
-        time = DatetimeUtils.parse(request.json.get('time'))
 
         visit_id = IntUtils.to_int(visit_id)
         if not visit_id:
@@ -52,16 +48,13 @@ class VisitsItemView(BaseAPIView):
         data = await db.fetchrow(
             '''
             UPDATE public.visits
-            SET reason = $2, description = $3, user_id = $4, time = $5, state_id = $6
+            SET reason_id = $2, description = $3
             WHERE id = $1
             RETURNING *
             ''',
             visit_id,
-            reason,
-            description,
-            user_id,
-            time,
-            state_id
+            reason_id,
+            description
         )
 
         if not data:
@@ -77,7 +70,7 @@ class VisitsItemView(BaseAPIView):
         data = await db.fetchrow(
             '''
             UPDATE public.visits
-            SET status = -1
+            SET is_active = FALSE
             WHERE id = $1
             RETURNING *
             ''',

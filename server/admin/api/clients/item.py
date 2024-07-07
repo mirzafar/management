@@ -25,22 +25,19 @@ class ClientsItemView(BaseAPIView):
 
         visits = ListUtils.to_list_of_dicts(await db.fetch(
             '''
-            SELECT v.*, 
+            SELECT 
+                v.*,
+                vr.title AS reason, 
                 jsonb_build_object(
                     'id', u.id,
                     'first_name', u.first_name,
                     'last_name', u.last_name,
                     'photo', u.photo
-                ) AS employee,
-                jsonb_build_object(
-                    'id', vs.id,
-                    'title', vs.title,
-                    'color', vs.color
-                ) AS state
+                ) AS author
             FROM public.visits v
-            LEFT JOIN public.users u ON v.user_id = u.id
-            LEFT JOIN public.visit_state vs ON v.state_id = vs.id
-            WHERE v.status = 0 AND v.client_id = $1
+            LEFT JOIN public.users u ON v.author_id = u.id
+            LEFT JOIN public.visit_reasons vr ON v.reason_id = vr.id
+            WHERE v.is_active AND v.client_id = $1
             ORDER BY v.id DESC
             ''',
             client_id

@@ -1,4 +1,3 @@
-from core.datetimes import DatetimeUtils
 from core.db import db
 from core.handlers import BaseAPIView
 from core.pager import Pager
@@ -14,11 +13,11 @@ class VisitsView(BaseAPIView):
     async def get(self, request, user):
         pager = Pager()
         pager.set_page(request.args.get('page', 1))
-        pager.set_limit(request.args.get('limit', 10))
+        pager.set_limit(request.args.get('limit', 20))
 
         query = StrUtils.to_str(request.args.get('query'))
 
-        cond, cond_vars = ['v.status = 0'], []
+        cond, cond_vars = ['v.is_active'], []
 
         if query:
             cond.append('(cu.first_name ILIKE {} OR cu.last_name ILIKE {})')
@@ -34,16 +33,18 @@ class VisitsView(BaseAPIView):
                     'id', u.id,
                     'first_name', u.first_name,
                     'last_name', u.last_name
-                ) AS employee,
+                ) AS author,
                 jsonb_build_object(
                     'id', cu.id,
                     'first_name', cu.first_name,
                     'last_name', cu.last_name,
                     'photo', cu.photo
-                ) AS customer
+                ) AS customer,
+                vr.title AS reason
             FROM public.visits v
-            LEFT JOIN public.users u ON v.user_id = u.id
+            LEFT JOIN public.users u ON v.author_id = u.id
             LEFT JOIN public.clients cu ON v.client_id = cu.id
+            LEFT JOIN public.visit_reasons vr ON v.reason_id = vr.id
             WHERE %s
             ORDER BY v.id DESC
             %s
@@ -51,49 +52,54 @@ class VisitsView(BaseAPIView):
             *cond_vars
         ))
 
-        total = await db.fetchval(
+        pager.set_total(await db.fetchval(
             '''
             SELECT count(*)
             FROM public.visits v
             WHERE %s
             ''' % cond,
             *cond_vars
-        ) or 0
+        ) or 0)
 
         return self.success(request=request, user=user, data={
             'visits': visits,
-            'total': total
+            'pager': pager.dict(),
+
         })
 
     async def post(self, request, user):
-        reason = StrUtils.to_str(request.json.get('reason'))
+        reason_id = IntUtils.to_int(request.json.get('reason_id'))
         description = StrUtils.to_str(request.json.get('description'))
         client_id = IntUtils.to_int(request.json.get('client_id'))
-        user_id = IntUtils.to_int(request.json.get('user_id'))
-        state_id = IntUtils.to_int(request.json.get('state_id'))
         count_lesson = IntUtils.to_int(request.json.get('count_lesson'), default=1)
-        time = DatetimeUtils.parse(request.json.get('time'))
-        if not reason:
-            return self.error(message='Отсуствует обязательный параметры "reason: str"')
+        if not reason_id:
+            return self.error(message='Отсуствует обязательный параметры "reason_id: int"')
 
         item = await db.fetchrow(
             '''
             INSERT INTO public.visits
-            (reason, description, client_id, user_id, time, state_id, count_lesson)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            (reason_id, description, client_id, count_lesson, author_id)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING *
             ''',
-            reason,
+            reason_id,
             description,
             client_id,
-            user_id,
-            time,
-            state_id,
-            count_lesson
+            count_lesson,
+            user['id']
         )
 
         if not item:
             return self.error(message='Операция не выполнена')
+
+        await db.execute(
+            '''
+            UPDATE public.visit_reasons
+            SET count = count + 1
+            WHERE id = $1
+            ''',
+            reason_id
+        )
 
         if count_lesson and count_lesson > 0:
             await db.executemany(
@@ -102,7 +108,7 @@ class VisitsView(BaseAPIView):
                 VALUES ($1, $2)
                 ON CONFLICT DO NOTHING 
                 ''',
-                [(user_id, item['id']) for _ in range(1, count_lesson + 1)]
+                [(user['id'], item['id']) for _ in range(1, count_lesson + 1)]
             )
 
         return self.success()

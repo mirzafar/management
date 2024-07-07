@@ -23,27 +23,9 @@
                                             <div class="card-inner" id="data-item">
                                                 <div class="card-head"><h5 class="card-title"></h5></div>
                                                 <div>
-                                                    <div class="form-group">
-                                                        <label class="form-label"
-                                                               for="cf-reason">Причина
-                                                        </label>
-                                                        <input type="text" class="form-control"
-                                                               name="reason"
-                                                               value="{{visit.reason}}"
-                                                               id="cf-reason">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label class="form-label"
-                                                               for="cf-time">Дата
-                                                        </label>
-                                                        <input type="text" class="form-control date-picker-alt"
-                                                               data-date-format="yyyy-mm-dd"
-                                                               value="{% if visit.time %}{{visit.time}}{% endif %}"
-                                                               name="time"
-                                                               id="cf-time">
-                                                    </div>
-                                                    <div class="form-group"><label class="form-label">Статус</label>
-                                                        <div class="form-control-wrap" id="VisitStates">
+                                                    <div class="form-group"><label
+                                                            class="form-label">Причины</label>
+                                                        <div class="form-control-wrap" id="VisitReason">
 
                                                         </div>
                                                     </div>
@@ -172,16 +154,18 @@
     $('li[data-li="visits"]').addClass('active')
     $('li[data-li="visits-list"]').addClass('active')
 
+    let visit = JSON.parse('{{visit | tojson}}')
+
     async function createItem() {
         try {
-            let response = await fetch(`/api/visits/${itemId}/lessons/`, {
+            let response = await fetch(`/api/visits/${visit.id}/lessons/`, {
                 method: 'POST',
                 body: JSON.stringify(getValues('#new-data-item'))
             });
 
             response = await response.json();
             if (response._success === true) {
-                window.location.href = `/api/visits/${itemId}`;
+                window.location.href = `/api/visits/${visit.id}`;
             } else {
                 alert(response.message);
             }
@@ -203,20 +187,17 @@
         });
     })
 
-    let currUrl = window.location.href.split('/')
-    let itemId = currUrl[currUrl.length - 1] || currUrl[currUrl.length - 2]
-
     function saveItem() {
         let data = getValues('#data-item')
         $.ajax({
             type: 'PUT',
             dataType: 'json',
-            url: '/api/visits/' + itemId,
+            url: `/api/visits/${visit.id}`,
             data: JSON.stringify(data),
             success: function (d) {
                 console.log(d)
                 if (d['_success'] === true) {
-                    window.location.href = '/api/visits/' + itemId
+                    alertShow('success')
                 } else {
                     alertShow('error', d['message'])
                 }
@@ -227,23 +208,31 @@
         });
     }
 
-    async function showStates() {
+    showReasons()
+
+    async function showReasons() {
         try {
-            let response = await fetch('/api/visits/states?response_type=json', {
+            let response = await fetch('/api/visits/reasons?response_type=json', {
                 method: 'GET',
             });
 
             response = await response.json()
-            let states = $('<select>')
+            let reasons = $('<select>')
                 .addClass('form-control')
-                .attr("name", "state_id")
+                .attr('name', 'reason_id')
             ;
 
-            $.each(response.states, function (index, item) {
-                states.append($('<option>').attr("value", item.id).text(item.title));
+            $.each(response.reasons, function (index, item) {
+                let option_attr = {
+                    'value': item.id,
+                }
+                if (item.id === visit.reason_id) {
+                    option_attr.selected = 'selected'
+                }
+                reasons.append($('<option>').attr(option_attr).text(item.title));
             });
 
-            $('#VisitStates').append(states);
+            $('#VisitReason').append(reasons);
 
 
         } catch (error) {
@@ -252,7 +241,7 @@
 
     }
 
-    showStates()
+
     showUsers()
 
     async function showUsers() {
