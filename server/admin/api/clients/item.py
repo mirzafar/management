@@ -84,7 +84,7 @@ class ClientsItemView(BaseAPIView):
         data = await db.fetchrow(
             '''
             UPDATE public.clients
-            SET status = -1
+            SET is_active = FALSE
             WHERE id = $1
             RETURNING *
             ''',

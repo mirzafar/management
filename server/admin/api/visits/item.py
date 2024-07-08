@@ -80,4 +80,6 @@ class VisitsItemView(BaseAPIView):
         if not data:
             return self.error(message='Операция не выполнена')
 
-        return self.success()
+        return self.success(data={
+            'visit': dict(data)
+        })

@@ -38,10 +38,14 @@
 
 
                                                     <div class="form-group">
-                                                        <button onclick="saveItem()" type="submit"
-                                                                class="btn btn-lg btn-primary">
+                                                        <a onclick="saveItem()" type="submit"
+                                                                class="btn btn-lg btn-success">
                                                             Сохранить
-                                                        </button>
+                                                        </a>
+                                                        <a onclick="removeItem({{visit.id}})" type="submit"
+                                                                class="btn btn-lg btn-danger">
+                                                            Удалить
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -186,6 +190,25 @@
             alert('error');
         });
     })
+
+    async function removeItem(itemId) {
+        try {
+            let response = await fetch('/api/visits/' + itemId, {
+                method: 'DELETE'
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success')
+                window.location.href = `/api/clients/${response.visit.client_id}`;
+            } else {
+                alertShow('error', response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
 
     function saveItem() {
         let data = getValues('#data-item')

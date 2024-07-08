@@ -17,7 +17,7 @@ class ClientsView(BaseAPIView):
 
         query = StrUtils.to_str(request.args.get('query'))
 
-        cond, cond_vars = ['cu.status = 0'], []
+        cond, cond_vars = ['cu.is_active'], []
 
         if query:
             cond.append('(cu.first_name ILIKE {} OR cu.last_name ILIKE {})')

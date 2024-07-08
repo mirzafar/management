@@ -99,10 +99,14 @@
                                                     </div>
 
                                                     <div class="form-group">
-                                                        <button onclick="saveItem()" type="submit"
-                                                                class="btn btn-lg btn-primary">
+                                                        <a onclick="saveItem()"
+                                                                class="btn btn-lg btn-success">
                                                             Сохранить
-                                                        </button>
+                                                        </a>
+                                                        <a onclick="removeItem({{client.id}})"
+                                                                class="btn btn-lg btn-danger">
+                                                            Удалить
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -120,21 +124,26 @@
                                 </div>
                                 <div class="nk-block">
                                     <div class="row g-gs">
+                                        {% if visits %}
                                         {% for visit in visits %}
                                         <div class="col-sm-6 col-xl-4" onclick="openVisitLesson({{visit.id}})">
                                             <div class="card h-100">
                                                 <div class="card-inner">
                                                     <div class="project">
-                                                        <div class="project-details"><p>{{visit.reason[:20] if visit.reason else ''}}</p></div>
+                                                        <div class="project-details"><p>{{visit.reason[:20] if
+                                                            visit.reason else ''}}</p></div>
                                                         <div class="project-progress">
                                                             <div class="project-progress-details">
                                                                 <div class="project-progress-task"><em
                                                                         class="icon ni ni-check-round-cut"></em><span>{{visit.count_lesson or 0}}</span>
                                                                 </div>
-                                                                <div class="project-progress-percent">{{visit.percent_process}}%</div>
+                                                                <div class="project-progress-percent">
+                                                                    {{visit.percent_process}}%
+                                                                </div>
                                                             </div>
                                                             <div class="progress progress-pill progress-md bg-light">
-                                                                <div class="progress-bar" data-progress="{{visit.percent_process}}"
+                                                                <div class="progress-bar"
+                                                                     data-progress="{{visit.percent_process}}"
                                                                      style="width: 93.5%;"></div>
                                                             </div>
                                                         </div>
@@ -174,6 +183,19 @@
                                             </div>
                                         </div>
                                         {% endfor %}
+                                        {% else %}
+                                        <div class="card card-bordered card-preview">
+                                            <div class="card-inner">
+                                                <figure class="text-center">
+                                                    <blockquote class="blockquote"><p>
+                                                        Здесь будет отображаться список посещении
+                                                    </p></blockquote>
+<!--                                                    <figcaption class="blockquote-footer"> Someone famous in <cite-->
+<!--                                                            title="Source Title">Source Title</cite></figcaption>-->
+                                                </figure>
+                                            </div>
+                                        </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -378,6 +400,25 @@
 
     function openVisitLesson(visit_id) {
         window.location.href = `/api/visits/${visit_id}`
+    }
+
+    async function removeItem(itemId) {
+        try {
+            let response = await fetch('/api/clients/' + itemId, {
+                method: 'DELETE'
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success')
+                window.location.href = `/api/clients/`;
+            } else {
+                alertShow('error', response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
     }
 
 </script>

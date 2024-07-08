@@ -1,4 +1,51 @@
 {% extends 'admin/base.html' %}
+{% block container %}
+<div class="nk-block nk-block-lg">
+    <div class="nk-block-head">
+        <div class="nk-block-head-content">
+            <div class="form-control-wrap focused">
+                <div class="form-icon form-icon-left"><em
+                        class="icon ni ni-calendar"></em>
+                </div>
+                <input type="text" class="form-control date-picker"
+                       data-date-format="yyyy-mm-dd"
+                       value="2024-07-07">
+            </div>
+        </div>
+    </div>
+    <div class="card card-bordered card-preview">
+        <div class="card-inner">
+            <div class="row g-gs">
+                {% for lesson in lessons %}
+                <div class="col-md-4">
+                    <div class="card card-bordered">
+                        <div class="card-inner">
+                            <h6 class="card-title mb-1">{{lesson.reason[:20] if lesson.reason else ''}}</h6>
+                            <div class="d-flex justify-content-between align-items-end">
+                                <ul class="pt-2 gy-1">
+                                    <li>
+                                        <em class="icon ni ni-map-pin"></em><span>{{lesson.room or ''}}</span>
+                                    </li>
+                                    <li><em class="icon ni ni-calender-date"></em><span>{{lesson.time.strftime('%H:%M:%S') if lesson.time else ''}}</span>
+                                    </li>
+                                    <li><em class="icon ni ni-briefcase"></em><span>{{lesson.customer.first_name}} {{lesson.customer.last_name}}</span>
+                                    </li>
+                                </ul>
+                                <span class="badge badge-dim badge-sm rounded-pill bg-outline-info">{{lesson.price or 0}} ₸</span>
+                            </div>
+                        </div>
+                        <div class="card-footer rating-card-footer bg-light border-top d-flex align-center justify-content-between">
+                            <a href="#" class="btn btn-gray">Отменить</a>
+                            <a href="#" class="btn btn-success">Завершить</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 {% block js %}
 <script>
     $('li[data-li="home"]').addClass('active')

@@ -20,14 +20,15 @@ class VisitsLessonsView(BaseAPIView):
         item = await db.fetchrow(
             '''
             INSERT INTO public.visit_lessons
-            (user_id, visit_id, description, time)
-            VALUES ($1, $2, $3, $4)
+            (user_id, visit_id, description, time, date_key)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING *
             ''',
             user_id,
             visit_id,
             description,
-            time
+            time,
+            str(time.date())
         )
 
         if not item:
