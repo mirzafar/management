@@ -2,6 +2,7 @@ from core.db import db
 from core.handlers import BaseAPIView
 from core.pager import Pager
 from core.tools import set_counters
+from utils.floats import FloatUtils
 from utils.ints import IntUtils
 from utils.lists import ListUtils
 from utils.strs import StrUtils
@@ -72,6 +73,7 @@ class VisitsView(BaseAPIView):
         description = StrUtils.to_str(request.json.get('description'))
         client_id = IntUtils.to_int(request.json.get('client_id'))
         count_lesson = IntUtils.to_int(request.json.get('count_lesson'), default=1)
+        price = FloatUtils.to_float(request.json.get('price'), default=0)
         if not reason_id:
             return self.error(message='Отсуствует обязательный параметры "reason_id: int"')
 
@@ -104,11 +106,11 @@ class VisitsView(BaseAPIView):
         if count_lesson and count_lesson > 0:
             await db.executemany(
                 '''
-                INSERT INTO public.visit_lessons(user_id, visit_id)
-                VALUES ($1, $2)
+                INSERT INTO public.visit_lessons(user_id, visit_id, price)
+                VALUES ($1, $2, $3)
                 ON CONFLICT DO NOTHING 
                 ''',
-                [(user['id'], item['id']) for _ in range(1, count_lesson + 1)]
+                [(user['id'], item['id'], price) for _ in range(1, count_lesson + 1)]
             )
 
         return self.success()

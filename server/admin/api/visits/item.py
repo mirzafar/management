@@ -1,5 +1,4 @@
 from core.db import db
-from core.encoder import encoder
 from core.handlers import BaseAPIView
 from utils.ints import IntUtils
 from utils.lists import ListUtils
@@ -28,7 +27,7 @@ class VisitsItemView(BaseAPIView):
             SELECT *
             FROM public.visit_lessons
             WHERE visit_id = $1
-            ORDER BY id DESC
+            ORDER BY time DESC
             ''',
             visit_id
         ))

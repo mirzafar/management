@@ -66,7 +66,7 @@
                                         <div class="nk-tb-list nk-tb-ulist is-compact">
                                             <div class="nk-tb-item nk-tb-head">
                                                 <div class="nk-tb-col"><span class="sub-text"> # ID </span></div>
-                                                <div class="nk-tb-col tb-col-sm"><span class="sub-text">Описание</span>
+                                                <div class="nk-tb-col tb-col-sm"><span class="sub-text">Цена</span>
                                                 </div>
                                                 <div class="nk-tb-col tb-col-md"><span
                                                         class="sub-text">Дата</span></div>
@@ -76,7 +76,7 @@
                                             <div class="nk-tb-item">
                                                 <div class="nk-tb-col"><span>{{lesson.id}}</span></div>
                                                 <div class="nk-tb-col tb-col-md">
-                                                    <span>{{lesson.description[:20] if lesson.description else ''}}</span>
+                                                    <span>{{lesson.price or 0.0}}</span>
                                                 </div>
                                                 <div class="nk-tb-col tb-col-sm"><span>
                                                     {% if lesson.time %}
@@ -147,6 +147,14 @@
                         </div>
                     </div>
 
+                    <div class="col-md-6">
+                        <div class="form-group"><label class="form-label">Цена</label>
+                            <div class="form-control-wrap">
+                                <input type="number" class="form-control" name="price">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="col-12">
                         <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
                             <li>
@@ -186,9 +194,17 @@
             <div class="col-12">
                 <div class="form-group">
                     <label class="form-label"
-                           for="up-time">Описание
+                           for="up-time">Время
                     </label>
-                    <input type="datetime-local" class="form-control" id="up-time" value="2024-07-08T04:11" name="time">
+                    <input type="datetime-local" class="form-control" id="up-time" name="time">
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="up-price">Цена
+                    </label>
+                    <input type="number" class="form-control" id="up-price" name="price">
                 </div>
             </div>
             <div class="col-12">
@@ -263,8 +279,8 @@
                 console.log(response)
                 $('#up-description').text(response.lesson.description)
                 $('#up-id').val(response.lesson.id)
-
                 $('#up-time').val(response.lesson.time_str)
+                $('#up-price').val(response.lesson.price)
             } else {
                 alert(response.message);
             }

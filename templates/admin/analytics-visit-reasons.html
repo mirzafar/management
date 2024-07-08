@@ -16,11 +16,18 @@
                             <div class="card-title-group">
                                 <div class="card-tools">
                                     <div class="form-control-wrap">
-                                        <div class="input-daterange date-picker-range input-group">
-                                            <input type="text" class="form-control" placeholder="Start Date" value="{{start_date}}">
+                                        <div class="input-daterange date-picker-range input-group"
+                                             data-date-format="yyyy-mm-dd">
+                                            <input type="text" class="form-control" placeholder="Start Date"
+                                                   value="{{start_date}}" id="filter-start-date"
+                                                   data-date-format="yyyy-mm-dd">
                                             <div class="input-group-addon">ПО</div>
-                                            <input type="text" class="form-control" placeholder="End Date" value="{{stop_date}}"></div>
+                                            <input type="text" class="form-control" placeholder="End Date"
+                                                   value="{{stop_date}}" id="filter-stop-date"
+                                                   data-date-format="yyyy-mm-dd"></div>
                                     </div>
+                                    <button class="search-submit btn btn-icon" onclick="searchFilter()"><em
+                                            class="icon ni ni-search"></em></button>
                                 </div>
                             </div>
                         </div>
@@ -40,7 +47,8 @@
                                             </div>
                                         </div>
                                     </a></div>
-                                    <div class="nk-tb-col tb-col-sm"><span>{{reason.title[:20] if reason.title else ''}}</span></div>
+                                    <div class="nk-tb-col tb-col-sm">
+                                        <span>{{reason.title[:20] if reason.title else ''}}</span></div>
                                     <div class="nk-tb-col tb-col-md"><span>{{reason.all_count}}</span></div>
                                     <div class="nk-tb-col tb-col-md"><span>{{reason.count}}</span></div>
                                 </div>
@@ -60,6 +68,21 @@
 <script>
     $('li[data-li="analytics"]').addClass('active')
     $('li[data-li="analytics-visits-reasons"]').addClass('active')
+    let urlParams = new URLSearchParams(window.location.search);
+
+    function searchFilter() {
+        if (urlParams.has('start_date')) {
+            urlParams.delete('start_date')
+        }
+        urlParams.append('start_date', $('#filter-start-date').val())
+
+        if (urlParams.has('stop_date')) {
+            urlParams.delete('stop_date')
+        }
+
+        urlParams.append('stop_date', $('#filter-stop-date').val())
+        window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + urlParams.toString()
+    }
 
 
 </script>
