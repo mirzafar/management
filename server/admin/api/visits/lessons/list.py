@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from core.datetimes import DatetimeUtils
 from core.db import db
 from core.handlers import BaseAPIView
@@ -15,7 +17,7 @@ class VisitsLessonsView(BaseAPIView):
 
         description = StrUtils.to_str(request.json.get('description'))
         user_id = IntUtils.to_int(request.json.get('user_id'))
-        time = DatetimeUtils.str_2_datetime(request.json.get('time'), '%Y-%m-%dT%H:%M')
+        time = DatetimeUtils.str_2_datetime(request.json.get('time'), '%Y-%m-%dT%H:%M') or datetime.now()
 
         item = await db.fetchrow(
             '''
@@ -33,5 +35,14 @@ class VisitsLessonsView(BaseAPIView):
 
         if not item:
             return self.error(message='Операция не выполнена')
+
+        await db.execute(
+            '''
+            UPDATE public.visits
+            SET count_lesson = count_lesson + 1
+            WHERE id = $1
+            ''',
+            visit_id
+        )
 
         return self.success()

@@ -32,6 +32,7 @@ class TemplateHTTPView(HTTPMethodView):
         request: Request = None,
         user: dict = None,
         data: dict = None,
+        serialized: bool = False
     ):
         if request:
             resp = request.args.get('response_type')
@@ -51,6 +52,9 @@ class TemplateHTTPView(HTTPMethodView):
                 'base_url': settings['base_url'],
                 '_user': user or {},
             })
+
+            if serialized and data:
+                data = encoder.encode(data)
 
             template = env.get_template(self.template_name)
             rendered = template.render(

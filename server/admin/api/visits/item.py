@@ -1,4 +1,5 @@
 from core.db import db
+from core.encoder import encoder
 from core.handlers import BaseAPIView
 from utils.ints import IntUtils
 from utils.lists import ListUtils

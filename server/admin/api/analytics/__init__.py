@@ -1,11 +1,9 @@
 from sanic import Blueprint
 
-from admin.api.analytics.power_bi import AnalyticsLessonsTemplateView
-from admin.api.analytics.template import AnalyticsTemplateView
+from admin.api.analytics.visit_reasons import AnalyticsVisitReasonsView
 
-__all__ = ['power_bi_bp']
+__all__ = ['analytics_bp']
 
-power_bi_bp = Blueprint('analytics', url_prefix='/analytics')
+analytics_bp = Blueprint('analytics', url_prefix='/analytics')
 
-power_bi_bp.add_route(AnalyticsTemplateView.as_view(), '/template/')
-power_bi_bp.add_route(AnalyticsLessonsTemplateView.as_view(), '/lessons/')
+analytics_bp.add_route(AnalyticsVisitReasonsView.as_view(), '/visits-reasons/')

@@ -1,0 +1,67 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+
+<div class="nk-block-head nk-block-head-sm">
+    <div class="nk-block-between">
+        <div class="nk-block-head-content"><h3 class="nk-block-title page-title">Причины</h3></div>
+    </div>
+</div>
+<div class="nk-block">
+    <div class="row gy-5">
+        <div class="col-lg-12">
+            <div class="nk-block">
+                <div class="card card-bordered card-stretch">
+                    <div class="card-inner-group">
+                        <div class="card-inner position-relative card-tools-toggle">
+                            <div class="card-title-group">
+                                <div class="card-tools">
+                                    <div class="form-control-wrap">
+                                        <div class="input-daterange date-picker-range input-group">
+                                            <input type="text" class="form-control" placeholder="Start Date" value="{{start_date}}">
+                                            <div class="input-group-addon">ПО</div>
+                                            <input type="text" class="form-control" placeholder="End Date" value="{{stop_date}}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-inner p-0">
+                            <div class="nk-tb-list nk-tb-ulist">
+                                <div class="nk-tb-item nk-tb-head  bg-lighter">
+                                    <div class="nk-tb-col"><span class="sub-text"># ID</span></div>
+                                    <div class="nk-tb-col tb-col-sm"><span class="sub-text">Названия</span></div>
+                                    <div class="nk-tb-col tb-col-md"><span class="sub-text">Общий</span></div>
+                                    <div class="nk-tb-col tb-col-md"><span class="sub-text">За период</span></div>
+                                </div>
+                                {% for reason in reasons %}
+                                <div class="nk-tb-item">
+                                    <div class="nk-tb-col"><a href="#">
+                                        <div class="user-card">
+                                            <div class="user-info"><span class="tb-lead">{{reason.id}}</span>
+                                            </div>
+                                        </div>
+                                    </a></div>
+                                    <div class="nk-tb-col tb-col-sm"><span>{{reason.title[:20] if reason.title else ''}}</span></div>
+                                    <div class="nk-tb-col tb-col-md"><span>{{reason.all_count}}</span></div>
+                                    <div class="nk-tb-col tb-col-md"><span>{{reason.count}}</span></div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    $('li[data-li="analytics"]').addClass('active')
+    $('li[data-li="analytics-visits-reasons"]').addClass('active')
+
+
+</script>
+
+{% endblock %}

@@ -39,11 +39,11 @@
 
                                                     <div class="form-group">
                                                         <a onclick="saveItem()" type="submit"
-                                                                class="btn btn-lg btn-success">
+                                                           class="btn btn-lg btn-success">
                                                             Сохранить
                                                         </a>
                                                         <a onclick="removeItem({{visit.id}})" type="submit"
-                                                                class="btn btn-lg btn-danger">
+                                                           class="btn btn-lg btn-danger">
                                                             Удалить
                                                         </a>
                                                     </div>
@@ -76,7 +76,7 @@
                                             <div class="nk-tb-item">
                                                 <div class="nk-tb-col"><span>{{lesson.id}}</span></div>
                                                 <div class="nk-tb-col tb-col-md">
-                                                    <span>{{lesson.description or ''}}</span>
+                                                    <span>{{lesson.description[:20] if lesson.description else ''}}</span>
                                                 </div>
                                                 <div class="nk-tb-col tb-col-sm"><span>
                                                     {% if lesson.time %}
@@ -85,14 +85,25 @@
                                                 </span></div>
                                                 <div class="nk-tb-col nk-tb-col-tools">
                                                     <ul class="nk-tb-actions gx-2">
-                                                        <li class="nk-tb-action-hidden"><a
-                                                                href="/api/visits/{{visit.id}}/lessons/{{lesson.id}}/"
+                                                        <li class="nk-tb-action-hidden"
+                                                            onclick="removeLesson({{lesson.id}})"><a
                                                                 class="btn btn-sm btn-icon btn-trigger"
                                                                 data-bs-toggle="tooltip"
                                                                 data-bs-placement="top"
                                                                 aria-label="Edit"
-                                                                data-bs-original-title="Edit"><em
-                                                                class="icon ni ni-edit-fill"></em></a></li>
+                                                                data-bs-original-title="Удалить"><em
+                                                                class="icon ni ni-trash-fill"></em></a></li>
+                                                        <li class="nk-tb-action-hidden">
+                                                            <a class="btn btn-sm btn-icon btn-trigger toggle"
+                                                               data-bs-toggle="tooltip"
+                                                               data-target="updateProduct"
+                                                               onclick="openLesson({{lesson.id}})"
+                                                               data-bs-placement="top"
+                                                               aria-label="Edit"
+                                                               data-bs-original-title="Изменить">
+                                                                <em class="icon ni ni-edit-fill"></em>
+                                                            </a>
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -139,7 +150,7 @@
                     <div class="col-12">
                         <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
                             <li>
-                                <a onclick="createItem()" data-bs-dismiss="modal"
+                                <a onclick="createLessons()" data-bs-dismiss="modal"
                                    class="btn btn-primary">Добавить</a>
                             </li>
                             <li><a href="#" class="link link-light" data-bs-dismiss="modal">Cancel</a></li>
@@ -147,6 +158,48 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="nk-add-product toggle-slide toggle-slide-right" data-content="updateProduct"
+     data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar
+     id="update-data-item">
+    <div class="nk-block">
+        <div class="row g-3">
+            <input type="hidden" id="up-id" name="id">
+            <div class="col-12">
+                <div class="form-group"><label class="form-label">Ответственный</label>
+                    <div class="form-control-wrap" id="VisitUpdateUsers">
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="up-description">Описание
+                    </label>
+                    <textarea class="form-control" name="description" id="up-description"></textarea>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="up-time">Описание
+                    </label>
+                    <input type="datetime-local" class="form-control" id="up-time" value="2024-07-08T04:11" name="time">
+                </div>
+            </div>
+            <div class="col-12">
+                <a onclick="updateItem()" class="btn btn-primary"><em
+                        class="icon ni ni-plus"></em><span>Изменить</span></a>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
         </div>
     </div>
 </div>
@@ -160,7 +213,27 @@
 
     let visit = JSON.parse('{{visit | tojson}}')
 
-    async function createItem() {
+    async function updateItem() {
+        try {
+            let data = getValues('#update-data-item')
+            let response = await fetch(`/api/visits/${visit.id}/lessons/${data.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(data)
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.href = `/api/visits/${visit.id}/`;
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function createLessons() {
         try {
             let response = await fetch(`/api/visits/${visit.id}/lessons/`, {
                 method: 'POST',
@@ -170,6 +243,28 @@
             response = await response.json();
             if (response._success === true) {
                 window.location.href = `/api/visits/${visit.id}`;
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function openLesson(item_id) {
+        try {
+            let response = await fetch(`/api/visits/${visit.id}/lessons/${item_id}?response_type=json`, {
+                method: 'GET'
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                console.log(response)
+                $('#up-description').text(response.lesson.description)
+                $('#up-id').val(response.lesson.id)
+
+                $('#up-time').val(response.lesson.time_str)
             } else {
                 alert(response.message);
             }
@@ -276,20 +371,39 @@
             response = await response.json()
             let users = $('<select>')
                 .addClass('form-control')
-                .attr("name", "user_id")
+                .attr('name', 'user_id')
             ;
 
             $.each(response.users, function (index, item) {
-                users.append($('<option>').attr("value", item.id).text(item.last_name + ' ' + item.first_name));
+                users.append($('<option>').attr('value', item.id).text(item.last_name + ' ' + item.first_name));
             });
 
-            $('#VisitUsers').append(users);
+            $('#VisitUsers, #VisitUpdateUsers').append(users);
 
 
         } catch (error) {
             alertShow('waring', `${error.message}`);
         }
 
+    }
+
+    async function removeLesson(itemId) {
+        try {
+            let response = await fetch(`/api/visits/${visit.id}/lessons/${itemId}`, {
+                method: 'DELETE'
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success')
+                location.reload();
+            } else {
+                alertShow('error', response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
     }
 
 </script>
