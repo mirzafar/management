@@ -87,6 +87,15 @@ class VisitsItemView(BaseAPIView):
         if not data:
             return self.error(message='Операция не выполнена')
 
+        await db.fetchrow(
+            '''
+            UPDATE public.visit_lessons
+            SET is_active = FALSE
+            WHERE visit_id = $1
+            ''',
+            visit_id
+        )
+
         return self.success(data={
             'visit': dict(data)
         })
