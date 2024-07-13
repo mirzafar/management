@@ -33,6 +33,7 @@
                                         class="nk-menu-text">Главная</span>
                                 </a>
                             </li>
+                            {% if 'users' in (_user.permissions or []) %}
                             <li data-li="users" class="nk-menu-item has-sub">
                                 <a class="nk-menu-link nk-menu-toggle">
                                     <span class="nk-menu-icon">
@@ -53,6 +54,8 @@
                                     </li>
                                 </ul>
                             </li>
+                            {% endif %}
+                            {% if 'clients' in (_user.permissions or []) %}
                             <li data-li="clients" class="nk-menu-item has-sub">
                                 <a class="nk-menu-link nk-menu-toggle">
                                     <span class="nk-menu-icon">
@@ -68,6 +71,8 @@
                                     </li>
                                 </ul>
                             </li>
+                            {% endif %}
+                            {% if 'visit-list' in (_user.permissions or []) or 'visit-lessons' in (_user.permissions or []) or 'visit-reasons' in (_user.permissions or []) %}
                             <li data-li="visits" class="nk-menu-item has-sub">
                                 <a class="nk-menu-link nk-menu-toggle">
                                     <span class="nk-menu-icon">
@@ -76,23 +81,30 @@
                                     <span class="nk-menu-text">Посещении</span>
                                 </a>
                                 <ul class="nk-menu-sub">
+                                    {% if 'visit-list' in (_user.permissions or []) %}
                                     <li data-li="visits-list" class="nk-menu-item">
                                         <a href="/api/visits/" class="nk-menu-link">
                                             <span class="nk-menu-text">Список</span>
                                         </a>
                                     </li>
+                                    {% endif %}
+                                    {% if 'visit-lessons' in (_user.permissions or []) %}
                                     <li data-li="visits-lessons" class="nk-menu-item">
                                         <a href="/api/lessons/" class="nk-menu-link">
                                             <span class="nk-menu-text">Уроки</span>
                                         </a>
                                     </li>
+                                    {% endif %}
+                                    {% if 'visit-reasons' in (_user.permissions or []) %}
                                     <li data-li="visits-reasons" class="nk-menu-item">
                                         <a href="/api/visits/reasons/" class="nk-menu-link">
                                             <span class="nk-menu-text">Услуги</span>
                                         </a>
                                     </li>
+                                    {% endif %}
                                 </ul>
                             </li>
+                            {% endif %}
                             <li data-li="analytics" class="nk-menu-item has-sub">
                                 <a class="nk-menu-link nk-menu-toggle">
                                     <span class="nk-menu-icon">
@@ -103,7 +115,7 @@
                                 <ul class="nk-menu-sub">
                                     <li data-li="analytics-visits-reasons" class="nk-menu-item">
                                         <a href="/api/analytics/visits-reasons/" class="nk-menu-link">
-                                            <span class="nk-menu-text">Причины</span>
+                                            <span class="nk-menu-text">Услуги</span>
                                         </a>
                                     </li>
                                 </ul>

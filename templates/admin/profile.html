@@ -39,24 +39,6 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label"
-                                           for="cf-role">Роль
-                                    </label>
-                                    <select id="cf-role"
-                                            class="form-select js-select2 select2-hidden-accessible"
-                                            name="role_id"
-                                    >
-                                        <option value="">Выберите</option>
-                                        {% for role in roles %}
-                                        <option value="{{role.id}}"
-                                                {% if employee.role_id== role.id %}
-                                                selected
-                                                {% endif %}>{{role.title}}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label"
                                            for="cf-username">Username
                                     </label>
                                     <input type="text" class="form-control"

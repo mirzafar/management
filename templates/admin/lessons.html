@@ -117,19 +117,28 @@
                                                                     class="icon ni ni-more-h"></em></a>
                                                                 <div class="dropdown-menu dropdown-menu-end">
                                                                     <ul class="link-list-opt no-bdr">
+                                                                        <li>
+                                                                            <a href="/api/visits/{{lesson.visit_id}}/">
+                                                                                <em class="icon ni ni-eye"></em>
+                                                                                <span>Посещение</span>
+                                                                            </a>
+                                                                        </li>
                                                                         <li onclick="actionLesson({{lesson.id}}, 'finish')">
                                                                             <a>
+                                                                                <em class="icon ni ni-check text-success"></em>
                                                                                 <span class="tb-status text-success">Завершить</span>
                                                                             </a>
                                                                         </li>
                                                                         <li onclick="actionLesson({{lesson.id}}, 'cancel')">
                                                                             <a>
+                                                                                <em class="icon ni ni-cross text-info"></em>
                                                                                 <span class="tb-status text-info">Отменить</span>
                                                                             </a>
                                                                         </li>
                                                                         <li onclick="actionLesson({{lesson.id}}, 'paid')">
                                                                             <a>
-                                                                                <span class="">Оплачен</span>
+                                                                                <em class="icon ni ni-money"></em>
+                                                                                <span class="">Оплатить</span>
                                                                             </a>
                                                                         </li>
                                                                     </ul>

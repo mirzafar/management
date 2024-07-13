@@ -28,6 +28,7 @@ class MainView(BaseAPIView):
                     is_finish, 
                     is_paid,
                     price,
+                    vl.visit_id,
                     jsonb_build_object(
                         'id', c.id,
                         'first_name', c.first_name,
@@ -38,7 +39,7 @@ class MainView(BaseAPIView):
             LEFT JOIN public.visits v ON vl.visit_id = v.id
             LEFT JOIN public.clients c ON v.client_id = c.id
             WHERE vl.is_active AND vl.time BETWEEN $1 AND $2 AND vl.user_id = $3
-            ORDER BY vl.time DESC
+            ORDER BY vl.time DESC, vl.id DESC
             %s
             ''' % pager.as_query(),
             start_date,

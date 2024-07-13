@@ -58,7 +58,7 @@ class LessonsView(BaseAPIView):
             LEFT JOIN public.visits v ON vl.visit_id = v.id
             LEFT JOIN public.clients c ON v.client_id = c.id
             WHERE vl.is_active AND %s
-            ORDER BY vl.time DESC
+            ORDER BY vl.time DESC, vl.id DESC
             %s
             ''' % (cond, pager.as_query()),
             *cond_vars

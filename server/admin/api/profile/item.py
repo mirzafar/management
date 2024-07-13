@@ -20,17 +20,8 @@ class ProfileView(BaseAPIView):
             user['id']
         ) or {}
 
-        roles = ListUtils.to_list_of_dicts(await db.fetch(
-            '''
-            SELECT *
-            FROM public.roles
-            WHERE status >= 0
-            '''
-        ))
-
         return self.success(request=request, user=user, data={
-            'employee': dict(employee),
-            'roles': roles,
+            'employee': dict(employee)
         })
 
     async def put(self, request, user):
@@ -43,7 +34,6 @@ class ProfileView(BaseAPIView):
             middle_name = StrUtils.to_str(request.json.get('middle_name'))
             birthday = StrUtils.to_str(request.json.get('birthday'))
             username = StrUtils.to_str(request.json.get('username'))
-            role_id = IntUtils.to_int(request.json.get('role_id'))
             photo = StrUtils.to_str(request.json.get('photo'))
 
             if not first_name or not last_name:
@@ -72,10 +62,9 @@ class ProfileView(BaseAPIView):
                     last_name = $2,
                     first_name = $3, 
                     middle_name = $4, 
-                    role_id = $5,
-                    username = $6, 
-                    photo = $7,
-                    birthday = $8
+                    username = $5, 
+                    photo = $6,
+                    birthday = $7
                 WHERE id = $1
                 RETURNING *
                 ''',
@@ -83,7 +72,6 @@ class ProfileView(BaseAPIView):
                 last_name,
                 first_name,
                 middle_name,
-                role_id,
                 username,
                 photo,
                 datetime.strptime(birthday, '%Y-%m-%d') if birthday else None,
