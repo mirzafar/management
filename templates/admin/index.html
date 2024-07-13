@@ -33,13 +33,6 @@
                                                            data-date-format="yyyy-mm-dd"></div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <div class="form-control-wrap" id="VisitUsers">
-
-                                                </div>
-                                            </div>
-                                        </div>
                                         <div class="search-content">
                                             <button class="btn btn-icon" onclick="searchFilter()"><em
                                                     class="icon ni ni-search"></em></button>
@@ -47,7 +40,7 @@
                                     </div>
                                 </div>
 
-
+                                {% if lesson %}
                                 <div class="nk-block">
                                     <div class="card">
                                         <div class="nk-tb-list nk-tb-ulist is-compact">
@@ -160,6 +153,16 @@
                                     </ul>
                                 </div>
                                 {% endif %}
+                                {% else %}
+                                <div class="card-inner">
+                                    <figure class="text-center">
+                                        <blockquote class="blockquote"><h3>
+                                            Расписание
+                                        </h3></blockquote>
+                                    </figure>
+                                </div>
+                                {% endif %}
+
                             </div>
                         </div>
                     </div>
