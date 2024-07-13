@@ -80,4 +80,4 @@ class LoginAdminView(TemplateHTTPView):
 class LogoutAdminView(BaseAPIView):
     async def get(self, request, user):
         await auth.logout(request)
-        return response.redirect('/')
+        return response.redirect('/api/')
