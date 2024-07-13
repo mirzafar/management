@@ -52,16 +52,47 @@
                                     <div class="card">
                                         <div class="nk-tb-list nk-tb-ulist is-compact">
                                             <div class="nk-tb-item nk-tb-head">
-                                                <div class="nk-tb-col"><span>Название</span></div>
+                                                <div class="nk-tb-col"><span>ФИ</span></div>
                                                 <div class="nk-tb-col"><span>Количество</span></div>
+                                                <div class="nk-tb-col"><span>Сумма</span></div>
                                             </div>
-                                            {% for reason in reasons %}
+                                            {% for user in users %}
                                             <div class="nk-tb-item">
                                                 <div class="nk-tb-col">
-                                                    <span>{{reason.title}}</span>
+                                                    <div class="user-card">
+                                                        <div class="user-avatar bg-primary-dim">
+                                                            <span>
+                                                                {{user.last_name[:1]|upper}}{{user.first_name[:1]|upper}}
+                                                            </span>
+                                                        </div>
+                                                        <div class="user-info">
+                                                            <span class="tb-lead">
+                                                                {{user.last_name}} {{user.first_name[:1]|upper}}
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div class="nk-tb-col">
-                                                    <span>{{reason.count}}</span>
+                                                    <div>
+                                                        <span>Завершено: {{user.finish_count}}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span>Отменено: {{user.cancel_count}}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span>Оплачено : {{user.paid_count}}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span>Общий: {{user.all_count}}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="nk-tb-col">
+                                                    <div>
+                                                        <span>Оплачено: {{user.sum_paid}}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span>Общий: {{user.all_sum}}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             {% endfor %}

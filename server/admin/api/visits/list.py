@@ -11,6 +11,7 @@ from utils.tools import order_date
 
 class VisitsView(BaseAPIView):
     template_name = 'admin/visits.html'
+    scopes = ['visit-list']
 
     async def get(self, request, user):
         pager = Pager()

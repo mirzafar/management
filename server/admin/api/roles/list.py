@@ -7,6 +7,7 @@ from utils.strs import StrUtils
 
 class RolesView(BaseAPIView):
     template_name = 'admin/roles.html'
+    scopes = ['users']
 
     async def get(self, request, user):
         query = StrUtils.to_str(request.args.get('query'))
