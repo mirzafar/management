@@ -104,15 +104,6 @@ class VisitsView(BaseAPIView):
         if not item:
             return self.error(message='Операция не выполнена')
 
-        await db.execute(
-            '''
-            UPDATE public.visit_reasons
-            SET count = count + 1
-            WHERE id = $1
-            ''',
-            reason_id
-        )
-
         if count_lesson and count_lesson > 0:
             await db.executemany(
                 '''
