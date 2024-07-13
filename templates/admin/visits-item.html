@@ -336,25 +336,23 @@
         }
     }
 
-    function saveItem() {
-        let data = getValues('#data-item')
-        $.ajax({
-            type: 'PUT',
-            dataType: 'json',
-            url: `/api/visits/${visit.id}`,
-            data: JSON.stringify(data),
-            success: function (d) {
-                console.log(d)
-                if (d['_success'] === true) {
-                    alertShow('success')
-                } else {
-                    alertShow('error', d['message'])
-                }
-            },
-            error: function (d) {
-                alertShow('waring')
+    async function saveItem() {
+        try {
+            let response = await fetch(`/api/visits/${visit.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(getValues('#data-item'))
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success')
+            } else {
+                alert(response.message);
             }
-        });
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
     }
 
     showReasons()

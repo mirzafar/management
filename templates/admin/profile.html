@@ -119,27 +119,26 @@
         });
     })
 
-    function saveItem() {
-        let data = getValues('#data-item')
-        data.action = 'change_info'
-        $('.alert').alert()
+    async function saveItem() {
+        try {
+            let data = getValues('#data-item')
+            data.action = 'change_info'
 
-        $.ajax({
-            type: 'PUT',
-            dataType: 'json',
-            url: '/api/profile/',
-            data: JSON.stringify(data),
-            success: function (d) {
-                if (d['_success'] === true) {
-                    alertShow('success')
-                } else {
-                    alertShow('error', d['message'])
-                }
-            },
-            error: function (d) {
-                alert('errors')
+            let response = await fetch('/api/profile/', {
+                method: 'PUT',
+                body: JSON.stringify(data)
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success')
+            } else {
+                alert(response.message);
             }
-        });
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
     }
 </script>
 

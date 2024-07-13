@@ -63,24 +63,24 @@
     let currUrl = window.location.href.split('/')
     let itemId = currUrl[currUrl.length - 1] || currUrl[currUrl.length - 2]
 
-    function saveItem() {
-        $.ajax({
-            type: 'PUT',
-            dataType: 'json',
-            url: '/api/roles/' + itemId,
-            data: JSON.stringify(getValues('#data-item')),
-            success: function (d) {
-                if (d['_success'] === true) {
-                    alertShow('success')
-                    window.location.href = '/api/roles/'
-                } else {
-                    alertShow('error', d['message'])
-                }
-            },
-            error: function (d) {
-                alertShow('waring')
+    async function saveItem() {
+        try {
+            let response = await fetch('/api/roles/' + itemId, {
+                method: 'PUT',
+                body: JSON.stringify(getValues('#data-item'))
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success')
+                window.location.href = '/api/roles/'
+            } else {
+                alert(response.message);
             }
-        });
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
     }
 
 </script>

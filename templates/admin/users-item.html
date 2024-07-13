@@ -154,29 +154,28 @@
     let currUrl = window.location.href.split('/')
     let itemId = currUrl[currUrl.length - 1] || currUrl[currUrl.length - 2]
 
-    function saveItem() {
-        let data = getValues('#data-item')
-        data.action = 'main'
-        console.log(itemId)
-        console.log(data)
-        $.ajax({
-            type: 'PUT',
-            dataType: 'json',
-            url: '/api/users/' + itemId,
-            data: JSON.stringify(data),
-            success: function (d) {
-                console.log(d)
-                if (d['_success'] === true) {
-                    alertShow('success')
-                    window.location.href = '/api/users/'
-                } else {
-                    alertShow('error', d['message'])
-                }
-            },
-            error: function (d) {
-                alertShow('waring')
+    async function saveItem() {
+        try {
+            let data = getValues('#data-item')
+            data.action = 'main'
+
+            let response = await fetch('/api/users/' + itemId, {
+                method: 'PUT',
+                body: JSON.stringify(data)
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success')
+                window.location.href = '/api/users/'
+            } else {
+                alert(response.message);
             }
-        });
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+
     }
 
 </script>
