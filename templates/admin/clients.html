@@ -67,6 +67,7 @@
                         <li><span>Дата регистрация</span><span>{{item.created_at.strftime('%Y-%m-%d') if item.created_at else null}}</span>
                         </li>
                         <li><span>Телефон</span><span>{{item.phone or null}}</span></li>
+                        <li><span>Адресс</span><span>{{item.address or null}}</span></li>
                     </ul>
                     <div class="team-view"><a href="/api/clients/{{item.id}}/"
                                               class="btn btn-block btn-dim btn-primary"><span>Просмотр</span></a>
@@ -83,7 +84,7 @@
     <ul class="pagination justify-content-center justify-content-md-start">
         <li class="page-item">
             <a class="page-link"
-               {% if pager.prev_page %}
+               {% if pager and pager.prev_page %}
                href="/api/clients/?page={{pager.prev_page}}"
                {% endif %}
             >Prev</a>
@@ -91,7 +92,7 @@
         <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
         <li class="page-item">
             <a class="page-link"
-               {% if pager.next_page %}
+               {% if pager and pager.next_page %}
                href="/api/clients/?page={{pager.next_page}}"
                {% endif %}
             >Next</a>
@@ -133,6 +134,16 @@
                     <input type="text" class="form-control"
                            name="middle_name"
                            id="cf-middle-name-new">
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-address-new">Адресс
+                    </label>
+                    <input type="text" class="form-control"
+                           name="address"
+                           id="cf-address-new">
                 </div>
             </div>
             <div class="col-12">

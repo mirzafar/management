@@ -6,6 +6,7 @@ from utils.floats import FloatUtils
 from utils.ints import IntUtils
 from utils.lists import ListUtils
 from utils.strs import StrUtils
+from utils.tools import order_date
 
 
 class VisitsView(BaseAPIView):
@@ -18,7 +19,13 @@ class VisitsView(BaseAPIView):
 
         query = StrUtils.to_str(request.args.get('query'))
 
-        cond, cond_vars = ['v.is_active'], []
+        start_date, stop_date = order_date(
+            request.args.get('start_date'),
+            request.args.get('stop_date'),
+            defu='last_month'
+        )
+
+        cond, cond_vars = ['v.created_at BETWEEN {} AND {}'], [start_date, stop_date]
 
         if query:
             cond.append('(cu.first_name ILIKE {} OR cu.last_name ILIKE {})')
@@ -46,7 +53,7 @@ class VisitsView(BaseAPIView):
             LEFT JOIN public.users u ON v.author_id = u.id
             LEFT JOIN public.clients cu ON v.client_id = cu.id
             LEFT JOIN public.visit_reasons vr ON v.reason_id = vr.id
-            WHERE %s
+            WHERE v.is_active AND %s
             ORDER BY v.id DESC
             %s
             ''' % (cond, pager.as_query()),
@@ -65,6 +72,8 @@ class VisitsView(BaseAPIView):
         return self.success(request=request, user=user, data={
             'visits': visits,
             'pager': pager.dict(),
+            'start_date': str(start_date.date()),
+            'stop_date': str(stop_date.date()),
 
         })
 

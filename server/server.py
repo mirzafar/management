@@ -2,7 +2,6 @@ import os
 
 from sanic import Sanic
 from sanic.exceptions import NotFound
-from sanic_openapi import openapi2_blueprint
 
 from admin import admin_bp
 from admin.api import api_group
@@ -45,8 +44,7 @@ async def initialize_modules(_app, _loop):
 
 app.blueprint([
     api_group,
-    admin_bp,
-    openapi2_blueprint
+    admin_bp
 ])
 
 app.add_route(UploadView.as_view(), '/upload/')

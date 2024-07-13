@@ -57,6 +57,7 @@ class ClientsView(BaseAPIView):
         middle_name = StrUtils.to_str(request.json.get('middle_name'))
         phone = PhoneNumberUtils.normalize(request.json.get('phone'))
         photo = StrUtils.to_str(request.json.get('photo'))
+        address = StrUtils.to_str(request.json.get('address'))
 
         if not first_name or not last_name:
             return self.error(message='Отсуствует обязательный параметры "first_name: str, last_name: str"')
@@ -64,15 +65,16 @@ class ClientsView(BaseAPIView):
         user = await db.fetchrow(
             '''
             INSERT INTO public.clients
-            (last_name, first_name, middle_name, photo, phone)
-            VALUES ($1, $2, $3, $4, $5)
+            (last_name, first_name, middle_name, photo, phone, address)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *
             ''',
             last_name,
             first_name,
             middle_name,
             photo,
-            phone
+            phone,
+            address
         )
 
         if not user:

@@ -32,17 +32,22 @@ class VisitsReasonsItemView(BaseAPIView):
 
         title = StrUtils.to_str(request.json.get('title'))
         if not title:
-            return self.error(message='Отсуствует обязательный параметры "title: str"')
+            return self.error(message='Отсуствует обязательный параметры "Название"')
+
+        description = StrUtils.to_str(request.json.get('description'))
+        price = IntUtils.to_int(request.json.get('price'), default=0)
 
         item = await db.fetchrow(
             '''
             UPDATE public.visit_reasons
-            SET title = $2
+            SET title = $2, description = $3, price = $4
             WHERE id = $1
             RETURNING *
             ''',
             reason_id,
-            title
+            title,
+            description,
+            abs(price)
         )
 
         if not item:
@@ -58,7 +63,7 @@ class VisitsReasonsItemView(BaseAPIView):
         item = await db.fetchrow(
             '''
             UPDATE public.visit_reasons
-            SET status = -1
+            SET is_active = FALSE
             WHERE id = $1
             RETURNING *
             ''',

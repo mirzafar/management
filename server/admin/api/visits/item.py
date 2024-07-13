@@ -24,10 +24,17 @@ class VisitsItemView(BaseAPIView):
 
         lessons = ListUtils.to_list_of_dicts(await db.fetch(
             '''
-            SELECT *
-            FROM public.visit_lessons
-            WHERE visit_id = $1
-            ORDER BY time DESC
+            SELECT v.*, jsonb_build_object(
+                    'id', u.id,
+                    'first_name', u.first_name,
+                    'last_name', u.last_name,
+                    'photo', u.photo,
+                    'username', u.username
+                ) AS employee
+            FROM public.visit_lessons v
+            LEFT JOIN users u on v.user_id = u.id
+            WHERE v.visit_id = $1
+            ORDER BY v.time DESC
             ''',
             visit_id
         ))

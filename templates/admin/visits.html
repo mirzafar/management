@@ -15,45 +15,71 @@
                         <div class="tab-content">
                             <div class="tab-pane show active" id="tabItem2" role="tabpanel">
                                 <div class="nk-block">
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <div class="form-control-wrap">
+                                                    <div class="form-icon form-icon-right"><em
+                                                            class="icon ni ni-calendar"></em>
+                                                    </div>
+                                                    <input type="text" class="form-control date-picker"
+                                                           value="{{start_date}}" id="filter-start-date"
+                                                           data-date-format="yyyy-mm-dd">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <div class="form-control-wrap">
+                                                    <div class="form-icon form-icon-right"><em
+                                                            class="icon ni ni-calendar"></em>
+                                                    </div>
+                                                    <input type="text" class="form-control date-picker"
+                                                           value="{{stop_date}}" id="filter-stop-date"
+                                                           data-date-format="yyyy-mm-dd"></div>
+                                            </div>
+                                        </div>
+                                        <div class="search-content">
+                                            <button class="btn btn-icon" onclick="searchFilter()"><em
+                                                    class="icon ni ni-search"></em></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="nk-block">
                                     <div class="card">
                                         <div class="nk-tb-list nk-tb-ulist is-compact">
                                             <div class="nk-tb-item nk-tb-head">
-                                                <div class="nk-tb-col"><span class="sub-text"> # ID </span></div>
-                                                <div class="nk-tb-col tb-col-md"><span class="sub-text">Причина</span>
-                                                </div>
-                                                <div class="nk-tb-col tb-col-sm"><span
-                                                        class="sub-text">Дата приема</span></div>
-                                                <div class="nk-tb-col tb-col-sm"><span class="sub-text">Клиент</span>
-                                                </div>
-                                                <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                                                <div class="nk-tb-col"><span>Клиент</span></div>
+                                                <div class="nk-tb-col"><span>Причина</span></div>
+                                                <div class="nk-tb-col"><span>Дата регистрация</span></div>
                                             </div>
                                             {% for visit in visits %}
-                                            <div class="nk-tb-item">
-                                                <div class="nk-tb-col"><span>{{visit.id}}</span></div>
-                                                <div class="nk-tb-col tb-col-md"><span>{{visit.reason[:20] if visit.reason else ''}}</span>
+                                            <div class="nk-tb-item" onclick="openItem({{visit.id}})">
+                                                <div class="nk-tb-col">
+                                                    <div class="user-card">
+                                                        <div class="user-avatar bg-primary-dim">
+                                                            <span>
+                                                                {% if visit.customer %}
+                                                                {{visit.customer.last_name[:1]|upper}}{{visit.customer.first_name[:1]|upper}}
+                                                                {% endif %}
+                                                            </span>
+                                                        </div>
+                                                        <div class="user-info">
+                                                            <span class="tb-lead">
+                                                                {% if visit.customer %}
+                                                                {{visit.customer.last_name}} {{visit.customer.first_name[:1]|upper}}
+                                                                {% endif %}
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class="nk-tb-col tb-col-sm">
-                                                    <span>{{visit.created_at or ''}}</span>
+                                                <div class="nk-tb-col">
+                                                    <span>{{visit.reason[:20] if visit.reason else ''}}</span>
                                                 </div>
-                                                <div class="nk-tb-col tb-col-sm">
-                                                    {% if visit.customer.photo %}
-                                                    <div class="user-avatar sm bg-blue"><img
-                                                            src="/static/uploads/{{visit.customer.photo}}/"
-                                                            alt=""></div>
-                                                    {% endif %}
-                                                    <span>{{visit.customer.first_name|capitalize}} {{visit.customer.last_name[:1]|capitalize}}</span>
-                                                </div>
-                                                <div class="nk-tb-col nk-tb-col-tools">
-                                                    <ul class="nk-tb-actions gx-2">
-                                                        <li class="nk-tb-action-hidden"><a
-                                                                href="/api/visits/{{visit.id}}/"
-                                                                class="btn btn-sm btn-icon btn-trigger"
-                                                                data-bs-toggle="tooltip"
-                                                                data-bs-placement="top"
-                                                                aria-label="Edit"
-                                                                data-bs-original-title="Edit"><em
-                                                                class="icon ni ni-edit-fill"></em></a></li>
-                                                    </ul>
+                                                <div class="nk-tb-col">
+                                                    <span>{{visit.created_at.strftime('%Y-%m-%d %H:%M')}}</span>
                                                 </div>
                                             </div>
                                             {% endfor %}
@@ -97,44 +123,26 @@
     $('li[data-li="visits"]').addClass('active')
     $('li[data-li="visits-list"]').addClass('active')
 
-    $('[type="file"]').change(function () {
-        var trigger_name = $(this).parents('.photo-place').data('name');
-        var input_name = $(this).closest('.photo-place').find('[name="' + trigger_name + '"]');
-        let image = $(this).closest('.photo-place').find('img')
-        uploadImage($(this).attr('id')).then(function (data) {
-            input_name.val(String(data['file_name']));
-            image.attr('src', '/static/uploads/' + String(data['file_name']));
-        }, function (data) {
-            alert('error');
-        });
-    })
+    function openItem(itemId) {
+        window.location = `/api/visits/${itemId}`
+    }
 
-    let currUrl = window.location.href.split('/')
-    let itemId = currUrl[currUrl.length - 1] || currUrl[currUrl.length - 2]
 
-    function saveItem() {
-        let data = getValues('#data-item')
-        data.action = 'main'
-        console.log(itemId)
-        console.log(data)
-        $.ajax({
-            type: 'PUT',
-            dataType: 'json',
-            url: '/api/clients/' + itemId,
-            data: JSON.stringify(data),
-            success: function (d) {
-                console.log(d)
-                if (d['_success'] === true) {
-                    alertShow('success')
-                    window.location.href = '/api/clients/'
-                } else {
-                    alertShow('error', d['message'])
-                }
-            },
-            error: function (d) {
-                alertShow('waring')
-            }
-        });
+    let urlParams = new URLSearchParams(window.location.search);
+
+    function searchFilter() {
+        if (urlParams.has('start_date')) {
+            urlParams.delete('start_date')
+        }
+
+        if (urlParams.has('stop_date')) {
+            urlParams.delete('stop_date')
+        }
+
+        urlParams.append('start_date', $('#filter-start-date').val())
+        urlParams.append('stop_date', $('#filter-stop-date').val())
+        console.log(urlParams.toString())
+        window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + urlParams.toString()
     }
 
 </script>

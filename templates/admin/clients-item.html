@@ -370,7 +370,8 @@
             ;
 
             $.each(response.reasons, function (index, item) {
-                reasons.append($('<option>').attr("value", item.id).text(item.title));
+                let newOption =  $('<option>').attr('value', item.id).text(item.title)
+                reasons.append(newOption);
             });
 
             $('#VisitReason').append(reasons);

@@ -82,8 +82,10 @@ class Auth:
                 u.status,
                 u.password,
                 u.username,
-                u.photo
+                u.photo,
+                r.permissions
             FROM public.users u
+            LEFT JOIN public.roles r ON u.role_id = r.id
             WHERE u.id = $1
             ''',
             user['user_id']

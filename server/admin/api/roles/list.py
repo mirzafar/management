@@ -1,6 +1,5 @@
 from core.db import db
 from core.handlers import BaseAPIView
-from core.pager import Pager
 from core.tools import set_counters
 from utils.lists import ListUtils
 from utils.strs import StrUtils
@@ -10,10 +9,6 @@ class RolesView(BaseAPIView):
     template_name = 'admin/roles.html'
 
     async def get(self, request, user):
-        pager = Pager()
-        pager.set_page(request.args.get('page', 1))
-        pager.set_limit(request.args.get('limit', 10))
-
         query = StrUtils.to_str(request.args.get('query'))
 
         cond, cond_vars = ['status = 0'], []
@@ -30,18 +25,9 @@ class RolesView(BaseAPIView):
             FROM public.roles
             WHERE %s
             ORDER BY id DESC
-            %s
-            ''' % (cond, pager.as_query()),
+            ''' % cond,
             *cond_vars
         ))
-
-        total = await db.fetchval(
-            '''
-            SELECT count(*)
-            FROM public.roles
-            WHERE status >= 0
-            '''
-        ) or 0
 
         permissions = ListUtils.to_list_of_dicts(await db.fetch(
             '''
@@ -53,8 +39,7 @@ class RolesView(BaseAPIView):
 
         return self.success(request=request, user=user, data={
             'roles': roles,
-            'total': total,
-            'permissions': permissions or [],
+            'permissions': permissions,
         })
 
     async def post(self, request, user):

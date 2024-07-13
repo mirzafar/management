@@ -40,7 +40,7 @@
                                            data-target="addProduct"
                                            class="toggle btn btn-primary d-none d-md-inline-flex">
                                             <em class="icon ni ni-plus"></em>
-                                            <span>добавить</span>
+                                            <span>Добавить</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -53,14 +53,8 @@
                 <table class="table table-tranx">
                     <thead>
                     <tr class="tb-tnx-head">
-                        <th class="tb-tnx-id"><span class="">#</span></th>
-                        <th class="tb-tnx-info">
-                        <span class="tb-tnx-desc d-none d-sm-inline-block">
+                        <th class="tb-tnx-id">
                             <span>Название</span>
-                        </span>
-                        </th>
-                        <th class="tb-tnx-amount is-alt">
-                            <span class="tb-tnx-total">Разрешение</span>
                         </th>
                         <th class="tb-tnx-action"><span>&nbsp;</span></th>
                     </tr>
@@ -68,18 +62,8 @@
                     <tbody>
                     {% for item in roles %}
                     <tr class="tb-tnx-item" data-id="{{item.id}}">
-                        <td class="tb-tnx-id"><a href="/api/roles/{{item.id}}/"><span># {{item.id}}</span></a></td>
-                        <td class="tb-tnx-info">
-                            <div class="tb-tnx-desc">
-                                <span class="title">{{item.title}}</span>
-                            </div>
-                        </td>
-                        <td class="tb-tnx-amount is-alt">
-                            <div class="tb-tnx-total"><span class="amount">
-                                {% if item.permissions %}
-                                {{item.permissions|join(', ')}}
-                                {% endif %}
-                            </span></div>
+                        <td class="tb-tnx-id" onclick="openItem({{item.id}})">
+                            <span>{{item.title}}</span>
                         </td>
                         <td class="tb-tnx-action">
                             <div class="dropdown"><a
@@ -89,7 +73,7 @@
                                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
                                     <ul class="link-list-plain">
                                         <li><a href="/api/roles/{{item.id}}/">Edit</a></li>
-                                        <li><a class="js-remove">Remove</a></li>
+                                        <li><a class="js-remove" onclick="removeItem({{item.id}})">Remove</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -99,27 +83,6 @@
                     </tbody>
                 </table>
             </div>
-            {% if pager %}
-            <div class="card-inner">
-                <ul class="pagination justify-content-center justify-content-md-start">
-                    <li class="page-item">
-                        <a class="page-link"
-                           {% if pager.prev_page %}
-                           href="/api/users/?limit={{pager.limit}}&page={{pager.prev_page}}"
-                           {% endif %}
-                        >Prev</a>
-                    </li>
-                    <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
-                    <li class="page-item">
-                        <a class="page-link"
-                           {% if pager.next_page %}
-                           href="/api/users/?limit={{pager.limit}}&page={{pager.next_page}}"
-                           {% endif %}
-                        >Next</a>
-                    </li>
-                </ul>
-            </div>
-            {% endif %}
         </div>
     </div>
     <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
@@ -169,14 +132,14 @@
     $('li[data-li="users"]').addClass('active')
     $('li[data-li="user-roles"]').addClass('active')
 
-    $('.js-remove').click(async function () {
-        let new_id = $(this).parents('tr').data('id');
-        let new_data = getValues('.js-cont[data-id="' + new_id + '"]')
+    function openItem(itemId) {
+        window.location.href = `/api/roles/${itemId}`;
+    }
 
+    async function removeItem(itemId) {
         try {
-            let response = await fetch('/api/roles/' + new_id, {
-                method: 'DELETE',
-                body: JSON.stringify(new_data)
+            let response = await fetch(`/api/roles/${itemId}`, {
+                method: 'DELETE'
             });
 
             response = await response.json();
@@ -189,7 +152,7 @@
         } catch (error) {
             alertShow('waring', `${error.message}`);
         }
-    });
+    }
 
     $('[type="file"]').change(function () {
         var trigger_name = $(this).parents('.photo-place').data('name');
