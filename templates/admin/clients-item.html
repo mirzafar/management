@@ -99,12 +99,12 @@
                                                     </div>
 
                                                     <div class="form-group">
-                                                        <a onclick="saveItem()"
-                                                                class="btn btn-lg btn-success">
-                                                            Сохранить
+                                                        <a onclick="editItem({{client.id}})"
+                                                           class="btn btn-lg btn-success">
+                                                            Изменить
                                                         </a>
                                                         <a onclick="removeItem({{client.id}})"
-                                                                class="btn btn-lg btn-danger">
+                                                           class="btn btn-lg btn-danger">
                                                             Удалить
                                                         </a>
                                                     </div>
@@ -190,8 +190,6 @@
                                                     <blockquote class="blockquote"><p>
                                                         Здесь будет отображаться список посещении
                                                     </p></blockquote>
-<!--                                                    <figcaption class="blockquote-footer"> Someone famous in <cite-->
-<!--                                                            title="Source Title">Source Title</cite></figcaption>-->
                                                 </figure>
                                             </div>
                                         </div>
@@ -289,26 +287,27 @@
     let currUrl = window.location.href.split('/')
     let itemId = currUrl[currUrl.length - 1] || currUrl[currUrl.length - 2]
 
-    function saveItem() {
-        let data = getValues('#data-item')
-        data.action = 'main'
-        data.client_id = itemId
-        $.ajax({
-            type: 'PUT',
-            dataType: 'json',
-            url: '/api/clients/' + itemId,
-            data: JSON.stringify(data),
-            success: function (d) {
-                if (d['_success'] === true) {
-                    window.location.href = '/api/clients/'
-                } else {
-                    alertShow('error', d['message'])
-                }
-            },
-            error: function (d) {
-                alertShow('waring')
+    async function editItem(clientId) {
+        try {
+            let data = getValues('#data-item')
+            data.action = 'main'
+            data.client_id = clientId
+
+            let response = await fetch(`/api/clients/${clientId}`, {
+                method: 'PUT',
+                body: JSON.stringify(data)
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success')
+            } else {
+                alert(response.message);
             }
-        });
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
     }
 
     async function createItem() {
@@ -370,7 +369,7 @@
             ;
 
             $.each(response.reasons, function (index, item) {
-                let newOption =  $('<option>').attr('value', item.id).text(item.title)
+                let newOption = $('<option>').attr('value', item.id).text(item.title)
                 reasons.append(newOption);
             });
 
