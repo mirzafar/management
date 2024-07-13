@@ -26,6 +26,7 @@ RESPONSE_TYPES = [
 
 class TemplateHTTPView(HTTPMethodView):
     template_name: str = None
+    scopes: list = []
 
     def success(
         self,
@@ -48,6 +49,15 @@ class TemplateHTTPView(HTTPMethodView):
 
         elif response_type == 'html':
             data = DictUtils.as_dict(data) or {}
+
+            if user.get('permissions') and self.scopes:
+                if not list(set(user['permissions']) & set(self.scopes)):
+                    return response.HTTPResponse(env.get_template('errors/404.html').render(
+                        request=request,
+                        app=request.app,
+                        url_for=request.app.url_for
+                    ), content_type='text/html')
+
             data.update({
                 'base_url': settings['base_url'],
                 '_user': user or {},
