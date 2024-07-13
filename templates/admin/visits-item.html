@@ -61,6 +61,7 @@
                                                              href="#addDiagnosis"><em class="icon ni ni-plus"></em></a>
                                     </div>
                                 </div>
+                                {% if lesson %}
                                 <div class="nk-block">
                                     <div class="card">
                                         <div class="nk-tb-list nk-tb-ulist is-compact">
@@ -70,7 +71,6 @@
                                                 <div class="nk-tb-col"><span>Цена</span></div>
                                                 <div class="nk-tb-col nk-tb-col-tools text-end"></div>
                                             </div>
-                                            {% if lesson %}
                                             {% for lesson in lessons %}
                                             <div class="nk-tb-item">
                                                 <div class="nk-tb-col">
@@ -125,18 +125,18 @@
                                                 </div>
                                             </div>
                                             {% endfor %}
-                                            {% else %}
-                                            <div class="card-inner">
-                                                <figure class="text-center">
-                                                    <blockquote class="blockquote"><h3>
-                                                        Cписок уроков
-                                                    </h3></blockquote>
-                                                </figure>
-                                            </div>
-                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
+                                {% else %}
+                                <div class="card-inner">
+                                    <figure class="text-center">
+                                        <blockquote class="blockquote"><h3>
+                                            Cписок уроков
+                                        </h3></blockquote>
+                                    </figure>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
