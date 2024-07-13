@@ -47,7 +47,7 @@
                                     </div>
                                 </div>
 
-
+                                {% if lessons %}
                                 <div class="nk-block">
                                     <div class="card">
                                         <div class="nk-tb-list nk-tb-ulist is-compact">
@@ -172,6 +172,15 @@
                                             >{% if pager.next_page %}Prev{% else %}&nbsp;{% endif %}</a>
                                         </li>
                                     </ul>
+                                </div>
+                                {% endif %}
+                                {% else %}
+                                <div class="card-inner">
+                                    <figure class="text-center">
+                                        <blockquote class="blockquote"><h3>
+                                            Cписок уроков
+                                        </h3></blockquote>
+                                    </figure>
                                 </div>
                                 {% endif %}
                             </div>
