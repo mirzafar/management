@@ -94,8 +94,8 @@
                                                                                 <span>Посещение</span>
                                                                             </a>
                                                                         </li>
-                                                                        {% if not lesson.is_finish and not
-                                                                        lesson.is_cancel %}
+                                                                        {% if lesson.is_finish or lesson.is_cancel %}
+                                                                        {% else %}
                                                                         <li onclick="actionLesson({{lesson.id}}, 'finish')">
                                                                             <a>
                                                                                 <em class="icon ni ni-check text-success"></em>
@@ -103,8 +103,8 @@
                                                                             </a>
                                                                         </li>
                                                                         {% endif %}
-                                                                        {% if not lesson.is_cancel and not
-                                                                        lesson.is_finish %}
+                                                                        {% if lesson.is_cancel or lesson.is_finish %}
+                                                                        {% else %}
                                                                         <li onclick="actionLesson({{lesson.id}}, 'cancel')">
                                                                             <a>
                                                                                 <em class="icon ni ni-cross text-info"></em>

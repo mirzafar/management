@@ -83,8 +83,32 @@ class LessonsView(BaseAPIView):
 
     async def post(self, request, user):
         action = request.json.get('action')
-        lesson_id = IntUtils.to_int(request.json.get('lesson_id'))
-        if action == 'finish' and lesson_id:
+        lesson_id = IntUtils.to_int(request.json.get('lesson_id'), default=0)
+
+        if not lesson_id:
+            return self.error(message='Операция не выполнена')
+
+        lesson = await db.fetchrow(
+            '''
+            SELECT *
+            FROM public.visit_lessons
+            WHERE id = $1
+            ''',
+            lesson_id
+        )
+
+        if not lesson:
+            return self.error(message='Операция не выполнена')
+
+        if action in ['cancel', 'finish']:
+            if not lesson['time']:
+                return self.error(message='Время урока отсутствует')
+
+        if action in ['finish', 'paid']:
+            if not lesson['price']:
+                return self.error(message='Цена за урок отсутствует')
+
+        if action == 'finish':
             lesson = await db.fetchrow(
                 '''
                 UPDATE public.visit_lessons 
@@ -100,7 +124,7 @@ class LessonsView(BaseAPIView):
 
             return self.success()
 
-        if action == 'cancel' and lesson_id:
+        if action == 'cancel':
             lesson = await db.fetchrow(
                 '''
                 UPDATE public.visit_lessons 
@@ -116,7 +140,7 @@ class LessonsView(BaseAPIView):
 
             return self.success()
 
-        if action == 'paid' and lesson_id:
+        if action == 'paid':
             lesson = await db.fetchrow(
                 '''
                 UPDATE public.visit_lessons 

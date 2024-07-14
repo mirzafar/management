@@ -69,6 +69,7 @@
                                                 <div class="nk-tb-col"><span>Ответственный</span></div>
                                                 <div class="nk-tb-col"><span>Дата</span></div>
                                                 <div class="nk-tb-col"><span>Цена</span></div>
+                                                <div class="nk-tb-col"><span>Статус</span></div>
                                                 <div class="nk-tb-col nk-tb-col-tools text-end"></div>
                                             </div>
                                             {% for lesson in lessons %}
@@ -100,26 +101,68 @@
                                                 <div class="nk-tb-col">
                                                     <span>{{lesson.price or 0.0}} ₸</span>
                                                 </div>
+                                                <div class="nk-tb-col">
+                                                    {% if lesson.is_finish %}
+                                                    <span class="badge badge-dim bg-success">Завершен</span>
+                                                    {% elif lesson.is_cancel %}
+                                                    <span class="badge badge-dim bg-info">Отменен</span>
+                                                    {% else %}
+                                                    <span class="badge badge-dim bg-warning">Ожидание</span>
+                                                    {% endif %}
+                                                </div>
                                                 <div class="nk-tb-col nk-tb-col-tools">
-                                                    <ul class="nk-tb-actions gx-2">
-                                                        <li class="nk-tb-action-hidden"
-                                                            onclick="removeLesson({{lesson.id}})"><a
-                                                                class="btn btn-sm btn-icon btn-trigger"
-                                                                data-bs-toggle="tooltip"
-                                                                data-bs-placement="top"
-                                                                aria-label="Edit"
-                                                                data-bs-original-title="Удалить"><em
-                                                                class="icon ni ni-trash-fill"></em></a></li>
-                                                        <li class="nk-tb-action-hidden">
-                                                            <a class="btn btn-sm btn-icon btn-trigger toggle"
-                                                               data-bs-toggle="tooltip"
-                                                               data-target="updateProduct"
-                                                               onclick="openLesson({{lesson.id}})"
-                                                               data-bs-placement="top"
-                                                               aria-label="Edit"
-                                                               data-bs-original-title="Изменить">
-                                                                <em class="icon ni ni-edit-fill"></em>
-                                                            </a>
+                                                    <ul class="nk-tb-actions gx-1 my-n1">
+                                                        <li class="me-n1">
+                                                            <div class="dropdown"><a href="#"
+                                                                                     class="dropdown-toggle btn btn-icon btn-trigger"
+                                                                                     data-bs-toggle="dropdown"><em
+                                                                    class="icon ni ni-more-h"></em></a>
+                                                                <div class="dropdown-menu dropdown-menu-end">
+                                                                    <ul class="link-list-opt no-bdr">
+                                                                        {% if lesson.is_finish or lesson.is_cancel %}
+                                                                        {% else %}
+                                                                        <li onclick="actionLesson({{lesson.id}}, 'finish')">
+                                                                            <a>
+                                                                                <em class="icon ni ni-check text-success"></em>
+                                                                                <span class="tb-status text-success">Завершить</span>
+                                                                            </a>
+                                                                        </li>
+                                                                        {% endif %}
+                                                                        {% if lesson.is_finish or lesson.is_cancel %}
+                                                                        {% else %}
+                                                                        <li onclick="actionLesson({{lesson.id}}, 'cancel')">
+                                                                            <a>
+                                                                                <em class="icon ni ni-cross text-info"></em>
+                                                                                <span class="tb-status text-info">Отменить</span>
+                                                                            </a>
+                                                                        </li>
+                                                                        {% endif %}
+                                                                        {% if not lesson.is_paid %}
+                                                                        <li onclick="actionLesson({{lesson.id}}, 'paid')">
+                                                                            <a>
+                                                                                <em class="icon ni ni-money"></em>
+                                                                                <span class="">Оплатить</span>
+                                                                            </a>
+                                                                        </li>
+                                                                        {% endif %}
+                                                                        <li onclick="removeLesson({{lesson.id}})">
+                                                                            <a>
+                                                                                <em class="icon ni ni-trash-fill"></em>
+                                                                                <span class="">Удалить</span>
+                                                                            </a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <a class="toggle"
+                                                                               data-target="updateProduct"
+                                                                               onclick="openLesson({{lesson.id}})"
+                                                                            >
+                                                                                <em class="icon ni ni-edit-fill"></em>
+                                                                                <span>Изменить</span>
+                                                                            </a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
                                                         </li>
                                                     </ul>
                                                 </div>
@@ -438,6 +481,28 @@
                 location.reload();
             } else {
                 alertShow('error', response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function actionLesson(lessonId, action) {
+        try {
+            let response = await fetch('/api/lessons/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    'action': action,
+                    'lesson_id': lessonId
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                location.reload();
+            } else {
+                alert(response.message);
             }
 
         } catch (error) {
