@@ -10,32 +10,17 @@
                             <div class="tab-pane show active" id="tabItem2" role="tabpanel">
                                 <div class="nk-block">
                                     <div class="row g-3">
-                                        <div class="col-5">
+                                        <div class="col-12">
                                             <div class="form-group">
                                                 <div class="form-control-wrap">
                                                     <div class="form-icon form-icon-right"><em
                                                             class="icon ni ni-calendar"></em>
                                                     </div>
                                                     <input type="text" class="form-control date-picker"
-                                                           value="{{start_date}}" id="filter-start-date"
-                                                           data-date-format="yyyy-mm-dd">
+                                                           value="{{datetime}}" id="filter-datetime"
+                                                           data-date-format="yyyy-mm-dd" onchange="searchFilter()">
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="form-group">
-                                                <div class="form-control-wrap">
-                                                    <div class="form-icon form-icon-right"><em
-                                                            class="icon ni ni-calendar"></em>
-                                                    </div>
-                                                    <input type="text" class="form-control date-picker"
-                                                           value="{{stop_date}}" id="filter-stop-date"
-                                                           data-date-format="yyyy-mm-dd"></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-2">
-                                            <button class="btn btn-icon" onclick="searchFilter()"><em
-                                                    class="icon ni ni-search"></em></button>
                                         </div>
                                     </div>
                                 </div>
@@ -180,16 +165,11 @@
     let urlParams = new URLSearchParams(window.location.search);
 
     function searchFilter() {
-        if (urlParams.has('start_date')) {
-            urlParams.delete('start_date')
+        if (urlParams.has('datetime')) {
+            urlParams.delete('datetime')
         }
 
-        if (urlParams.has('stop_date')) {
-            urlParams.delete('stop_date')
-        }
-
-        urlParams.append('start_date', $('#filter-start-date').val())
-        urlParams.append('stop_date', $('#filter-stop-date').val())
+        urlParams.append('datetime', $('#filter-datetime').val())
         console.log(urlParams.toString())
         window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + urlParams.toString()
     }

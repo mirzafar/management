@@ -1,8 +1,9 @@
+from datetime import datetime
+
 from core.db import db
 from core.handlers import BaseAPIView
 from core.pager import Pager
 from utils.lists import ListUtils
-from utils.tools import order_date
 
 
 class MainView(BaseAPIView):
@@ -13,11 +14,11 @@ class MainView(BaseAPIView):
         pager.set_page(request.args.get('page', 1))
         pager.set_limit(request.args.get('limit', 20))
 
-        start_date, stop_date = order_date(
-            request.args.get('start_date'),
-            request.args.get('stop_date'),
-            defu='last_day'
-        )
+        dtn = request.args.get('datetime')
+        if dtn and len(dtn) == 10:
+            pass
+        else:
+            dtn = str(datetime.now().date())
 
         lessons = ListUtils.to_list_of_dicts(await db.fetch(
             '''
@@ -38,12 +39,11 @@ class MainView(BaseAPIView):
             FROM public.visit_lessons vl
             LEFT JOIN public.visits v ON vl.visit_id = v.id
             LEFT JOIN public.clients c ON v.client_id = c.id
-            WHERE vl.is_active AND vl.time BETWEEN $1 AND $2 AND vl.user_id = $3
+            WHERE vl.is_active AND vl.date_key = $1 AND vl.user_id = $2
             ORDER BY vl.time DESC, vl.id DESC
             %s
             ''' % pager.as_query(),
-            start_date,
-            stop_date,
+            dtn,
             user['id']
         ))
 
@@ -51,16 +51,14 @@ class MainView(BaseAPIView):
             '''
             SELECT count(*)
             FROM public.visit_lessons vl
-            WHERE vl.is_active AND vl.time BETWEEN $1 AND $2 AND vl.user_id = $3
+            WHERE vl.is_active AND vl.date_key = $1 AND vl.user_id = $2
             ''',
-            start_date,
-            stop_date,
+            dtn,
             user['id']
         ) or 0)
 
         return self.success(request=request, user=user, data={
             'lessons': lessons,
             'pager': pager.dict(),
-            'start_date': str(start_date.date()),
-            'stop_date': str(stop_date.date()),
+            'datetime': dtn
         })
