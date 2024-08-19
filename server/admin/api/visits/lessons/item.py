@@ -3,7 +3,6 @@ from datetime import datetime
 from core.datetimes import DatetimeUtils
 from core.db import db
 from core.handlers import BaseAPIView
-from utils.bools import BoolUtils
 from utils.floats import FloatUtils
 from utils.ints import IntUtils
 from utils.strs import StrUtils
@@ -69,11 +68,12 @@ class VisitsLessonsItemView(BaseAPIView):
         user_id = IntUtils.to_int(request.json.get('user_id'))
         time = DatetimeUtils.str_2_datetime(request.json.get('time'), '%Y-%m-%dT%H:%M') or datetime.now()
         price = FloatUtils.to_float(request.json.get('price'))
+        room = StrUtils.to_str(request.json.get('room'))
 
         item = await db.fetchrow(
             '''
             UPDATE public.visit_lessons
-            SET description = $2, time = $3, user_id = $4, date_key = $5, price = $6
+            SET description = $2, time = $3, user_id = $4, date_key = $5, price = $6, room = $7
             WHERE id = $1
             RETURNING *
             ''',
@@ -82,7 +82,8 @@ class VisitsLessonsItemView(BaseAPIView):
             time,
             user_id,
             str(time.date()),
-            price
+            price,
+            room
         )
 
         if not item:

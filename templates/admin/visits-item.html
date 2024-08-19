@@ -103,7 +103,11 @@
                                                 </div>
                                                 <div class="nk-tb-col">
                                                     {% if lesson.is_finish %}
-                                                    <span class="badge badge-dim bg-success">Завершен</span>
+                                                        {% if lesson.is_paid %}
+                                                        <span class="badge badge-dim bg-success">Завершен/Оплочен</span>
+                                                        {% else %}
+                                                        <span class="badge badge-dim bg-danger">Завершен/Не оплочен</span>
+                                                        {% endif %}
                                                     {% elif lesson.is_cancel %}
                                                     <span class="badge badge-dim bg-info">Отменен</span>
                                                     {% else %}
@@ -277,6 +281,14 @@
                 </div>
             </div>
             <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="up-room">Комната
+                    </label>
+                    <input type="text" class="form-control" id="up-room" name="room">
+                </div>
+            </div>
+            <div class="col-12">
                 <a onclick="updateItem()" class="btn btn-primary"><em
                         class="icon ni ni-plus"></em><span>Изменить</span></a>
             </div>
@@ -349,6 +361,7 @@
                 $('#up-id').val(response.lesson.id)
                 $('#up-time').val(response.lesson.time_str)
                 $('#up-price').val(response.lesson.price)
+                $('#up-room').val(response.lesson.room)
             } else {
                 alert(response.message);
             }
