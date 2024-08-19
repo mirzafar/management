@@ -57,7 +57,11 @@
                                                 </div>
                                                 <div class="nk-tb-col">
                                                     {% if lesson.is_finish %}
-                                                    <span class="badge badge-dim bg-success">Завершен</span>
+                                                        {% if lesson.is_paid %}
+                                                        <span class="badge badge-dim bg-success">Завершен/Оплочен</span>
+                                                        {% else %}
+                                                        <span class="badge badge-dim bg-danger">Завершен/Не оплочен</span>
+                                                        {% endif %}
                                                     {% elif lesson.is_cancel %}
                                                     <span class="badge badge-dim bg-info">Отменен</span>
                                                     {% else %}
