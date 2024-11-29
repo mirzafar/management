@@ -21,8 +21,7 @@ class ClientsView(BaseAPIView):
         cond, cond_vars = ['cu.is_active'], []
 
         if query:
-            cond.append('(cu.first_name ILIKE {} OR cu.last_name ILIKE {})')
-            cond_vars.append(f'%{query}%')
+            cond.append('(cu.first_name ILIKE {same} OR cu.last_name ILIKE {same} OR cu.phone ILIKE {same})')
             cond_vars.append(f'%{query}%')
 
         cond, _ = set_counters(' AND '.join(cond))
@@ -57,23 +56,24 @@ class ClientsView(BaseAPIView):
         last_name = StrUtils.to_str(request.json.get('last_name'))
         middle_name = StrUtils.to_str(request.json.get('middle_name'))
         phone = PhoneNumberUtils.normalize(request.json.get('phone'))
-        photo = StrUtils.to_str(request.json.get('photo'))
         address = StrUtils.to_str(request.json.get('address'))
 
-        if not first_name or not last_name:
-            return self.error(message='Отсуствует обязательный параметры "first_name: str, last_name: str"')
+        if not first_name:
+            return self.error(message='Отсуствует обязательный параметры "Имя"')
+
+        if not last_name:
+            return self.error(message='Отсуствует обязательный параметры "Фамилия"')
 
         user = await db.fetchrow(
             '''
             INSERT INTO public.clients
-            (last_name, first_name, middle_name, photo, phone, address)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            (last_name, first_name, middle_name, phone, address)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING *
             ''',
             last_name,
             first_name,
             middle_name,
-            photo,
             phone,
             address
         )

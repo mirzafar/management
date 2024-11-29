@@ -23,27 +23,7 @@ class ClientsItemView(BaseAPIView):
             client_id
         ) or {}
 
-        visits = ListUtils.to_list_of_dicts(await db.fetch(
-            '''
-            SELECT 
-                v.*,
-                vr.title AS reason, 
-                jsonb_build_object(
-                    'id', u.id,
-                    'first_name', u.first_name,
-                    'last_name', u.last_name,
-                    'photo', u.photo
-                ) AS author
-            FROM public.visits v
-            LEFT JOIN public.users u ON v.author_id = u.id
-            LEFT JOIN public.visit_reasons vr ON v.reason_id = vr.id
-            WHERE v.is_active AND v.client_id = $1
-            ORDER BY v.id DESC
-            ''',
-            client_id
-        ))
-
-        return self.success(request=request, user=user, data={'client': dict(client), 'visits': visits})
+        return self.success(request=request, user=user, data={'client': dict(client)})
 
     async def put(self, request, user, client_id):
         first_name = StrUtils.to_str(request.json.get('first_name'))
@@ -51,15 +31,22 @@ class ClientsItemView(BaseAPIView):
         middle_name = StrUtils.to_str(request.json.get('middle_name'))
         phone = PhoneNumberUtils.normalize(request.json.get('phone'))
         photo = StrUtils.to_str(request.json.get('photo'))
+        address = StrUtils.to_str(request.json.get('address'))
 
         client_id = IntUtils.to_int(client_id)
         if not client_id:
             return self.error(message='Отсуствует обязательный параметр "client_id"')
 
+        if not first_name:
+            return self.error(message='Отсуствует обязательный параметры "Имя"')
+
+        if not last_name:
+            return self.error(message='Отсуствует обязательный параметры "Фамилия"')
+
         data = await db.fetchrow(
             '''
             UPDATE public.clients
-            SET first_name = $2, last_name = $3, middle_name = $4, photo = $5, phone = $6
+            SET first_name = $2, last_name = $3, middle_name = $4, photo = $5, phone = $6, address = $7
             WHERE id = $1
             RETURNING *
             ''',
@@ -68,7 +55,8 @@ class ClientsItemView(BaseAPIView):
             last_name,
             middle_name,
             photo,
-            phone
+            phone,
+            address
         )
 
         if not data:

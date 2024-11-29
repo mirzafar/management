@@ -1,3 +1,5 @@
+import asyncpg
+
 from core.datetimes import DatetimeUtils
 from core.db import db
 from core.handlers import BaseAPIView
@@ -50,54 +52,45 @@ class UsersItemView(BaseAPIView):
         role_id = IntUtils.to_int(request.json.get('role_id'))
         photo = StrUtils.to_str(request.json.get('photo'))
 
-        if not first_name or not last_name:
-            return self.error(message='Отсуствует обязательный параметры "first_name: str, last_name: str"')
+        if not first_name:
+            return self.error(message='Отсуствует обязательный параметры "Имя"')
 
-        if username:
-            duplicate = await db.fetchrow(
-                '''
-                SELECT *
-                FROM public.users
-                WHERE username = $1
-                ''',
-                username
-            )
-            if duplicate:
-                return self.error(
-                    message='Пользователь с этими значениями уже существует. Дубликат не может быть создан'
-                )
+        if not last_name:
+            return self.error(message='Отсуствует обязательный параметры "Фамилия"')
 
-        else:
-            return self.error(message='Отсуствует обязательный параметр "username: str"')
+        if not username:
+            return self.error(message='Отсуствует обязательный параметр "Логин"')
 
         if not password:
-            return self.error(message='Отсуствует обязательный параметр "password: str"')
+            return self.error(message='Отсуствует обязательный параметр "Пароль"')
 
-        user = await db.fetchrow(
-            '''
-            INSERT INTO public.users
-            (last_name, first_name, middle_name, password, username, photo, birthday, role_id)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-            RETURNING *
-            ''',
-            last_name,
-            first_name,
-            middle_name,
-            password_to_hash(password),
-            username,
-            photo,
-            birthday,
-            role_id
-        )
+        try:
+            user = await db.fetchrow(
+                '''
+                INSERT INTO public.users
+                (last_name, first_name, middle_name, password, username, photo, birthday, role_id)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                RETURNING *
+                ''',
+                last_name,
+                first_name,
+                middle_name,
+                password_to_hash(password),
+                username,
+                photo,
+                birthday,
+                role_id
+            )
+        except asyncpg.exceptions.UniqueViolationError:
+            return self.error(
+                message='Пользователь с этими значениями уже существует. Дубликат не может быть создан'
+            )
+
 
         if not user:
             return self.error(message='Операция не выполнена')
 
-        return self.success(
-            data={
-                'user': dict(user)
-            }
-        )
+        return self.success(data={'user': dict(user)})
 
     async def put(self, request, user, user_id):
         user_id = IntUtils.to_int(user_id)
@@ -115,50 +108,43 @@ class UsersItemView(BaseAPIView):
             photo = StrUtils.to_str(request.json.get('photo'))
             password = StrUtils.to_str(request.json.get('password'))
 
-            if not first_name or not last_name:
-                return self.error(message='Отсуствует обязательный параметры "first_name: str, last_name: str"')
+            if not first_name:
+                return self.error(message='Отсуствует обязательный параметры "Имя"')
 
-            if username:
-                duplicate = await db.fetchrow(
+            if not last_name:
+                return self.error(message='Отсуствует обязательный параметры "Фамилия"')
+
+            if not username:
+                return self.error(message='Отсуствует обязательный параметр "Логин"')
+
+            try:
+                user = await db.fetchrow(
                     '''
-                    SELECT *
-                    FROM public.users
-                    WHERE id <> $1 AND username = $2
+                    UPDATE public.users
+                    SET 
+                        last_name = $2,
+                        first_name = $3, 
+                        middle_name = $4, 
+                        username = $5, 
+                        photo = $6, 
+                        birthday = $7,
+                        role_id = $8
+                    WHERE id = $1
+                    RETURNING *
                     ''',
                     user_id,
-                    username
+                    last_name,
+                    first_name,
+                    middle_name,
+                    username,
+                    photo,
+                    birthday,
+                    role_id
                 )
-                if duplicate:
-                    return self.error(
-                        message='Пользователь с этими значениями уже существует. Дубликат не может быть создан'
-                    )
-
-            else:
-                return self.error(message='Отсуствует обязательный параметр "username: str"')
-
-            user = await db.fetchrow(
-                '''
-                UPDATE public.users
-                SET 
-                    last_name = $2,
-                    first_name = $3, 
-                    middle_name = $4, 
-                    username = $5, 
-                    photo = $6, 
-                    birthday = $7,
-                    role_id = $8
-                WHERE id = $1
-                RETURNING *
-                ''',
-                user_id,
-                last_name,
-                first_name,
-                middle_name,
-                username,
-                photo,
-                birthday,
-                role_id
-            )
+            except asyncpg.exceptions.UniqueViolationError:
+                return self.error(
+                    message='Пользователь с этими значениями уже существует. Дубликат не может быть создан'
+                )
 
             if not user:
                 return self.error(message='Операция не выполнена')
@@ -175,14 +161,12 @@ class UsersItemView(BaseAPIView):
                     password_to_hash(password)
                 )
 
-            return self.success(data={
-                'user': dict(user)
-            })
+            return self.success(data={'user': dict(user)})
 
         elif action == 'reset_password':
             password = StrUtils.to_str(request.json.get('password'))
             if not password:
-                return self.error(message='Отсуствует обязательный параметр "password: str"')
+                return self.error(message='Отсуствует обязательный параметр "Пароль"')
 
             user = await db.fetchrow(
                 '''
@@ -210,8 +194,7 @@ class UsersItemView(BaseAPIView):
 
         user = await db.fetchrow(
             '''
-            UPDATE public.users
-            SET status = -2
+            DELETE FROM public.users
             WHERE id = $1
             RETURNING *
             ''',

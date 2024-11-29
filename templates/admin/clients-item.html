@@ -6,17 +6,17 @@
             <div class="card-aside-wrap">
                 <div class="card-content">
                     <ul class="nav nav-tabs nav-tabs-mb-icon nav-tabs-card" role="tablist">
-                        <li class="nav-item" role="presentation"><a class="nav-link" data-bs-toggle="tab"
+                        <li class="nav-item" role="presentation"><a class="nav-link active" data-bs-toggle="tab"
                                                                     href="#tabItem1" aria-selected="true" role="tab"><em
                                 class="icon ni ni-user-circle-fill"></em><span>Карточка клиента</span></a></li>
-                        <li class="nav-item" role="presentation"><a class="nav-link active" data-bs-toggle="tab"
+                        <li class="nav-item" role="presentation"><a class="nav-link" data-bs-toggle="tab"
                                                                     href="#tabItem2" aria-selected="false" role="tab"
                                                                     tabindex="-1"><em
                                 class="icon ni ni-property"></em><span>Список посещении</span></a></li>
                     </ul>
                     <div class="card-inner">
                         <div class="tab-content">
-                            <div class="tab-pane" id="tabItem1" role="tabpanel">
+                            <div class="tab-pane show active" id="tabItem1" role="tabpanel">
                                 <div class="row g-gs">
                                     <div class="col-lg-12">
                                         <div class="card card-bordered h-100">
@@ -61,41 +61,13 @@
                                                     </div>
 
                                                     <div class="form-group">
-                                                        <label class="form-label" for="customFile" data-name="photo">Фото</label>
-                                                        <div class="card-preview">
-                                                            <div class="card-inner">
-                                                                <div class="row">
-                                                                    <div class="col-lg-4">
-                                                                        <div class="card card-bordered photo-place"
-                                                                             data-name="photo">
-                                                                            <img class="card-img-top"
-                                                                                 {% if client.photo %}
-                                                                                 src="/static/uploads/{{client.photo}}/"
-                                                                                 {% endif %}
-                                                                                 alt="">
-                                                                            <div class="card-inner">
-                                                                                <input type="hidden"
-                                                                                       name="photo"
-                                                                                       value="{{client.photo}}">
-                                                                                <div class="form-control-wrap">
-                                                                                    <div class="form-file">
-                                                                                        <input type="file" multiple=""
-                                                                                               class="form-file-input"
-                                                                                               id="customFile">
-                                                                                        <label class="form-file-label"
-                                                                                               for="customFile"> Выбрать
-                                                                                        </label>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <br/>
-                                                                            </div>
-
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
+                                                        <label class="form-label"
+                                                               for="cf-address-new">Адрес
+                                                        </label>
+                                                        <input type="text" class="form-control"
+                                                               name="address"
+                                                               value="{{client.address or ''}}"
+                                                               id="cf-address-new">
                                                     </div>
 
                                                     <div class="form-group">
@@ -114,86 +86,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane show active" id="tabItem2" role="tabpanel">
-                                <div class="nk-block nk-block-between">
-                                    <div class="nk-block-head"><h6 class="title"></h6>
-                                        <p></p></div>
-                                    <div class="nk-block"><a class="btn btn-icon btn-primary" data-bs-toggle="modal"
-                                                             href="#addDiagnosis"><em class="icon ni ni-plus"></em></a>
-                                    </div>
-                                </div>
-                                <div class="nk-block">
-                                    <div class="row g-gs">
-                                        {% if visits %}
-                                        {% for visit in visits %}
-                                        <div class="col-sm-6 col-xl-4" onclick="openVisitLesson({{visit.id}})">
-                                            <div class="card h-100">
-                                                <div class="card-inner">
-                                                    <div class="project">
-                                                        <div class="project-details"><p>{{visit.reason[:20] if
-                                                            visit.reason else ''}}</p></div>
-                                                        <div class="project-progress">
-                                                            <div class="project-progress-details">
-                                                                <div class="project-progress-task"><em
-                                                                        class="icon ni ni-check-round-cut"></em><span>{{visit.count_lesson or 0}}</span>
-                                                                </div>
-                                                                <div class="project-progress-percent">
-                                                                    {{visit.percent_process}}%
-                                                                </div>
-                                                            </div>
-                                                            <div class="progress progress-pill progress-md bg-light">
-                                                                <div class="progress-bar"
-                                                                     data-progress="{{visit.percent_process}}"
-                                                                     style="width: 93.5%;"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="project-meta">
-                                                            <ul class="project-users g-1">
-                                                                {% if visit.author.photo %}
-                                                                <li>
-                                                                    <div class="user-avatar sm bg-blue"><img
-                                                                            src="/static/uploads/{{visit.author.photo}}/"
-                                                                            alt=""></div>
-                                                                </li>
-                                                                {% else %}
-                                                                {% if visit.author.first_name or
-                                                                visit.author.last_name%}
-                                                                <li>
-                                                                    <div class="user-avatar sm bg-primary">
-                                                                            <span>
-                                                                                {% if visit.author.first_name %}
-                                                                                    {{visit.author.first_name[:1]|upper}}
-                                                                                {% else %}
-                                                                                    {{visit.author.last_name[:1]|upper}}
-                                                                                {% endif %}
-                                                                            </span></div>
-                                                                </li>
-                                                                {% endif %}
-                                                                {% endif %}
-                                                            </ul>
-                                                            {% if visit.created_at %}
-                                                            <span class="badge badge-dim bg-success">
-                                                                <em class="icon ni ni-clock"></em>
-                                                                <span> {{visit.created_at.strftime('%Y-%m-%d')}}</span>
-                                                            </span>
-                                                            {% endif %}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                        {% else %}
-                                        <div class="card-inner">
-                                            <figure class="text-center">
-                                                <blockquote class="blockquote"><h3>
-                                                    Cписок посещении
-                                                </h3></blockquote>
-                                            </figure>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
+                            <div class="tab-pane" id="tabItem2" role="tabpanel">
+
                             </div>
                         </div>
                     </div>
@@ -207,49 +101,6 @@
         <div class="modal-content"><a href="#" class="close" data-bs-dismiss="modal"><em
                 class="icon ni ni-cross-sm"></em></a>
             <div class="modal-body modal-body-md" id="new-data-item">
-                <div class="row g-gs">
-                    <div class="col-md-12">
-                        <div class="form-group"><label class="form-label">Причины</label>
-                            <div class="form-control-wrap" id="VisitReason">
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label" for="count-lesson">Количество уроков</label>
-                            <div class="form-control-wrap">
-                                <input type="number" min="1" value="1" name="count_lesson" class="form-control"
-                                       id="count-lesson">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label" for="price-lesson">Цена за один урок</label>
-                            <div class="form-control-wrap">
-                                <input type="number" min="1" value="1" name="price" class="form-control"
-                                       id="price-lesson">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="form-group"><label class="form-label">Описание</label>
-                            <div class="form-control-wrap">
-                                <textarea class="form-control" name="description"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
-                            <li>
-                                <a onclick="createItem()" data-bs-dismiss="modal"
-                                   class="btn btn-primary">Добавить</a>
-                            </li>
-                            <li><a href="#" class="link link-light" data-bs-dismiss="modal">Cancel</a></li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -261,37 +112,13 @@
     $('li[data-li="clients"]').addClass('active')
     $('li[data-li="clients-list"]').addClass('active')
 
-    $('[type="file"]').change(function () {
-        var trigger_name = $(this).parents('.photo-place').data('name');
-        var input_name = $(this).closest('.photo-place').find('[name="' + trigger_name + '"]');
-        let image = $(this).closest('.photo-place').find('img')
-        uploadImage($(this).attr('id')).then(function (data) {
-            input_name.val(String(data['file_name']));
-            image.attr('src', '/static/uploads/' + String(data['file_name']));
-        }, function (data) {
-            alert('error');
-        });
-    })
-
-    $('.js-remove-photo').on("click", function () {
-        var trigger_name = $(this).parents('.photo-place').data('name');
-        alert(trigger_name)
-        var input_name = $(this).closest('.photo-place').find('[name="' + trigger_name + '"]');
-        let image = $(this).closest('.photo-place').find('img')
-        input_name.val('');
-        image.attr('src', '');
-    })
-
-    let currUrl = window.location.href.split('/')
-    let itemId = currUrl[currUrl.length - 1] || currUrl[currUrl.length - 2]
-
     async function editItem(clientId) {
         try {
             let data = getValues('#data-item')
             data.action = 'main'
             data.client_id = clientId
 
-            let response = await fetch(`/api/clients/${clientId}`, {
+            let response = await fetch('/api/clients/' + clientId, {
                 method: 'PUT',
                 body: JSON.stringify(data)
             });
@@ -306,107 +133,6 @@
         } catch (error) {
             alertShow('waring', `${error.message}`);
         }
-    }
-
-    async function createItem() {
-        try {
-            let data = getValues('#new-data-item')
-            data.client_id = itemId
-            let response = await fetch('/api/visits/', {
-                method: 'POST',
-                body: JSON.stringify(data)
-            });
-
-            response = await response.json();
-            if (response._success === true) {
-                window.location.href = '/api/clients/' + itemId;
-            } else {
-                alert(response.message);
-            }
-
-        } catch (error) {
-            alertShow('waring', `${error.message}`);
-        }
-    }
-
-    async function showUsers() {
-        try {
-            let response = await fetch('/api/users?response_type=json', {
-                method: 'GET',
-            });
-
-            response = await response.json()
-            let users = $('<select>')
-                .addClass('form-control')
-                .attr("name", "user_id")
-            ;
-
-            $.each(response.users, function (index, item) {
-                users.append($('<option>').attr("value", item.id).text(item.last_name + ' ' + item.first_name));
-            });
-
-            $('#VisitUsers').append(users);
-
-
-        } catch (error) {
-            alertShow('waring', `${error.message}`);
-        }
-
-    }
-
-    async function showReasons() {
-        try {
-            let response = await fetch('/api/visits/reasons?response_type=json', {
-                method: 'GET',
-            });
-
-            response = await response.json()
-            let reasons = $('<select>')
-                .addClass('form-control')
-                .attr("name", "reason_id")
-            ;
-
-            $.each(response.reasons, function (index, item) {
-                let newOption = $('<option>').attr('value', item.id).text(item.title)
-                reasons.append(newOption);
-            });
-
-            $('#VisitReason').append(reasons);
-
-
-        } catch (error) {
-            alertShow('waring', `${error.message}`);
-        }
-
-    }
-
-    showUsers()
-    showReasons()
-
-    $('.js-remove').click(async function () {
-        let new_id = $(this).parents('tr').data('id');
-        let new_data = getValues('.js-cont[data-id="' + new_id + '"]')
-
-        try {
-            let response = await fetch('/api/visits/' + new_id, {
-                method: 'DELETE',
-                body: JSON.stringify(new_data)
-            });
-
-            response = await response.json();
-            if (response._success === true) {
-                window.location.href = '/api/clients/' + itemId;
-            } else {
-                alert(response.message);
-            }
-
-        } catch (error) {
-            alertShow('waring', `${error.message}`);
-        }
-    });
-
-    function openVisitLesson(visit_id) {
-        window.location.href = `/api/visits/${visit_id}`
     }
 
     async function removeItem(itemId) {
