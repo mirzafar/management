@@ -1,6 +1,8 @@
 from core.db import db
 from core.handlers import BaseAPIView
+from core.pager import Pager
 from core.tools import set_counters
+from utils.floats import FloatUtils
 from utils.lists import ListUtils
 from utils.strs import StrUtils
 
@@ -12,42 +14,51 @@ class RolesView(BaseAPIView):
         query = StrUtils.to_str(request.args.get('query'))
         cond, cond_vars = ['g.is_active'], []
 
+        pager = Pager()
+        pager.set_page(request.args.get('page', 1))
+        pager.set_limit(request.args.get('limit', 20))
+
         if query:
             cond.append('(title ILIKE {})')
             cond_vars.append(f'%{query}%')
 
         cond, _ = set_counters(' AND '.join(cond))
-
-        roles = ListUtils.to_list_of_dicts(await db.fetch(
+        goods = ListUtils.to_list_of_dicts(await db.fetch(
             '''
             SELECT *
-            FROM public.goods
+            FROM public.goods g
             WHERE %s
             ORDER BY id DESC
             ''' % cond,
             *cond_vars
         ))
 
-        permissions = ListUtils.to_list_of_dicts(await db.fetch(
+        pager.set_total(await db.fetchval(
             '''
-            SELECT *
-            FROM public.permissions
-            WHERE status = 0
-            '''
-        ))
+            SELECT count(*)
+            FROM public.goods g
+            WHERE %s
+            ''' % cond,
+            *cond_vars
+        ) or 0)
 
         return self.success(request=request, user=user, data={
-            'roles': roles,
-            'permissions': permissions,
+            'goods': goods,
+            'pager': pager.dict()
         })
 
     async def post(self, request, user):
-        title = request.json.get('title')
-        description = request.json.get('description')
-        permissions = ListUtils.to_list_of_strs(request.json.get('permissions'))
-
+        title = StrUtils.to_str(request.json.get('title'))
         if not title:
-            return self.error(message='Отсуствует обязательный параметры "title: str"')
+            return self.error(message='Отсуствует обязательный параметры "Название"')
+
+        unit = StrUtils.to_str(request.json.get('unit'))
+        if not unit:
+            return self.error(message='Отсуствует обязательный параметры "Eдиница измерений"')
+
+        arrival_price = FloatUtils.to_float(request.json.get('arrival_price'))
+
+        permissions = ListUtils.to_list_of_strs(request.json.get('permissions'))
 
         item = await db.fetchrow(
             '''

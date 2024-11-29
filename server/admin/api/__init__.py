@@ -2,6 +2,7 @@ from sanic import Blueprint
 
 from admin.api.analytics import analytics_bp
 from admin.api.clients import clients_bp
+from admin.api.goods import store_bp
 from admin.api.lessons import lessons_bp
 from admin.api.main import MainView
 from admin.api.profile import profile_bp
@@ -16,6 +17,7 @@ main_bp.add_route(MainView.as_view(), '/')
 api_group = Blueprint.group(
     main_bp,
     role_bp,
+    store_bp,
     users_bp,
     clients_bp,
     visits_bp,
