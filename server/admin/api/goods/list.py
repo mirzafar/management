@@ -50,7 +50,7 @@ class RolesView(BaseAPIView):
     async def post(self, request, user):
         title = StrUtils.to_str(request.json.get('title'))
         if not title:
-            return self.error(message='Отсуствует обязательный параметры "Название"')
+            return self.error(message='Отсуствует обязательный параметры "Название "')
 
         unit = StrUtils.to_str(request.json.get('unit'))
         if not unit:
