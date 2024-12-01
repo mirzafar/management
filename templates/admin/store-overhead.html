@@ -58,13 +58,13 @@
                                                         </div>
                                                         <div class="form-group">
                                                             <label class="form-label"
-                                                                   for="cf-compiled_at">Время составления
+                                                                   for="cf-date">Время составления
                                                             </label>
                                                             <input type="text" class="form-control date-picker-alt"
                                                                    data-date-format="yyyy-mm-dd"
-                                                                   name="compiled_at"
+                                                                   name="date"
                                                                    value="{{overhead.date}}"
-                                                                   id="cf-compiled_at">
+                                                                   id="cf-date">
                                                         </div>
                                                         <div class="form-group">
                                                             <label class="form-label"
@@ -109,7 +109,8 @@
                                             <span>Завершен</span>
                                         </a>
                                         {% else %}
-                                        <a onclick="closeOverhead()" class="toggle btn btn-danger d-none d-md-inline-flex">
+                                        <a onclick="closeOverhead()"
+                                           class="toggle btn btn-danger d-none d-md-inline-flex">
                                             <em class="icon ni ni-check"></em>
                                             <span>Завершить</span>
                                         </a>
@@ -296,8 +297,8 @@
 {% block js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
 <script>
-    $('li[data-li="sales"]').addClass('active')
-    $('li[data-li="sales-overheads"]').addClass('active')
+    $('li[data-li="store"]').addClass('active')
+    $('li[data-li="store-overheads"]').addClass('active')
 
     const itemId = '{{overhead.id}}'
 

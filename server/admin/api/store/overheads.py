@@ -40,7 +40,8 @@ class StoreOverheadsView(BaseAPIView):
             FROM store.overheads
             WHERE %s
             ORDER BY id DESC
-            ''' % cond,
+            %s
+            ''' % (cond, pager.as_query()),
             *cond_vars
         ))
 
@@ -59,7 +60,7 @@ class StoreOverheadsView(BaseAPIView):
         })
 
     async def post(self, request, user):
-        title = StrUtils.to_str(request.json.get('good_title'))
+        title = StrUtils.to_str(request.json.get('title'))
         description = StrUtils.to_str(request.json.get('description'))
         uid = StrUtils.to_str(request.json.get('uid'))
         date = StrUtils.to_str(request.json.get('date'))
@@ -233,6 +234,18 @@ class StoreOverheadView(BaseAPIView):
             return self.success()
 
         elif action == 'close':
+            overhead_items = await db.fetch(
+                '''
+                SELECT id, title, description, good_id, category_id, count, sale_price
+                FROM store.overhead_items
+                WHERE overhead_id = $1
+                ''',
+                overhead_id
+            )
+
+            if not overhead_items:
+                return self.error(message='Добавьте товар')
+
             item_id = await db.fetchval(
                 '''
                 UPDATE store.overheads
@@ -246,15 +259,6 @@ class StoreOverheadView(BaseAPIView):
             if not item_id:
                 return self.error(message='Операция не выполнена')
 
-            overhead_items = await db.fetch(
-                '''
-                SELECT id, title, description, good_id, category_id
-                FROM store.overhead_items
-                WHERE overhead_id = $1
-                ''',
-                overhead_id
-            )
-
             for i in overhead_items:
                 if i['good_id']:
                     await db.execute(
@@ -264,7 +268,7 @@ class StoreOverheadView(BaseAPIView):
                         WHERE id = $1
                         ''',
                         i['good_id'],
-                        i['balance'],
+                        i['count'],
                         i['sale_price'],
                     )
                 else:
@@ -282,10 +286,9 @@ class StoreOverheadView(BaseAPIView):
                         i['id'],
                         i['title'],
                         i['category_id'],
-                        i['balance'],
+                        i['count'],
                         i['sale_price'],
                     )
-
 
             return self.success()
 

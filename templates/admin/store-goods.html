@@ -58,7 +58,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="nk-tb-col">
-                                                    <span>{{item.sale_price}}</span>
+                                                    <span>{{item.price or ''}}</span>
                                                 </div>
                                                 <div class="nk-tb-col tb-col-sm">
                                                     {% if item.balance and item.balance > 20 %}
@@ -78,12 +78,6 @@
                                                                     class="icon ni ni-more-h"></em></a>
                                                                 <div class="dropdown-menu dropdown-menu-end">
                                                                     <ul class="link-list-opt no-bdr">
-                                                                        <li>
-                                                                            <a href="/api/store/goods/{{item.id}}/">
-                                                                                <em class="icon ni ni-eye text-info"></em>
-                                                                                <span class="tb-status text-info">Инфо</span>
-                                                                            </a>
-                                                                        </li>
                                                                         <li onclick="removeItem({{item.id}})">
                                                                             <a>
                                                                                 <em class="icon ni ni-trash text-danger"></em>
@@ -167,7 +161,7 @@
 
             response = await response.json();
             if (response._success === true) {
-                window.location.reload();
+                window.location.href = '/api/store/goods/'
             } else {
                 alert(response.message);
             }
