@@ -8,7 +8,7 @@ from utils.strs import StrUtils
 
 
 class RolesView(BaseAPIView):
-    template_name = 'admin/goods.html'
+    template_name = 'admin/store.html'
 
     async def get(self, request, user):
         query = StrUtils.to_str(request.args.get('query'))
@@ -26,7 +26,7 @@ class RolesView(BaseAPIView):
         goods = ListUtils.to_list_of_dicts(await db.fetch(
             '''
             SELECT *
-            FROM public.goods g
+            FROM public.store g
             WHERE %s
             ORDER BY id DESC
             ''' % cond,
@@ -36,14 +36,14 @@ class RolesView(BaseAPIView):
         pager.set_total(await db.fetchval(
             '''
             SELECT count(*)
-            FROM public.goods g
+            FROM public.store g
             WHERE %s
             ''' % cond,
             *cond_vars
         ) or 0)
 
         return self.success(request=request, user=user, data={
-            'goods': goods,
+            'store': goods,
             'pager': pager.dict()
         })
 

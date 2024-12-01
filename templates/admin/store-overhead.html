@@ -103,32 +103,98 @@
                                     <div class="nk-block-head"></div>
 
                                     <div class="nk-block">
+                                        {% if overhead.is_close %}
+                                        <a class="btn btn-success">
+                                            <em class="icon ni ni-check"></em>
+                                            <span>Завершен</span>
+                                        </a>
+                                        {% else %}
+                                        <a onclick="closeOverhead()" class="toggle btn btn-danger d-none d-md-inline-flex">
+                                            <em class="icon ni ni-check"></em>
+                                            <span>Завершить</span>
+                                        </a>
                                         <a href="#"
                                            data-target="addProduct"
                                            class="toggle btn btn-primary d-none d-md-inline-flex">
                                             <em class="icon ni ni-plus"></em>
                                             <span>Добавить</span>
                                         </a>
+
+                                        {% endif %}
                                     </div>
                                 </div>
+                                {% if overhead_items %}
                                 <div class="nk-block">
                                     <div class="card">
-                                        <div class="nk-tb-list nk-tb-ulist is-compact" id="list-goods">
+                                        <div class="nk-tb-list nk-tb-ulist is-compact">
                                             <div class="nk-tb-item nk-tb-head">
-                                                <div class="nk-tb-col">
-                                                    <span class="sub-text">Наименования</span>
-                                                </div>
-                                                <div class="nk-tb-col">
-                                                    <span class="sub-text">Количества</span>
-                                                </div>
-                                                <div class="nk-tb-col">
-                                                    <span class="sub-text">Статус</span>
-                                                </div>
+                                                <div class="nk-tb-col"><span>Название</span></div>
+                                                <div class="nk-tb-col"><span>Цена прихода</span></div>
+                                                <div class="nk-tb-col"><span>Цена продаж</span></div>
+                                                <div class="nk-tb-col"><span>Количество</span></div>
                                                 <div class="nk-tb-col nk-tb-col-tools text-end"></div>
                                             </div>
+                                            {% for item in overhead_items %}
+                                            <div class="nk-tb-item">
+                                                <div class="nk-tb-col">
+                                                    <div class="user-card">
+                                                        <div class="user-info">
+                                                            <span class="tb-lead">
+                                                                {{item.title or ''}}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nk-tb-col">
+                                                    <span>{{item.arrival_price or ''}}</span>
+                                                </div>
+
+                                                <div class="nk-tb-col">
+                                                    <span>{{item.sale_price or ''}}</span>
+                                                </div>
+
+                                                <div class="nk-tb-col">
+                                                    <span>{{item.count or ''}}</span>
+                                                </div>
+
+                                                <div class="nk-tb-col nk-tb-col-tools">
+                                                    {% if not overhead.is_close %}
+                                                    <ul class="nk-tb-actions gx-1 my-n1">
+                                                        <li class="me-n1">
+                                                            <div class="dropdown"><a href="#"
+                                                                                     class="dropdown-toggle btn btn-icon btn-trigger"
+                                                                                     data-bs-toggle="dropdown"><em
+                                                                    class="icon ni ni-more-h"></em></a>
+                                                                <div class="dropdown-menu dropdown-menu-end">
+                                                                    <ul class="link-list-opt no-bdr">
+                                                                        <li onclick="removeOverheadItem({{item.id}})">
+                                                                            <a>
+                                                                                <em class="icon ni ni-trash text-danger"></em>
+                                                                                <span class="tb-status text-danger">Удалить</span>
+                                                                            </a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            {% endfor %}
                                         </div>
+
                                     </div>
                                 </div>
+                                {% else %}
+                                <div class="card-inner">
+                                    <figure class="text-center">
+                                        <blockquote class="blockquote"><h3>
+                                            Cписок товаров
+                                        </h3></blockquote>
+                                    </figure>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -156,14 +222,16 @@
 
             <div class="col-6">
                 <div class="form-group">
-                    <input type="text" class="form-control" name="good_title">
+                    <input type="text" class="form-control" name="good_title" id="cf-good-title">
                 </div>
             </div>
 
-            <div class="col-12">
-                <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="clearButton">
-                    <label class="custom-control-label" for="clearButton">С собой</label>
+            <div class="col-12" id="div-category-goods" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-category">Выберите категории товара
+                    </label>
+                    <select id="cf-category" name="category_id"></select>
                 </div>
             </div>
 
@@ -172,7 +240,7 @@
                     <label class="form-label"
                            for="cf-arrival-price">Цена прихода
                     </label>
-                    <input type="number" min="0" class="form-control"
+                    <input type="number" min="0.0" class="form-control"
                            name="arrival_price"
                            id="cf-arrival-price">
                 </div>
@@ -194,7 +262,7 @@
                     <label class="form-label"
                            for="cf-sale-price">Цена продажа
                     </label>
-                    <input type="number" min="0" class="form-control"
+                    <input type="number" min="0.0" class="form-control"
                            name="sale_price"
                            id="cf-sale-price">
                 </div>
@@ -205,14 +273,14 @@
                     <label class="form-label"
                            for="cf-count">Количество
                     </label>
-                    <input type="number" min="0" class="form-control"
+                    <input type="number" min="0.0" class="form-control"
                            name="count"
                            id="cf-count">
                 </div>
             </div>
 
             <div class="col-12">
-                <a onclick="createItem()" class="btn btn-primary"><em
+                <a onclick="createOverheadItem()" class="btn btn-primary"><em
                         class="icon ni ni-plus"></em><span>Добавить</span></a>
             </div>
             <br/>
@@ -252,16 +320,33 @@
         }
     }
 
-    let is_our = false;
+    async function closeOverhead() {
+        try {
+            let response = await fetch('/api/store/overheads/' + itemId, {
+                method: 'POST',
+                body: JSON.stringify({
+                    'action': 'close'
+                })
+            });
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
 
-    $('#clearButton').on('change', function () {
-        if ($(this).is(':checked')) {
-            // $('#cf-goods').val(null).trigger('change');
-            is_our = true;
-        } else {
-            is_our = false;
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
         }
-    });
+    }
+
+    $('#cf-good-title').on('change', function () {
+        if ($(this).val()) {
+            $('#div-category-goods').show()
+        } else {
+            $('#div-category-goods').hide()
+        }
+    })
 
     $('#percentFlag').on('change', function () {
         if ($(this).is(':checked')) {
@@ -303,25 +388,75 @@
         }
     });
 
+    $('#cf-category').select2({
+        placeholder: 'Выберите товар',
+        ajax: {
+            transport: async function (params, success, failure) {
+                try {
+                    const query = params.data.q || '';
+                    const response = await fetch(`/api/store/categories?response_type=json&query=${encodeURIComponent(query)}`);
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    const results = data.categories.map(category => ({
+                        id: category.id,
+                        text: `${category.title} (${category.unit === 'pieces' && 'шт.' || 'кв.'})`,
+                        value: category.id
+                    }));
+
+                    success({results});
+                } catch (error) {
+                    failure(error);
+                }
+            },
+            processResults: function (data) {
+                return data;
+            }
+        }
+    });
+
     $('#cf-price-percent').on('change', function () {
         let percent = parseInt($(this).val());
         if (percent && percent > 0) {
             let arrivalPrice = parseInt($('#cf-arrival-price').val())
-            alert(arrivalPrice)
-            alert(percent)
             if (arrivalPrice) {
                 $('#cf-sale-price').val((arrivalPrice * (100 + percent)) / 100);
             }
         }
     })
 
-    async function createItem() {
+    async function createOverheadItem() {
         try {
             let response = await fetch('/api/store/overheads/' + itemId, {
                 method: 'POST',
                 body: JSON.stringify({
-                    is_our: is_our,
+                    'action': 'add_item',
                     ...getValues('#new-data-item')
+                })
+            });
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function removeOverheadItem(overheadItemId) {
+        alert(overheadItemId)
+        try {
+            let response = await fetch('/api/store/overheads/' + itemId, {
+                method: 'POST',
+                body: JSON.stringify({
+                    'action': 'remove_item',
+                    '_id': overheadItemId
                 })
             });
             response = await response.json();

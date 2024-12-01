@@ -1,0 +1,182 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="nk-content-body">
+    <div class="nk-block nk-block-lg">
+        <div class="card">
+            <div class="card-aside-wrap">
+                <div class="card-content">
+                    <div class="card-inner">
+                        <div class="tab-content">
+                            <div class="tab-pane show active" id="tabItem2" role="tabpanel">
+                                <div class="nk-block">
+                                    <div class="row g-3">
+                                        <ul class="nk-block-tools g-3">
+                                            <li>
+                                                <div class="form-control-wrap">
+                                                    <div class="form-icon form-icon-right"><em
+                                                            class="icon ni ni-search"></em></div>
+                                                    <input type="text" class="form-control" id="filter-query"
+                                                           value="{{request.args.get('query', '')}}"
+                                                           placeholder="Поиск">
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {% if goods %}
+                                <div class="nk-block">
+                                    <div class="card">
+                                        <div class="nk-tb-list nk-tb-ulist is-compact">
+                                            <div class="nk-tb-item nk-tb-head">
+                                                <div class="nk-tb-col"><span>Название</span></div>
+                                                <div class="nk-tb-col"><span>Категории</span></div>
+                                                <div class="nk-tb-col"><span>Цена</span></div>
+                                                <div class="nk-tb-col tb-col-sm"><span>Остаток</span></div>
+                                                <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                                            </div>
+                                            {% for item in goods %}
+                                            <div class="nk-tb-item">
+                                                <div class="nk-tb-col">
+                                                    <div class="user-card">
+                                                        <div class="user-info">
+                                                            <span class="tb-lead">
+                                                                {{item.title}}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nk-tb-col">
+                                                    <div class="user-card">
+                                                        <div class="user-info">
+                                                            <span class="tb-lead">
+                                                                {% if item.category %}
+                                                                {{item.category.title}}
+                                                                {% endif %}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="nk-tb-col">
+                                                    <span>{{item.sale_price}}</span>
+                                                </div>
+                                                <div class="nk-tb-col tb-col-sm">
+                                                    {% if item.balance and item.balance > 20 %}
+                                                    <span class="badge badge-dim bg-success">{{item.balance}}</span>
+                                                    {% elif item.balance and item.balance > 10 %}
+                                                    <span class="badge badge-dim bg-info">{{item.balance}}</span>
+                                                    {% else %}
+                                                    <span class="badge badge-dim bg-warning">{{item.balance}}</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="nk-tb-col nk-tb-col-tools">
+                                                    <ul class="nk-tb-actions gx-1 my-n1">
+                                                        <li class="me-n1">
+                                                            <div class="dropdown"><a href="#"
+                                                                                     class="dropdown-toggle btn btn-icon btn-trigger"
+                                                                                     data-bs-toggle="dropdown"><em
+                                                                    class="icon ni ni-more-h"></em></a>
+                                                                <div class="dropdown-menu dropdown-menu-end">
+                                                                    <ul class="link-list-opt no-bdr">
+                                                                        <li>
+                                                                            <a href="/api/store/goods/{{item.id}}/">
+                                                                                <em class="icon ni ni-eye text-info"></em>
+                                                                                <span class="tb-status text-info">Инфо</span>
+                                                                            </a>
+                                                                        </li>
+                                                                        <li onclick="removeItem({{item.id}})">
+                                                                            <a>
+                                                                                <em class="icon ni ni-trash text-danger"></em>
+                                                                                <span class="tb-status text-danger">Удалить</span>
+                                                                            </a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+
+                                    </div>
+                                </div>
+                                {% if pager %}
+                                <div class="card-inner">
+                                    <ul class="pagination justify-content-center justify-content-md-start">
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                               {% if pager.prev_page %}
+                                               href="/api/store/goods?page={{pager.prev_page}}"
+                                               {% endif %}
+                                            >{% if pager.prev_page %}Prev{% else %}&nbsp;{% endif %}</a>
+                                        </li>
+                                        <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                               {% if pager.next_page %}
+                                               href="/api/store/goods?page={{pager.next_page}}"
+                                               {% endif %}
+                                            >{% if pager.next_page %}Prev{% else %}&nbsp;{% endif %}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                {% endif %}
+                                {% else %}
+                                <div class="card-inner">
+                                    <figure class="text-center">
+                                        <blockquote class="blockquote"><h3>
+                                            Cписок товаров
+                                        </h3></blockquote>
+                                    </figure>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $('li[data-li="store"]').addClass('active')
+    $('li[data-li="store-goods"]').addClass('active')
+
+    let urlParams = new URLSearchParams(window.location.search);
+
+    $('#filter-query').change(function () {
+        if (urlParams.has('query')) {
+            urlParams.delete('query')
+        }
+
+        urlParams.append('query', $(this).val())
+        window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + urlParams.toString()
+    })
+
+
+    async function removeItem(itemId) {
+        try {
+            let response = await fetch('/api/store/goods/' + itemId, {
+                method: 'DELETE'
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    };
+
+</script>
+
+{% endblock %}

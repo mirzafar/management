@@ -67,9 +67,9 @@
                                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
                                     <ul class="link-list-plain">
                                         <li><a data-target="updateProduct" class="toggle"
-                                               onclick="openItem({{item.id}})">Edit</a>
+                                               onclick="openItem({{item.id}})">Изменить</a>
                                         </li>
-                                        <li><a onclick="removeItem({{item.id}})" ">Remove</a></li>
+                                        <li><a onclick="removeItem({{item.id}})">Удалить</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -169,8 +169,8 @@
 {% endblock %}
 {% block js %}
 <script>
-    $('li[data-li="visits"]').addClass('active')
-    $('li[data-li="visits-reasons"]').addClass('active')
+    $('li[data-li="store"]').addClass('active')
+    $('li[data-li="store-categories"]').addClass('active')
 
     async function removeItem(itemId) {
         try {

@@ -2,7 +2,7 @@ from sanic import Blueprint
 
 from admin.api.analytics import analytics_bp
 from admin.api.clients import clients_bp
-from admin.api.goods import store_bp
+from admin.api.store import store_bp
 from admin.api.lessons import lessons_bp
 from admin.api.main import MainView
 from admin.api.profile import profile_bp

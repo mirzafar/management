@@ -31,3 +31,15 @@ create table public.categories
 
 comment on column public.categories.unit is 'шт, кв';
 
+create table store.overhead_items
+(
+    id            serial primary key,
+    title         text,
+    good_id       integer,
+    description   text,
+    arrival_price float,
+    sale_price    float,
+    is_active     boolean default true,
+    count         float
+);
+

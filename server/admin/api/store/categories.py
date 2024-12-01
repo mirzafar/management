@@ -107,8 +107,6 @@ class StoreCategoryView(BaseAPIView):
         return self.success()
 
     async def delete(self, request, user, category_id):
-        print('->>>>', category_id)
-
         category_id = IntUtils.to_int(category_id)
         if not category_id:
             return self.error(message='Отсуствует обязательный параметры "ID"')
