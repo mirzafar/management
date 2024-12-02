@@ -81,7 +81,7 @@ class StoreGoodView(BaseAPIView):
         good = await db.fetchrow(
             '''
             SELECT 
-                g.id, 
+                g.id,
                 g.title,
                 CASE WHEN c.id IS NOT NULL 
                     THEN JSONB_BUILD_OBJECT(
