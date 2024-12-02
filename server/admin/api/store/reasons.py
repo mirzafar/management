@@ -1,5 +1,7 @@
 from core.db import db
 from core.handlers import BaseAPIView
+from core.pager import Pager
+from core.tools import set_counters
 from utils.floats import FloatUtils
 from utils.ints import IntUtils
 from utils.lists import ListUtils
@@ -10,13 +12,28 @@ class StoreReasonsView(BaseAPIView):
     template_name = 'admin/store-reasons.html'
 
     async def get(self, request, user):
+        query = StrUtils.to_str(request.args.get('query'))
+        cond, cond_vars = ['is_active'], []
+
+        pager = Pager()
+        pager.set_page(request.args.get('page', 1))
+        pager.set_limit(request.args.get('limit', 50))
+
+        if query:
+            cond.append('title ILIKE {}')
+            cond_vars.append(f'%{query}%')
+
+        cond, _ = set_counters(' AND '.join(cond))
+
         reasons = ListUtils.to_list_of_dicts(await db.fetch(
             '''
             SELECT id, title, description, price
             FROM store.reasons
-            WHERE is_active
+            WHERE %s
             ORDER BY id DESC
-            '''
+            %s
+            ''' % (cond, pager.as_query()),
+            *cond_vars
         ))
 
         return self.success(request=request, user=user, data={

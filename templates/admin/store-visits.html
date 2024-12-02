@@ -1,0 +1,581 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="components-preview wide-md mx-auto">
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title"></h3>
+            </div>
+
+        </div>
+    </div>
+    <div class="nk-block">
+        <div class="card card-stretch">
+            <div class="card-inner">
+                <div class="card-title-group">
+                    <div class="card-title"><h5 class="title">ЧПУ услуги</h5></div>
+                    <div class="nk-block-head-content">
+                        <div class="toggle-wrap nk-block-tools-toggle">
+                            <a href="#"
+                               class="btn btn-icon btn-trigger toggle-expand me-n1"
+                               data-target="pageMenu">
+                                <em class="icon ni ni-more-v"></em>
+                            </a>
+                            <div class="toggle-expand-content" data-content="pageMenu">
+                                <ul class="nk-block-tools g-3">
+                                    <li class="nk-block-tools-opt">
+                                        <a href="#" data-target="addProduct"
+                                           class="toggle btn btn-icon btn-primary d-md-none">
+                                            <em class="icon ni ni-plus"></em>
+                                        </a>
+                                        <a href="#"
+                                           data-target="addProduct"
+                                           class="toggle btn btn-primary d-none d-md-inline-flex">
+                                            <em class="icon ni ni-plus"></em>
+                                            <span>Добавить</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-inner p-0">
+                {% if visits %}
+                <div class="nk-block">
+                    <div class="card">
+                        <div class="nk-tb-list nk-tb-ulist is-compact">
+                            <div class="nk-tb-item nk-tb-head">
+                                <div class="nk-tb-col"><span>Название</span></div>
+                                <div class="nk-tb-col"><span>Товар</span></div>
+                                <div class="nk-tb-col"><span>Вид услуги</span></div>
+                                <div class="nk-tb-col"><span>Объем (Количество)</span></div>
+                                <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                            </div>
+                            {% for item in visits %}
+                            <div class="nk-tb-item">
+                                <div class="nk-tb-col">
+                                    {{item.title or ''}}
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span>{{item.good and item.good.title or ''}}</span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span>{{item.reason and item.reason.title or ''}}</span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span>{{item.count or ''}}</span>
+                                </div>
+
+                                <div class="nk-tb-col nk-tb-col-tools">
+                                    <ul class="nk-tb-actions gx-1 my-n1">
+                                        <li class="me-n1">
+                                            <div class="dropdown"><a href="#"
+                                                                     class="dropdown-toggle btn btn-icon btn-trigger"
+                                                                     data-bs-toggle="dropdown"><em
+                                                    class="icon ni ni-more-h"></em></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <ul class="link-list-opt no-bdr">
+                                                        <li><a data-target="updateProduct" class="toggle"
+                                                               onclick="openItem({{item.id}})">
+                                                            <em class="icon ni ni-edit-fill"></em>
+                                                            <span>Изменить</span>
+                                                        </a>
+                                                        </li>
+                                                        <li onclick="removeItem({{item.id}})">
+                                                            <a>
+                                                                <em class="icon ni ni-trash text-danger"></em>
+                                                                <span class="tb-status text-danger">Удалить</span>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% if pager %}
+                <div class="card-inner">
+                    <ul class="pagination justify-content-center justify-content-md-start">
+                        <li class="page-item">
+                            <a class="page-link"
+                               {% if pager.prev_page %}
+                               href="/api/store/visits?page={{pager.prev_page}}"
+                               {% endif %}
+                            >{% if pager.prev_page %}Prev{% else %}&nbsp;{% endif %}</a>
+                        </li>
+                        <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               {% if pager.next_page %}
+                               href="/api/store/visits?page={{pager.next_page}}"
+                               {% endif %}
+                            >{% if pager.next_page %}Prev{% else %}&nbsp;{% endif %}</a>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="card-inner">
+                    <figure class="text-center">
+                        <blockquote class="blockquote"><h3>
+                            Cписок услуг
+                        </h3></blockquote>
+                    </figure>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
+         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+        <div class="nk-block">
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-client">Выберите клиент
+                        </label>
+                        <select id="cf-client" name="client_id"></select>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-goods">Выберите товары или укажите наименования
+                        </label>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <select id="cf-goods" name="good_id"></select>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="title" id="cf-title">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="clearButton">
+                        <label class="custom-control-label" for="clearButton">С собой</label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-reasons">Выберите вид услуги
+                        </label>
+                        <select id="cf-reasons" name="reason_id"></select>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-count">Объем (Количество)
+                        </label>
+                        <input type="number" min="0.0" class="form-control"
+                               name="count"
+                               id="cf-count">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-sum">Сумма
+                        </label>
+                        <input type="number" min="0.0" class="form-control"
+                               name="sum"
+                               id="cf-sum">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-description">Описание
+                        </label>
+                        <textarea class="form-control" name="description" id="cf-description"></textarea>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-pledged-sum">Заклад
+                        </label>
+                        <input type="number" min="0.0" class="form-control"
+                               name="pledged_sum"
+                               id="cf-pledged-sum">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="cf-is-paid">
+                        <label class="custom-control-label" for="cf-is-paid">Оплатил</label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <a onclick="createItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Добавить</span></a>
+                </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+        </div>
+    </div>
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="updateProduct"
+         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar
+         id="update-data-item">
+        <div class="nk-block">
+            <div class="row g-3">
+                <input type="hidden" id="up-id" name="id">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-client">Клиент
+                        </label>
+                        <input type="text" id="up-client" disabled class="form-control">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-good">Товар
+                        </label>
+                        <input type="text" id="up-good" disabled class="form-control">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="up-is-our" disabled>
+                        <label class="custom-control-label" for="up-is-our">С собой</label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-reasons">Услуги
+                        </label>
+                        <input type="text" id="up-reasons" disabled class="form-control">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-count">Объем (Количество)
+                        </label>
+                        <input disabled type="number" class="form-control" name="count" id="up-count">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-sum">Сумма
+                        </label>
+                        <input type="number" min="0.0" class="form-control"
+                               name="sum"
+                               id="up-sum">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-description">Описание
+                        </label>
+                        <textarea class="form-control" name="description" id="up-description"></textarea>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-pledged-sum">Заклад
+                        </label>
+                        <input type="number" min="0.0" class="form-control"
+                               name="pledged_sum"
+                               id="up-pledged-sum">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="up-is-paid">
+                        <label class="custom-control-label" for="up-is-paid">Оплатил</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <a onclick="updateItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Изменить</span></a>
+                </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
+
+<script>
+    $('li[data-li="store"]').addClass('active')
+    $('li[data-li="store-reasons"]').addClass('active')
+
+    async function removeItem(itemId) {
+        try {
+            let response = await fetch('/api/store/visits/' + itemId, {
+                method: 'DELETE'
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.href = '/api/store/visits/';
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    let is_our = false;
+    $('#clearButton').on('change', function () {
+        if ($(this).is(':checked')) {
+            is_our = true;
+        } else {
+            is_our = false;
+        }
+    });
+
+    let is_paid = false;
+    $('#cf-is-paid').on('change', function () {
+        if ($(this).is(':checked')) {
+            is_paid = true;
+        } else {
+            is_paid = false;
+        }
+    });
+
+    async function createItem() {
+        try {
+            let response = await fetch('/api/store/visits/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    is_our: is_our,
+                    is_paid: is_paid,
+                    ...getValues('#new-data-item')
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.href = '/api/store/visits/';
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function updateItem() {
+        try {
+            let data = getValues('#update-data-item')
+            let response = await fetch(`/api/store/visits/${data.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    ...data,
+                    is_paid: up_is_paid
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    let up_is_paid = false;
+    $('#up-is-paid').on('change', function () {
+        if ($(this).is(':checked')) {
+            up_is_paid = true;
+        } else {
+            up_is_paid = false;
+        }
+    });
+
+    async function openItem(itemId) {
+        try {
+            let response = await fetch(`/api/store/visits/${itemId}?response_type=json`, {
+                method: 'GET'
+            });
+
+            response = await response.json();
+            console.log(response)
+            if (response._success === true) {
+                $('#up-client').val(response.visit.client && `${response.visit.client.first_name} ${response.visit.client.last_name}`)
+                $('#up-good').val(response.visit.good && response.visit.good.title || response.visit.title)
+                if (response.visit.is_our) {
+                    $('#up-is-our').prop('checked', true)
+                }
+                $('#up-reasons').val(response.visit.reason && response.visit.reason.title)
+                $('#up-count').val(response.visit.count)
+                $('#up-sum').val(response.visit.sum)
+                $('#up-pledged-sum').val(response.visit.pledged_sum)
+                $('#up-description').text(response.visit.description)
+                if (response.visit.is_paid) {
+                    $('#up-is-paid').prop('checked', true)
+                }
+                $('#up-id').val(itemId)
+                up_is_paid = response.visit.is_paid;
+
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    $('#cf-goods').select2({
+        placeholder: 'Выберите товар',
+        minimumInputLength: 1,
+        ajax: {
+            transport: async function (params, success, failure) {
+                try {
+                    const query = params.data.q || '';
+                    const response = await fetch(`/api/store/goods?response_type=json&query=${encodeURIComponent(query)}`);
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    const results = data.goods.map(good => ({
+                        id: good.id,
+                        text: `${good.title} (${good.category.unit === 'pieces' && 'шт.' || 'кв.'})`,
+                        value: good.id
+                    }));
+
+                    success({results});
+                } catch (error) {
+                    failure(error);
+                }
+            },
+            processResults: function (data) {
+                return data;
+            }
+        }
+    });
+    $('#cf-reasons').select2({
+        placeholder: 'Выберите вид услуги',
+        ajax: {
+            transport: async function (params, success, failure) {
+                try {
+                    const query = params.data.q || '';
+                    const response = await fetch(`/api/store/reasons?response_type=json&query=${encodeURIComponent(query)}`);
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    const results = data.reasons.map(reason => ({
+                        id: reason.id,
+                        text: `${reason.title}`,
+                        value: reason.id,
+                        price: reason.price
+                    }));
+
+                    success({results});
+                } catch (error) {
+                    failure(error);
+                }
+            },
+            processResults: function (data) {
+                return data;
+            }
+        }
+    });
+
+    $('#cf-client').select2({
+        placeholder: 'Выберите клиент',
+        ajax: {
+            transport: async function (params, success, failure) {
+                try {
+                    const query = params.data.q || '';
+                    const response = await fetch(`/api/clients?response_type=json&query=${encodeURIComponent(query)}&limit=10`);
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    const results = data.clients.map(client => ({
+                        id: client.id,
+                        text: `${client.last_name} ${client.first_name}`,
+                        value: client.id
+                    }));
+
+                    success({results});
+                } catch (error) {
+                    failure(error);
+                }
+            },
+            processResults: function (data) {
+                return data;
+            }
+        }
+    });
+
+    let price = 0
+
+    $('#cf-reasons').on('select2:select', function (e) {
+        const selectedData = e.params.data;
+        price = parseFloat(selectedData.price);
+    });
+
+    $('#cf-count').on('change', function () {
+        const count = parseFloat($(this).val());
+        if (price && count) {
+            $('#cf-sum').val(price * count)
+        }
+
+    })
+
+</script>
+{% endblock %}

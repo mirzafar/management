@@ -9,7 +9,6 @@ from utils.strs import StrUtils
 
 class ClientsView(BaseAPIView):
     template_name = 'admin/clients.html'
-    scopes = ['clients']
 
     async def get(self, request, user):
         pager = Pager()
