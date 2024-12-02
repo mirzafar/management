@@ -12,6 +12,7 @@ class StoreGoodsView(BaseAPIView):
 
     async def get(self, request, user):
         query = StrUtils.to_str(request.args.get('query'))
+        category_id = IntUtils.to_int(request.args.get('category_id'))
         cond, cond_vars = ['g.is_active'], []
 
         pager = Pager()
@@ -21,6 +22,10 @@ class StoreGoodsView(BaseAPIView):
         if query:
             cond.append('g.title ILIKE {}')
             cond_vars.append(f'%{query}%')
+
+        if category_id:
+            cond.append('g.category_id = {}')
+            cond_vars.append(category_id)
 
         cond, _ = set_counters(' AND '.join(cond))
 

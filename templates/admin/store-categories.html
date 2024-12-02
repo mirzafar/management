@@ -41,43 +41,58 @@
                     </div>
                 </div>
             </div>
-            <div class="card-inner p-0">
-                <table class="table table-tranx">
-                    <thead>
-                    <tr class="tb-tnx-head">
-                        <th class="tb-tnx-info">
-                            <span>Название</span>
-                        </th>
-                        <th class="tb-tnx-action"><span>&nbsp;</span></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for item in categories %}
-                    <tr class="tb-tnx-item" data-id="{{item.id}}">
-                        <td class="tb-tnx-info">
-                            <div class="tb-tnx-desc">
-                                <span class="title">{{item.title}}</span>
-                            </div>
-                        </td>
-                        <td class="tb-tnx-action">
-                            <div class="dropdown"><a
-                                    class="text-soft dropdown-toggle btn btn-icon btn-trigger"
-                                    data-bs-toggle="dropdown"><em
-                                    class="icon ni ni-more-h"></em></a>
-                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-xs">
-                                    <ul class="link-list-plain">
-                                        <li><a data-target="updateProduct" class="toggle"
-                                               onclick="openItem({{item.id}})">Изменить</a>
-                                        </li>
-                                        <li><a onclick="removeItem({{item.id}})">Удалить</a></li>
-                                    </ul>
+            <div class="nk-block">
+                <div class="card">
+                    <div class="nk-tb-list nk-tb-ulist is-compact">
+                        <div class="nk-tb-item nk-tb-head">
+                            <div class="nk-tb-col"><span>Название</span></div>
+                            <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                        </div>
+                        {% for item in categories %}
+                        <div class="nk-tb-item">
+                            <div class="nk-tb-col">
+                                <div class="user-card">
+                                    <div class="user-info">
+                                        <span class="tb-lead">
+                                            {{item.title or ''}}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                            <div class="nk-tb-col nk-tb-col-tools">
+                                <ul class="nk-tb-actions gx-1 my-n1">
+                                    <li class="me-n1">
+                                        <div class="dropdown"><a href="#"
+                                                                 class="dropdown-toggle btn btn-icon btn-trigger"
+                                                                 data-bs-toggle="dropdown"><em
+                                                class="icon ni ni-more-h"></em></a>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <ul class="link-list-opt no-bdr">
+                                                    <li><a onclick="navigateToGood({{item.id}})">
+                                                        <em class="icon ni ni-cc-alt2"></em>
+                                                        <span class="tb-status">Товары</span>
+                                                    </a>
+                                                    </li>
+                                                    <li><a data-target="updateProduct" class="toggle"
+                                                           onclick="openItem({{item.id}})">
+                                                        <em class="icon ni ni-eye text-info"></em>
+                                                        <span class="tb-status text-info">Просмотр</span>
+                                                    </a>
+                                                    </li>
+                                                    <li><a onclick="removeItem({{item.id}})"><em
+                                                            class="icon ni ni-trash text-danger"></em>
+                                                        <span class="tb-status text-danger">Удалить</span></a></li>
+
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -189,6 +204,10 @@
             alertShow('waring', `${error.message}`);
         }
     };
+
+    function navigateToGood(categoryId) {
+        window.location.href = `/api/store/goods?category_id=${categoryId}`
+    }
 
     async function createItem() {
         try {
