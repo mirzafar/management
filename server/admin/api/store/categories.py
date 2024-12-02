@@ -14,7 +14,7 @@ class StoreCategoriesView(BaseAPIView):
             SELECT id, title, unit, description
             FROM public.categories
             WHERE is_active
-            ORDER BY id DESC
+            ORDER BY id
             '''
         ))
 

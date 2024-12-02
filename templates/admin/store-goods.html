@@ -79,6 +79,13 @@
                                                                     class="icon ni ni-more-h"></em></a>
                                                                 <div class="dropdown-menu dropdown-menu-end">
                                                                     <ul class="link-list-opt no-bdr">
+                                                                        <li><a data-target="updateProduct"
+                                                                               class="toggle"
+                                                                               onclick="openItem({{item.id}})">
+                                                                            <em class="icon ni ni-eye text-info"></em>
+                                                                            <span class="tb-status text-info">Просмотр</span>
+                                                                        </a>
+                                                                        </li>
                                                                         <li onclick="removeItem({{item.id}})">
                                                                             <a>
                                                                                 <em class="icon ni ni-trash text-danger"></em>
@@ -135,6 +142,67 @@
         </div>
     </div>
 </div>
+<div class="nk-add-product toggle-slide toggle-slide-right" data-content="updateProduct"
+     data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar
+     id="update-data-item">
+    <div class="nk-block">
+        <div class="row g-3">
+            <input type="hidden" id="up-id" name="id">
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="up-title">Название
+                    </label>
+                    <input class="form-control" type="text" disabled id="up-title">
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="up-category">Категории
+                    </label>
+                    <input class="form-control" type="text" disabled id="up-category">
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="up-last-arrival-price">Цена последний покупки
+                    </label>
+                    <input class="form-control" type="number" disabled id="up-last-arrival-price">
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="up-title">Цена
+                    </label>
+                    <input class="form-control" type="number" min="0.0" name="price" id="up-price">
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="up-title">Остаток
+                    </label>
+                    <input class="form-control" type="number" min="0.0" name="balance" id="up-balance">
+                </div>
+            </div>
+
+            <div class="col-12">
+                <a onclick="updateItem()" class="btn btn-primary"><em
+                        class="icon ni ni-plus"></em><span>Изменить</span></a>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block js %}
@@ -152,6 +220,27 @@
         urlParams.append('query', $(this).val())
         window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + urlParams.toString()
     })
+
+    async function updateItem() {
+        try {
+            let data = getValues('#update-data-item')
+            let response = await fetch(`/api/store/goods/${data.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(data)
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
 
 
     async function removeItem(itemId) {
@@ -171,6 +260,31 @@
             alertShow('waring', `${error.message}`);
         }
     };
+
+    async function openItem(itemId) {
+        try {
+            let response = await fetch(`/api/store/goods/${itemId}?response_type=json`, {
+                method: 'GET'
+            });
+
+            response = await response.json();
+            console.log(response)
+            if (response._success === true) {
+                $('#up-title').val(response.good.title)
+                $('#up-category').val(response.good.category && response.good.category.title)
+                $('#up-last-arrival-price').val(response.good.last_arrival_price)
+                $('#up-price').val(response.good.price || 0.0)
+                $('#up-balance').val(response.good.balance || 0.0)
+                $('#up-id').val(itemId)
+
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
 
 </script>
 

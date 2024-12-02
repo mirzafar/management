@@ -110,13 +110,13 @@
                                         </a>
                                         {% else %}
                                         <a onclick="closeOverhead()"
-                                           class="toggle btn btn-danger d-none d-md-inline-flex">
+                                           class="toggle btn btn-danger">
                                             <em class="icon ni ni-check"></em>
                                             <span>Завершить</span>
                                         </a>
                                         <a href="#"
                                            data-target="addProduct"
-                                           class="toggle btn btn-primary d-none d-md-inline-flex">
+                                           class="toggle btn btn-primary">
                                             <em class="icon ni ni-plus"></em>
                                             <span>Добавить</span>
                                         </a>
@@ -360,7 +360,7 @@
 
     $('#cf-goods').select2({
         placeholder: 'Выберите товар',
-        minimumInputLength: 2,
+        minimumInputLength: 1,
         ajax: {
             transport: async function (params, success, failure) {
                 try {

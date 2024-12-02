@@ -142,3 +142,7 @@ create table store.visits
     pledged_sum double precision
 );
 
+
+alter table public.goods
+    rename column arrival_price to last_arrival_price;
+
