@@ -47,6 +47,7 @@
                     <div class="card">
                         <div class="nk-tb-list nk-tb-ulist is-compact">
                             <div class="nk-tb-item nk-tb-head">
+                                <div class="nk-tb-col"><span>Клиент</span></div>
                                 <div class="nk-tb-col"><span>Название</span></div>
                                 <div class="nk-tb-col"><span>Товар</span></div>
                                 <div class="nk-tb-col"><span>Вид услуги</span></div>
@@ -55,6 +56,9 @@
                             </div>
                             {% for item in visits %}
                             <div class="nk-tb-item">
+                                <div class="nk-tb-col">
+                                    {{item.client and item.client.last_name or ''}}
+                                </div>
                                 <div class="nk-tb-col">
                                     {{item.title or ''}}
                                 </div>
@@ -194,11 +198,22 @@
                 <div class="col-12">
                     <div class="form-group">
                         <label class="form-label"
-                               for="cf-sum">Сумма
+                               for="cf-sum-reason">Сумма за услуги
                         </label>
                         <input type="number" min="0.0" class="form-control"
-                               name="sum"
-                               id="cf-sum">
+                               name="sum_reason"
+                               id="cf-sum-reason">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-sum-good">Сумма за товар
+                        </label>
+                        <input type="number" min="0.0" class="form-control"
+                               name="sum_good"
+                               id="cf-sum-good">
                     </div>
                 </div>
 
@@ -368,6 +383,7 @@
     $('#clearButton').on('change', function () {
         if ($(this).is(':checked')) {
             is_our = true;
+            $('#cf-sum-good').val('');
         } else {
             is_our = false;
         }
@@ -488,7 +504,8 @@
                     const results = data.goods.map(good => ({
                         id: good.id,
                         text: `${good.title} (${good.category.unit === 'pieces' && 'шт.' || 'кв.'})`,
-                        value: good.id
+                        value: good.id,
+                        price: good.price
                     }));
 
                     success({results});
@@ -562,20 +579,32 @@
         }
     });
 
-    let price = 0
+    let priceReason = 0;
+    let priceGood = 0;
 
     $('#cf-reasons').on('select2:select', function (e) {
         const selectedData = e.params.data;
-        price = parseFloat(selectedData.price);
+        priceReason = parseFloat(selectedData.price);
+    });
+
+    $('#cf-goods').on('select2:select', function (e) {
+        const selectedData = e.params.data;
+        priceGood = parseFloat(selectedData.price);
     });
 
     $('#cf-count').on('change', function () {
         const count = parseFloat($(this).val());
-        if (price && count) {
-            $('#cf-sum').val(price * count)
+        if (priceReason && count) {
+            $('#cf-sum-reason').val(priceReason * count)
         }
 
-    })
+        if (priceGood && count && is_our !== true) {
+            $('#cf-sum-good').val(priceGood * count);
+        } else {
+            $('#cf-sum-good').val('');
+        }
+
+    });
 
 </script>
 {% endblock %}

@@ -32,19 +32,27 @@ class StoreVisitsView(BaseAPIView):
                         'title', g.title
                     )
                 END AS good,
-                is_our,
+                CASE WHEN c.id IS NOT NULL 
+                    THEN JSONB_BUILD_OBJECT(
+                        'id', c.id,
+                        'first_name', c.first_name,
+                        'last_name', c.last_name
+                    )
+                END AS client,
+                v.is_our,
                 CASE WHEN r.id IS NOT NULL 
                     THEN JSONB_BUILD_OBJECT(
                         'id', r.id,
                         'title', r.title
                     )
                 END AS reason,
-                count,
-                sum,
-                created_at
+                v.count,
+                v.sum,
+                v.created_at
             FROM store.visits v
             LEFT JOIN public.goods g ON g.id = v.good_id
             LEFT JOIN store.reasons r ON r.id = v.reason_id
+            LEFT JOIN public.clients c ON c.id = v.client_id
             WHERE %s
             ORDER BY id DESC
             %s
@@ -87,9 +95,13 @@ class StoreVisitsView(BaseAPIView):
         if not count or count <= 0:
             return self.error(message='Отсуствует обязательный параметры "Количество"')
 
-        summ = FloatUtils.to_float(request.json.get('sum'))
-        if not summ or summ <= 0:
-            return self.error(message='Отсуствует обязательный параметры "Сумма"')
+        sum_reason = FloatUtils.to_float(request.json.get('sum_reason'))
+        sum_good = FloatUtils.to_float(request.json.get('sum_good'))
+        if (sum_reason and sum_reason < 0) or not sum_reason:
+            return self.error(message='Отсуствует обязательный параметры "Сумма услуги"')
+
+        if (sum_good and sum_good < 0) or (is_our is False and not sum_good):
+            return self.error(message='Отсуствует обязательный параметры "Сумма товара"')
 
         is_paid = BoolUtils.to_bool(request.json.get('is_paid'), False)
         pledged_sum = FloatUtils.to_float(request.json.get('pledged_sum'))
@@ -124,7 +136,7 @@ class StoreVisitsView(BaseAPIView):
             is_our,
             reason_id,
             count,
-            summ,
+            sum_reason + sum_good,
             client_id,
             is_paid,
             pledged_sum

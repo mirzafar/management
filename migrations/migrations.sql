@@ -146,3 +146,5 @@ create table store.visits
 alter table public.goods
     rename column arrival_price to last_arrival_price;
 
+alter table store.reasons
+    add parent_id integer;

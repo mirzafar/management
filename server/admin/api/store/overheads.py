@@ -136,11 +136,11 @@ class StoreOverheadView(BaseAPIView):
         })
 
         for x in overhead_items:
-            if x.get('count'):
-                overhead['count'] += x['count']
+            if count := x.get('count'):
+                overhead['count'] += count
 
-            if x.get('arrival_price'):
-                overhead['sum'] += x['arrival_price']
+            if arrival_price := x.get('arrival_price'):
+                overhead['sum'] += (arrival_price * count)
 
         return self.success(request=request, user=user, data={
             'overhead': overhead,
