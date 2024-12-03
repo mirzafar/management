@@ -53,7 +53,7 @@
                             </div>
                             {% for item in reasons %}
                             <div class="nk-tb-item">
-                                <div class="nk-tb-col">
+                                <div class="nk-tb-col" onclick="openChildrenItems({{item.id}})">
                                     <div class="user-card">
                                         <div class="user-info">
                                         <span class="tb-lead">
@@ -140,6 +140,7 @@
                     </div>
                 </div>
 
+                <input class="form-control" type="hidden" name="parent_id" value="{{request.args.get('parent_id', '')}}">
                 <div class="col-12">
                     <a onclick="createItem()" class="btn btn-primary"><em
                             class="icon ni ni-plus"></em><span>Добавить</span></a>
@@ -277,6 +278,12 @@
 
         } catch (error) {
             alertShow('waring', `${error.message}`);
+        }
+    }
+
+    function openChildrenItems(itemId) {
+        if (itemId) {
+            window.location.href = `/api/store/reasons?parent_id=${itemId}`
         }
     }
 

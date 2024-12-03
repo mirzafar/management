@@ -13,6 +13,8 @@ class StoreReasonsView(BaseAPIView):
 
     async def get(self, request, user):
         query = StrUtils.to_str(request.args.get('query'))
+        parent_id = IntUtils.to_int(request.args.get('parent_id'))
+
         cond, cond_vars = ['is_active'], []
 
         pager = Pager()
@@ -22,6 +24,14 @@ class StoreReasonsView(BaseAPIView):
         if query:
             cond.append('title ILIKE {}')
             cond_vars.append(f'%{query}%')
+
+        if parent_id == -1:
+            pass
+        elif parent_id:
+            cond.append('parent_id = {}')
+            cond_vars.append(parent_id)
+        else:
+            cond.append('parent_id IS NULL')
 
         cond, _ = set_counters(' AND '.join(cond))
 
@@ -50,15 +60,18 @@ class StoreReasonsView(BaseAPIView):
         if not price:
             return self.error(message='Отсуствует обязательный параметры "Цена"')
 
+        parent_id = IntUtils.to_int(request.json.get('parent_id'))
+
         item = await db.fetchrow(
             '''
-            INSERT INTO store.reasons(title, description, price)
-            VALUES ($1, $2, $3)
+            INSERT INTO store.reasons(title, description, price, parent_id)
+            VALUES ($1, $2, $3, $4)
             RETURNING *          
             ''',
             title,
             description,
-            price
+            price,
+            parent_id
         )
 
         if not item:
@@ -127,8 +140,8 @@ class StoreReasonView(BaseAPIView):
             '''
             UPDATE store.reasons
             SET is_active = FALSE
-            WHERE id = $1
-            RETURNING *        
+            WHERE id = $1 OR parent_id = $1
+            RETURNING *
             ''',
             reason_id
         )
