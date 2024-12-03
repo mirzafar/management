@@ -52,6 +52,7 @@
                                 <div class="nk-tb-col"><span>Товар</span></div>
                                 <div class="nk-tb-col"><span>Вид услуги</span></div>
                                 <div class="nk-tb-col"><span>Объем (Количество)</span></div>
+                                <div class="nk-tb-col tb-col-sm"><span>Статус</span></div>
                                 <div class="nk-tb-col nk-tb-col-tools text-end"></div>
                             </div>
                             {% for item in visits %}
@@ -70,6 +71,14 @@
                                 </div>
                                 <div class="nk-tb-col">
                                     <span>{{item.count or ''}}</span>
+                                </div>
+
+                                <div class="nk-tb-col tb-col-sm">
+                                    {% if item.is_paid %}
+                                    <span class="badge badge-dim bg-success">Оплачен</span>
+                                    {% else %}
+                                    <span class="badge badge-dim bg-warning">Ожидание</span>
+                                    {% endif %}
                                 </div>
 
                                 <div class="nk-tb-col nk-tb-col-tools">
@@ -329,8 +338,7 @@
                                for="up-pledged-sum">Заклад
                         </label>
                         <input type="number" min="0.0" class="form-control"
-                               name="pledged_sum"
-                               id="up-pledged-sum">
+                               id="up-pledged-sum" disabled>
                     </div>
                 </div>
 

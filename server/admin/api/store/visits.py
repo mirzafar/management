@@ -48,7 +48,8 @@ class StoreVisitsView(BaseAPIView):
                 END AS reason,
                 v.count,
                 v.sum,
-                v.created_at
+                v.created_at,
+                v.is_paid
             FROM store.visits v
             LEFT JOIN public.goods g ON g.id = v.good_id
             LEFT JOIN store.reasons r ON r.id = v.reason_id
@@ -106,6 +107,9 @@ class StoreVisitsView(BaseAPIView):
         is_paid = BoolUtils.to_bool(request.json.get('is_paid'), False)
         pledged_sum = FloatUtils.to_float(request.json.get('pledged_sum'))
         description = StrUtils.to_str(request.json.get('description'))
+
+        if pledged_sum and is_paid:
+            return self.error('Одновренно заклад и оплачен не может быть')
 
         good = None
         if good_id and is_our is False:
@@ -214,26 +218,39 @@ class StoreVisitView(BaseAPIView):
         if not visit_id:
             return self.error(message='Отсуствует обязательный параметры "ID"')
 
+        visit = await db.fetchrow(
+            '''
+            SELECT is_paid, sum
+            FROM store.visits
+            WHERE id = $1
+            ''',
+            visit_id
+        )
+
+        if not visit:
+            return self.error(message='Не найден')
+
         summ = FloatUtils.to_float(request.json.get('sum'))
         if not summ or summ <= 0:
             return self.error(message='Отсуствует обязательный параметры "Сумма"')
 
         is_paid = BoolUtils.to_bool(request.json.get('is_paid'), False)
-        pledged_sum = FloatUtils.to_float(request.json.get('pledged_sum'))
+        if (visit['is_paid'] and summ != visit['sum']) or (visit['is_paid'] and not is_paid):
+            return self.error(message='Сумма не редактируется так как услуга уже оплачен')
+
         description = StrUtils.to_str(request.json.get('description'))
 
         item = await db.fetchrow(
             '''
             UPDATE store.visits
-            SET is_paid = $2, description = $3, sum = $4, pledged_sum = $5
+            SET is_paid = $2, description = $3, sum = $4
             WHERE id = $1
             RETURNING id
             ''',
             visit_id,
             is_paid,
             description,
-            summ,
-            pledged_sum
+            summ
         )
 
         if not item:
