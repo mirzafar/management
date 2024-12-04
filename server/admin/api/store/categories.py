@@ -1,5 +1,6 @@
 from core.db import db
 from core.handlers import BaseAPIView
+from core.tools import set_counters
 from utils.ints import IntUtils
 from utils.lists import ListUtils
 from utils.strs import StrUtils
@@ -9,17 +10,37 @@ class StoreCategoriesView(BaseAPIView):
     template_name = 'admin/store-categories.html'
 
     async def get(self, request, user):
+        parent_id = IntUtils.to_int(request.args.get('parent_id'))
+        cond, cond_vars = ['is_active'], []
+
+        parent = {}
+        if parent_id:
+            cond.append('parent_id = {}')
+            cond_vars.append(parent_id)
+
+            parent = await db.fetchrow(
+                '''
+                SELECT id, title, unit, description
+                FROM public.categories
+                WHERE id = $1
+                ''',
+                parent_id
+            ) or {}
+
+        cond, _ = set_counters(' AND '.join(cond))
         categories = ListUtils.to_list_of_dicts(await db.fetch(
             '''
             SELECT id, title, unit, description
             FROM public.categories
-            WHERE is_active
+            WHERE %s
             ORDER BY id
-            '''
+            ''' % cond,
+            *cond_vars
         ))
 
         return self.success(request=request, user=user, data={
-            'categories': categories
+            'categories': categories,
+            'parent': dict(parent)
         })
 
     async def post(self, request, user):
@@ -32,18 +53,18 @@ class StoreCategoriesView(BaseAPIView):
             return self.error(message='Отсуствует обязательный параметры "Eдиница измерений"')
 
         description = StrUtils.to_str(request.json.get('description'))
-        if not unit:
-            return self.error(message='Отсуствует обязательный параметры "Eдиница измерений"')
+        parent_id = IntUtils.to_int(request.json.get('parent_id'))
 
         item = await db.fetchrow(
             '''
-            INSERT INTO public.categories(title, unit, description)
-            VALUES ($1, $2, $3)
+            INSERT INTO public.categories(title, unit, description, parent_id)
+            VALUES ($1, $2, $3, $4)
             RETURNING *          
             ''',
             title,
             unit,
-            description
+            description,
+            parent_id
         )
 
         if not item:

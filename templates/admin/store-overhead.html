@@ -374,7 +374,7 @@
                     const data = await response.json();
                     const results = data.goods.map(good => ({
                         id: good.id,
-                        text: `${good.title} (${good.category.unit === 'pieces' && 'шт.' || 'кв.'})`,
+                        text: `${good.title} (${good.category.unit === 'pieces' && 'шт.' || good.category.unit === 'metric' && 'м.' || 'кв.'})`,
                         value: good.id
                     }));
 
@@ -404,7 +404,7 @@
                     const data = await response.json();
                     const results = data.categories.map(category => ({
                         id: category.id,
-                        text: `${category.title} (${category.unit === 'pieces' && 'шт.' || 'кв.'})`,
+                        text: `${category.title} (${category.unit === 'pieces' && 'шт.' || good.category.unit === 'metric' && 'м.' || 'кв.'})`,
                         value: category.id
                     }));
 

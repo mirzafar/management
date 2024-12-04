@@ -13,7 +13,11 @@
         <div class="card card-stretch">
             <div class="card-inner">
                 <div class="card-title-group">
-                    <div class="card-title"><h5 class="title">Категории</h5></div>
+                    <div class="card-title">
+                        <h5 class="title">
+                            Категории {% if parent %} ({{parent.title or ''}}){% endif %}
+                        </h5>
+                    </div>
                     <div class="nk-block-head-content">
                         <div class="toggle-wrap nk-block-tools-toggle">
                             <a href="#"
@@ -46,18 +50,22 @@
                     <div class="nk-tb-list nk-tb-ulist is-compact">
                         <div class="nk-tb-item nk-tb-head">
                             <div class="nk-tb-col"><span>Название</span></div>
+                            <div class="nk-tb-col"><span>Ед. изм.</span></div>
                             <div class="nk-tb-col nk-tb-col-tools text-end"></div>
                         </div>
                         {% for item in categories %}
                         <div class="nk-tb-item">
+                            <div class="nk-tb-col" onclick="openChildrenItems({{item.id}})">
+                                {{item.title or ''}}
+                            </div>
                             <div class="nk-tb-col">
-                                <div class="user-card">
-                                    <div class="user-info">
-                                        <span class="tb-lead">
-                                            {{item.title or ''}}
-                                        </span>
-                                    </div>
-                                </div>
+                                {% if item.unit == 'metric' %}
+                                м.
+                                {% elif item.unit == 'square' %}
+                                кв.
+                                {% else %}
+                                шт.
+                                {% endif %}
                             </div>
                             <div class="nk-tb-col nk-tb-col-tools">
                                 <ul class="nk-tb-actions gx-1 my-n1">
@@ -122,10 +130,11 @@
                         <select name="unit" class="form-control">
                             <option value="pieces">шт.</option>
                             <option value="square">кв.</option>
+                            <option value="metric">м.</option>
                         </select>
                     </div>
                 </div>
-
+                <input type="hidden" name="parent_id" value="{{request.args.get('parent_id', '')}}">
                 <div class="col-12">
                     <a onclick="createItem()" class="btn btn-primary"><em
                             class="icon ni ni-plus"></em><span>Добавить</span></a>
@@ -165,6 +174,7 @@
                         <select name="unit" class="form-control" id="up-unit">
                             <option value="pieces">шт.</option>
                             <option value="square">кв.</option>
+                            <option value="metric">м.</option>
                         </select>
                     </div>
                 </div>
@@ -263,9 +273,12 @@
                 if (response.category.unit === 'square') {
                     $('#up-unit option[value="square"]').prop('selected', true);
                     $('#up-unit').val('square');
-                } else {
+                } else if (response.category.unit === 'pieces') {
                     $('#up-unit option[value="pieces"]').prop('selected', true);
                     $('#up-unit').val('pieces');
+                } else {
+                    $('#up-unit option[value="metric"]').prop('selected', true);
+                    $('#up-unit').val('metric');
                 }
                 $('#up-id').val(itemId)
 
@@ -276,6 +289,10 @@
         } catch (error) {
             alertShow('waring', `${error.message}`);
         }
+    }
+
+    function openChildrenItems(itemId) {
+        window.location.href = `/api/store/categories?parent_id=${itemId}`
     }
 
 </script>
