@@ -63,26 +63,24 @@
                         {% for item in overheads %}
                         <div class="nk-tb-item">
                             <div class="nk-tb-col">
-                                <div class="user-card">
-                                    <div class="user-info">
-                                        <span class="tb-lead">
-                                            {{item.title or ''}}
-                                        </span>
-                                    </div>
-                                </div>
+                                {{item.title or ''}}
                             </div>
                             <div class="nk-tb-col">
-                                <div class="user-card">
-                                    <div class="user-info">
-                                        <span class="tb-lead">
-                                            {{item.uid or ''}}
-                                        </span>
-                                    </div>
-                                </div>
+                                {{item.uid or ''}}
                             </div>
 
                             <div class="nk-tb-col">
                                 <span>{{item.date}}</span>
+                            </div>
+
+                            <div class="nk-tb-col">
+                                <div class="nk-tb-col tb-col-sm">
+                                    {% if item.is_close %}
+                                    <span class="badge badge-dim bg-success">завершен</span>
+                                    {% else %}
+                                    <span class="badge badge-dim bg-warning">открыть</span>
+                                    {% endif %}
+                                </div>
                             </div>
 
                             <div class="nk-tb-col nk-tb-col-tools">

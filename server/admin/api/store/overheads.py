@@ -35,8 +35,8 @@ class StoreOverheadsView(BaseAPIView):
                 description,
                 uid,
                 date,
-                count, 
-                sum
+                sum,
+                is_close
             FROM store.overheads
             WHERE %s
             ORDER BY id DESC
@@ -101,7 +101,6 @@ class StoreOverheadView(BaseAPIView):
                 description,
                 uid,
                 date,
-                count, 
                 sum,
                 is_close
             FROM store.overheads
@@ -131,16 +130,12 @@ class StoreOverheadView(BaseAPIView):
         ))
 
         overhead.update({
-            'count': 0,
-            'sum': 0,
+            'sum': 0
         })
 
         for x in overhead_items:
-            if count := x.get('count'):
-                overhead['count'] += count
-
-            if arrival_price := x.get('arrival_price'):
-                overhead['sum'] += (arrival_price * count)
+            if x.get('arrival_price') and x.get('count'):
+                overhead['sum'] += (x['arrival_price'] * x['count'])
 
         return self.success(request=request, user=user, data={
             'overhead': overhead,

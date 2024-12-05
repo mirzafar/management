@@ -68,15 +68,6 @@
                                                         </div>
                                                         <div class="form-group">
                                                             <label class="form-label"
-                                                                   for="cf-amount_goods">Количества товаров
-                                                            </label>
-                                                            <input class="form-control"
-                                                                   disabled="disabled"
-                                                                   value="{{overhead.count or ''}}"
-                                                                   id="cf-amount_goods">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label class="form-label"
                                                                    for="cf-paid_summ">Сумма к оплате
                                                             </label>
                                                             <input class="form-control"
@@ -232,7 +223,16 @@
                     <label class="form-label"
                            for="cf-category">Выберите категории товара
                     </label>
-                    <select id="cf-category" name="category_id"></select>
+                    <select id="cf-category"></select>
+                </div>
+            </div>
+
+            <div class="col-12" id="div-category-children" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-category-children">Выберите категории товара
+                    </label>
+                    <select id="cf-category-children"></select>
                 </div>
             </div>
 
@@ -390,21 +390,23 @@
     });
 
     $('#cf-category').select2({
-        placeholder: 'Выберите товар',
+        placeholder: 'Выберите категории',
         ajax: {
             transport: async function (params, success, failure) {
                 try {
                     const query = params.data.q || '';
-                    const response = await fetch(`/api/store/categories?response_type=json&query=${encodeURIComponent(query)}`);
+                    const response = await fetch(`/api/store/categories?response_type=json&query=${encodeURIComponent(query)}&parent_id=-1`);
+
 
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
 
                     const data = await response.json();
+                    console.log(data)
                     const results = data.categories.map(category => ({
                         id: category.id,
-                        text: `${category.title} (${category.unit === 'pieces' && 'шт.' || good.category.unit === 'metric' && 'м.' || 'кв.'})`,
+                        text: `${category.title}`,
                         value: category.id
                     }));
 
@@ -418,6 +420,46 @@
             }
         }
     });
+
+    let categoryId = null
+
+    $('#cf-category').on('select2:select', function (e) {
+        const parentId = e.params.data.id;
+        categoryId = parentId
+
+        $('#div-category-children').show();
+        $('#cf-category-children').empty().trigger('change');
+        $('#cf-category-children').select2({
+            placeholder: 'Выберите под категории',
+            ajax: {
+                transport: async function (params, success, failure) {
+                    try {
+                        const query = params.data.q || '';
+                        const response = await fetch(`/api/store/categories?response_type=json&query=${encodeURIComponent(query)}&parent_id=${parentId}`);
+
+                        const data = await response.json();
+                        console.log(data)
+                        const results = data.categories.map(category => ({
+                            id: category.id,
+                            text: `${category.title}`,
+                            value: category.id
+                        }));
+
+                        success({results});
+                    } catch (error) {
+                        failure(error);
+                    }
+                },
+                processResults: function (data) {
+                    return data;
+                }
+            }
+        });
+    });
+
+    $('#cf-category-children').on('select2:select', function (e) {
+        categoryId = e.params.data.id
+    })
 
     $('#cf-price-percent').on('change', function () {
         let percent = parseInt($(this).val());
@@ -435,6 +477,7 @@
                 method: 'POST',
                 body: JSON.stringify({
                     'action': 'add_item',
+                    'category_id': categoryId,
                     ...getValues('#new-data-item')
                 })
             });

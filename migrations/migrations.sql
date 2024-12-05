@@ -151,3 +151,7 @@ alter table store.reasons
 
 alter table public.categories
     add parent_id integer;
+
+alter table store.overheads
+    drop column count;
+
