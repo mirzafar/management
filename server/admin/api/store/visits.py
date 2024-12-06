@@ -24,7 +24,6 @@ class StoreVisitsView(BaseAPIView):
             '''
             SELECT 
                 v.id, 
-                v.title, 
                 v.description, 
                 CASE WHEN g.id IS NOT NULL 
                     THEN JSONB_BUILD_OBJECT(
@@ -80,10 +79,6 @@ class StoreVisitsView(BaseAPIView):
             return self.error(message='Отсуствует обязательный параметры "Клиент"')
 
         good_id = IntUtils.to_int(request.json.get('good_id'))
-        title = StrUtils.to_str(request.json.get('title'))
-        if not good_id and not title:
-            return self.error(message='Отсуствует обязательный параметры "Название" или Выберите товар')
-
         is_our = BoolUtils.to_bool(request.json.get('is_our'), False)
         if is_our is False and not good_id:
             return self.error(message='Выберите товар при отсутствие "C собой"')
@@ -103,6 +98,13 @@ class StoreVisitsView(BaseAPIView):
 
         if (sum_good and sum_good < 0) or (is_our is False and not sum_good):
             return self.error(message='Отсуствует обязательный параметры "Сумма товара"')
+
+        if sum_reason and sum_good:
+            summ = sum_reason + sum_good
+        elif sum_reason or sum_good:
+            summ = sum_reason or sum_good
+        else:
+            summ = 0
 
         is_paid = BoolUtils.to_bool(request.json.get('is_paid'), False)
         pledged_sum = FloatUtils.to_float(request.json.get('pledged_sum'))
@@ -130,17 +132,16 @@ class StoreVisitsView(BaseAPIView):
 
         item = await db.fetchrow(
             '''
-            INSERT INTO store.visits(title, description, good_id, is_our, reason_id, count, sum, client_id, is_paid, pledged_sum)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            INSERT INTO store.visits(description, good_id, is_our, reason_id, count, sum, client_id, is_paid, pledged_sum)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             RETURNING *          
             ''',
-            title,
             description,
             good_id,
             is_our,
             reason_id,
             count,
-            sum_reason + sum_good,
+            summ,
             client_id,
             is_paid,
             pledged_sum
@@ -172,9 +173,8 @@ class StoreVisitView(BaseAPIView):
         visit = await db.fetchrow(
             '''
             SELECT 
-                v.id, 
-                v.title, 
-                v.description, 
+                v.id,
+                v.description,
                 CASE WHEN g.id IS NOT NULL 
                     THEN JSONB_BUILD_OBJECT(
                         'id', g.id,

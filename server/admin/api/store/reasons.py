@@ -26,7 +26,7 @@ class StoreReasonsView(BaseAPIView):
             cond_vars.append(f'%{query}%')
 
         if parent_id == -1:
-            pass
+            cond.append('parent_id IS NULL')
         elif parent_id:
             cond.append('parent_id = {}')
             cond_vars.append(parent_id)

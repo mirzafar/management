@@ -202,17 +202,17 @@
             <div class="col-12">
                 <div class="form-group">
                     <label class="form-label"
-                           for="cf-goods">Выберите товары или укажите наименования
+                           for="cf-goods">Выберите товары или ниже укажите наименования
                     </label>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col-12">
                 <div class="form-group">
                     <select id="cf-goods" name="good_id"></select>
                 </div>
             </div>
 
-            <div class="col-6">
+            <div class="col-12">
                 <div class="form-group">
                     <input type="text" class="form-control" name="good_title" id="cf-good-title">
                 </div>
@@ -230,7 +230,7 @@
             <div class="col-12" id="div-category-children" style="display: none;">
                 <div class="form-group">
                     <label class="form-label"
-                           for="cf-category-children">Выберите категории товара
+                           for="cf-category-children">Выберите под категории товара
                     </label>
                     <select id="cf-category-children"></select>
                 </div>
@@ -361,6 +361,15 @@
     $('#cf-goods').select2({
         placeholder: 'Выберите товар',
         minimumInputLength: 1,
+        language: {
+            inputTooShort: function (args) {
+                let remainingChars = args.minimum - args.input.length;
+                return `Пожалуйста введите больше ${remainingChars} букв`;
+            },
+            noResults: function () {
+                return "Товар не найден";
+            }
+        },
         ajax: {
             transport: async function (params, success, failure) {
                 try {
@@ -391,6 +400,11 @@
 
     $('#cf-category').select2({
         placeholder: 'Выберите категории',
+        language: {
+            noResults: function () {
+                return "Категории не найден";
+            }
+        },
         ajax: {
             transport: async function (params, success, failure) {
                 try {
@@ -431,6 +445,11 @@
         $('#cf-category-children').empty().trigger('change');
         $('#cf-category-children').select2({
             placeholder: 'Выберите под категории',
+            language: {
+                noResults: function () {
+                    return "Категории не найден";
+                }
+            },
             ajax: {
                 transport: async function (params, success, failure) {
                     try {

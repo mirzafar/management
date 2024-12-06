@@ -58,6 +58,7 @@
                             <div class="nk-tb-col"><span>Название</span></div>
                             <div class="nk-tb-col"><span>Номер документа</span></div>
                             <div class="nk-tb-col tb-col-sm"><span>Время</span></div>
+                            <div class="nk-tb-col tb-col-sm"><span>Статус</span></div>
                             <div class="nk-tb-col nk-tb-col-tools text-end"></div>
                         </div>
                         {% for item in overheads %}
@@ -73,14 +74,12 @@
                                 <span>{{item.date}}</span>
                             </div>
 
-                            <div class="nk-tb-col">
-                                <div class="nk-tb-col tb-col-sm">
-                                    {% if item.is_close %}
-                                    <span class="badge badge-dim bg-success">завершен</span>
-                                    {% else %}
-                                    <span class="badge badge-dim bg-warning">открыть</span>
-                                    {% endif %}
-                                </div>
+                            <div class="nk-tb-col tb-col-sm">
+                                {% if item.is_close %}
+                                <span class="badge badge-dim bg-success">завершен</span>
+                                {% else %}
+                                <span class="badge badge-dim bg-warning">открыто</span>
+                                {% endif %}
                             </div>
 
                             <div class="nk-tb-col nk-tb-col-tools">

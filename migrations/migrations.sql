@@ -155,3 +155,6 @@ alter table public.categories
 alter table store.overheads
     drop column count;
 
+alter table store.visits
+    drop column title;
+

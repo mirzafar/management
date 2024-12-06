@@ -254,7 +254,11 @@ class StoreOverheadView(BaseAPIView):
             if not item_id:
                 return self.error(message='Операция не выполнена')
 
+            summ = 0
             for i in overhead_items:
+                if i.get('arrival_price') and i.get('count'):
+                    summ += (i['arrival_price'] * i['count'])
+
                 if i['good_id']:
                     await db.execute(
                         '''
@@ -286,6 +290,18 @@ class StoreOverheadView(BaseAPIView):
                         i['sale_price'],
                         i['arrival_price'],
                     )
+
+            if summ:
+                await db.execute(
+                    '''
+                    UPDATE store.overheads
+                    SET sum = $2 
+                    WHERE id = $1
+                    RETURNING id
+                    ''',
+                    overhead_id,
+                    summ
+                )
 
             return self.success()
 
