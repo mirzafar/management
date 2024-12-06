@@ -56,7 +56,8 @@
                             </div>
                             {% for item in visits %}
                             <div class="nk-tb-item">
-                                <div class="nk-tb-col">
+                                <div class="nk-tb-col"
+                                     onclick="navigateClientProfile({{item.client and item.client.id or 0}})">
                                     {{item.client and item.client.last_name or ''}}
                                 </div>
                                 <div class="nk-tb-col">
@@ -668,6 +669,12 @@
         }
 
     });
+
+    function navigateClientProfile(clientId) {
+        if (clientId) {
+            window.location.href = `/api/clients/${clientId}#tabVisits`
+        }
+    }
 
 </script>
 {% endblock %}

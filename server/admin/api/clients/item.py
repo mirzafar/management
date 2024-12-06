@@ -1,5 +1,8 @@
 from core.db import db
 from core.handlers import BaseAPIView
+from core.pager import Pager
+from core.tools import set_counters
+from utils.bools import BoolUtils
 from utils.ints import IntUtils
 from utils.lists import ListUtils
 from utils.phones import PhoneNumberUtils
@@ -23,7 +26,66 @@ class ClientsItemView(BaseAPIView):
             client_id
         ) or {}
 
-        return self.success(request=request, user=user, data={'client': dict(client)})
+        pager = Pager()
+        pager.set_page(request.args.get('page', 1))
+        pager.set_limit(request.args.get('limit', 20))
+
+        cond, cond_vars = ['v.is_active', 'v.client_id = {}'], [client_id]
+
+        is_paid = BoolUtils.to_bool(request.args.get('is_paid'))
+        if is_paid is None:
+            pass
+        else:
+            cond.append('v.is_paid = {}')
+            cond_vars.append(is_paid)
+
+        cond, _ = set_counters(' AND '.join(cond))
+        visits = ListUtils.to_list_of_dicts(await db.fetch(
+            '''
+            SELECT 
+                v.id, 
+                v.description, 
+                CASE WHEN g.id IS NOT NULL 
+                    THEN JSONB_BUILD_OBJECT(
+                        'id', g.id,
+                        'title', g.title
+                    )
+                END AS good,
+                v.is_our,
+                CASE WHEN r.id IS NOT NULL 
+                    THEN JSONB_BUILD_OBJECT(
+                        'id', r.id,
+                        'title', r.title
+                    )
+                END AS reason,
+                v.count,
+                v.sum,
+                v.created_at,
+                v.is_paid
+            FROM store.visits v
+            LEFT JOIN public.goods g ON g.id = v.good_id
+            LEFT JOIN store.reasons r ON r.id = v.reason_id
+            WHERE %s
+            ORDER BY id DESC
+            %s
+            ''' % (cond, pager.as_query()),
+            *cond_vars
+        ))
+
+        pager.set_total(await db.fetchval(
+            '''
+            SELECT count(*)
+            FROM store.visits v
+            WHERE %s
+            ''' % cond,
+            *cond_vars
+        ) or 0)
+
+        return self.success(request=request, user=user, data={
+            'client': dict(client),
+            'visits': visits,
+            'pager': pager.dict()
+        })
 
     async def put(self, request, user, client_id):
         first_name = StrUtils.to_str(request.json.get('first_name'))

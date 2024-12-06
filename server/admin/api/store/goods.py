@@ -43,7 +43,6 @@ class StoreGoodsView(BaseAPIView):
                     )
                 END AS category,
                 last_arrival_price,
-                sale_price,
                 price,
                 balance,
                 last_updated_at,
