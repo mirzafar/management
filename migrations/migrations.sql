@@ -158,3 +158,6 @@ alter table store.overheads
 alter table store.visits
     drop column title;
 
+alter table public.goods
+    drop column sale_price;
+
