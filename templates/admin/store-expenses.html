@@ -1,0 +1,307 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="components-preview wide-md mx-auto">
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title"></h3>
+            </div>
+
+        </div>
+    </div>
+    <div class="nk-block">
+        <div class="card card-stretch">
+            <div class="card-inner">
+                <div class="card-title-group">
+                    <div class="card-title"><h5 class="title">Расходы</h5></div>
+                    <div class="nk-block-head-content">
+                        <div class="toggle-wrap nk-block-tools-toggle">
+                            <a href="#"
+                               class="btn btn-icon btn-trigger toggle-expand me-n1"
+                               data-target="pageMenu">
+                                <em class="icon ni ni-more-v"></em>
+                            </a>
+                            <div class="toggle-expand-content" data-content="pageMenu">
+                                <ul class="nk-block-tools g-3">
+                                    <li class="nk-block-tools-opt">
+                                        <a href="#" data-target="addProduct"
+                                           class="toggle btn btn-icon btn-primary d-md-none">
+                                            <em class="icon ni ni-plus"></em>
+                                        </a>
+                                        <a href="#"
+                                           data-target="addProduct"
+                                           class="toggle btn btn-primary d-none d-md-inline-flex">
+                                            <em class="icon ni ni-plus"></em>
+                                            <span>Добавить</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-inner p-0">
+                {% if expenses %}
+                <div class="nk-block">
+                    <div class="card">
+                        <div class="nk-tb-list nk-tb-ulist is-compact">
+                            <div class="nk-tb-item nk-tb-head">
+                                <div class="nk-tb-col"><span>Товар</span></div>
+                                <div class="nk-tb-col"><span>Название</span></div>
+                                <div class="nk-tb-col"><span>Объем (Количество)</span></div>
+                                <div class="nk-tb-col"><span>Сумма</span></div>
+                                <div class="nk-tb-col"><span>Дата</span></div>
+                                <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                            </div>
+                            {% for item in expenses %}
+                            <div class="nk-tb-item">
+                                <div class="nk-tb-col">
+                                    <span>{{item.good and item.good.title or ''}}</span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span>{{item.title or ''}}</span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span>{{item.count or ''}}</span>
+                                </div>
+
+                                <div class="nk-tb-col">
+                                    <span>{{item.sum or ''}}</span>
+                                </div>
+
+                                <div class="nk-tb-col">
+                                    <span>{{item.date or ''}}</span>
+                                </div>
+
+                                <div class="nk-tb-col nk-tb-col-tools">
+                                    <ul class="nk-tb-actions gx-1 my-n1">
+                                        <li class="me-n1">
+                                            <div class="dropdown"><a href="#"
+                                                                     class="dropdown-toggle btn btn-icon btn-trigger"
+                                                                     data-bs-toggle="dropdown"><em
+                                                    class="icon ni ni-more-h"></em></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <ul class="link-list-opt no-bdr">
+                                                        <li onclick="removeItem({{item.id}})">
+                                                            <a>
+                                                                <em class="icon ni ni-trash text-danger"></em>
+                                                                <span class="tb-status text-danger">Удалить</span>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% if pager %}
+                <div class="card-inner">
+                    <ul class="pagination justify-content-center justify-content-md-start">
+                        <li class="page-item">
+                            <a class="page-link"
+                               {% if pager.prev_page %}
+                               href="/api/store/visits?page={{pager.prev_page}}"
+                               {% endif %}
+                            >{% if pager.prev_page %}Prev{% else %}&nbsp;{% endif %}</a>
+                        </li>
+                        <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               {% if pager.next_page %}
+                               href="/api/store/visits?page={{pager.next_page}}"
+                               {% endif %}
+                            >{% if pager.next_page %}Prev{% else %}&nbsp;{% endif %}</a>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="card-inner">
+                    <figure class="text-center">
+                        <blockquote class="blockquote"><h3>
+                            Cписок услуг
+                        </h3></blockquote>
+                    </figure>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
+         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+        <div class="nk-block">
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-goods">Выберите товары
+                        </label>
+                        <select class="form-select" id="cf-goods" name="good_id"></select>
+                    </div>
+                </div>
+
+                <div class="col-12" id="div-title">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-title">Название
+                        </label>
+                        <input type="text" class="form-control" name="title" id="cf-title">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-count">Объем (Количество)
+                        </label>
+                        <input type="number" min="0.0" class="form-control" name="count" id="cf-count">
+                    </div>
+                </div>
+                <div class="col-12" id="div-sum">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-sum">Сумма за расхода
+                        </label>
+                        <div class="form-control-wrap">
+                            <div class="input-group">
+                                <input type="number" min="0.0" class="form-control"
+                                       name="sum"
+                                       id="cf-sum" placeholder="0,0">
+                                <div class="input-group-prepend"><span class="input-group-text">₸</span></div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group"><label class="form-label">Дата</label>
+                        <div class="form-control-wrap focused">
+                            <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                            <input type="text" class="form-control date-picker" name="date"
+                                   data-date-format="yyyy-mm-dd"
+                                   placeholder="yyyy-mm-dd"></div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <a onclick="createItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Добавить</span></a>
+                </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
+
+<script>
+    $('li[data-li="store"]').addClass('active')
+    $('li[data-li="store-expenses"]').addClass('active')
+
+    async function removeItem(itemId) {
+        try {
+            let response = await fetch('/api/store/expenses/' + itemId, {
+                method: 'DELETE'
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.href = '/api/store/expenses/';
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+
+    async function createItem() {
+        try {
+            let response = await fetch('/api/store/expenses/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    ...getValues('#new-data-item')
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.href = '/api/store/expenses/';
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    $('#cf-goods').select2({
+        placeholder: 'Выберите товар',
+        minimumInputLength: 1,
+        language: {
+            inputTooShort: function (args) {
+                let remainingChars = args.minimum - args.input.length;
+                return `Пожалуйста введите больше ${remainingChars} букв`;
+            },
+            noResults: function () {
+                return "Товар не найден";
+            }
+        },
+        ajax: {
+            transport: async function (params, success, failure) {
+                try {
+                    const query = params.data.q || '';
+                    const response = await fetch(`/api/store/goods?response_type=json&query=${encodeURIComponent(query)}`);
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    const results = data.goods.map(good => ({
+                        id: good.id,
+                        text: `${good.title} (${good.category.unit === 'pieces' && 'шт.' || good.category.unit === 'metric' && 'м.' || 'кв.'})`,
+                        value: good.id,
+                        price: good.price
+                    }));
+
+                    success({results});
+                } catch (error) {
+                    failure(error);
+                }
+            },
+            processResults: function (data) {
+                return data;
+            }
+        }
+    });
+
+    $('#cf-goods').on('select2:select', function (e) {
+        const selectedId = e.params.data.id;
+        if (selectedId) {
+            $('#div-title').hide();
+            $('#div-sum').hide();
+        } else {
+            $('#div-title').show();
+            $('#div-sum').show();
+        }
+    });
+
+</script>
+{% endblock %}
