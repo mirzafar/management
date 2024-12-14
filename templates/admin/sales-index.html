@@ -242,6 +242,17 @@
                                            id="cf-pledge">
                                 </div>
                             </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label class="form-label"
+                                           for="cf-pay-type">Тип оплаты
+                                    </label>
+                                    <select id="cf-pay-type" class="form-control">
+                                        <option value="CASH">Наличный</option>
+                                        <option value="KASPI">Каспи</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-12">
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" class="custom-control-input" id="cf-is-paid">
@@ -332,7 +343,8 @@
                     sum: sumWithDiscount,
                     is_paid: is_paid,
                     pledge: $('#cf-pledge').val(),
-                    discount: $('#op-discount').val()
+                    discount: $('#op-discount').val(),
+                    paid_type: $('#cf-pay-type').val(),
                 })
             });
 
