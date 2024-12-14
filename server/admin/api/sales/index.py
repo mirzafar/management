@@ -56,7 +56,7 @@ class StoreIndexView(BaseAPIView):
             if (good['balance'] or 0) < count:
                 return self.error(message=f'В складе осталось {good["balance"]}')
 
-            cashier_id = IntUtils.to_int(request.args.get('cashier_id'), default=1)
+            cashier_id = IntUtils.to_int(request.json.get('cashier_id'), default=1)
             if not cashier_id:
                 return self.error(message='Выберите кассу')
 
@@ -105,7 +105,7 @@ class StoreIndexView(BaseAPIView):
             return self.success()
 
         elif action == 'close':
-            cashier_id = IntUtils.to_int(request.args.get('cashier_id'), default=1)
+            cashier_id = IntUtils.to_int(request.json.get('cashier_id'), default=1)
             prev_summ = FloatUtils.to_float(request.json.get('prev_sum'))
             summ = FloatUtils.to_float(request.json.get('sum'))
             pledge = FloatUtils.to_float(request.json.get('pledge'))
