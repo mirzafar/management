@@ -1,13 +1,13 @@
 from sanic import Blueprint
 
-__all__ = ['store_bp']
-
 from admin.api.store.categories import StoreCategoriesView, StoreCategoryView
 from admin.api.store.expenses import StoreExpensesView, StoreExpenseView
 from admin.api.store.goods import StoreGoodsView, StoreGoodView
 from admin.api.store.overheads import StoreOverheadsView, StoreOverheadView
 from admin.api.store.reasons import StoreReasonsView, StoreReasonView
 from admin.api.store.visits import StoreVisitsView, StoreVisitView
+
+__all__ = ['store_bp']
 
 store_bp = Blueprint('store', url_prefix='/store')
 

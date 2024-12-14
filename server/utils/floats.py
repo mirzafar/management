@@ -7,6 +7,8 @@ class FloatUtils:
     def to_float(value, default=None) -> Optional[float]:
         if isinstance(value, float):
             return value
+        if isinstance(value, int):
+            return float(value)
         elif isinstance(value, str):
             if value.replace('.', '').isdigit():
                 return float(value)

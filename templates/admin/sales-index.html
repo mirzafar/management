@@ -1,0 +1,481 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="nk-content-body">
+    <div class="nk-block">
+        <div class="card">
+            <div class="card-aside-wrap">
+                <div class="card-inner card-inner-lg">
+                    <div class="nk-block nk-block-between">
+                        <div class="nk-block-head"></div>
+
+                        <div class="nk-block">
+                            <a data-target="addProduct" class="toggle btn btn-primary btn-sm">
+                                <em class="icon ni ni-plus"></em>
+                                <span>Добавить</span>
+                            </a>
+                            {% if items %}
+                            <a class="toggle btn btn-danger btn-sm" data-bs-toggle="modal"
+                               data-bs-target="#profile-edit">
+                                <em class="icon ni ni-check"></em>
+                                <span>Завершить</span>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if items %}
+                    <div class="nk-block">
+                        <div class="card">
+                            <div class="nk-tb-list nk-tb-ulist is-compact">
+                                <div class="nk-tb-item nk-tb-head">
+                                    <div class="nk-tb-col"><span>Название</span></div>
+                                    <div class="nk-tb-col"><span>Количество</span></div>
+                                    <div class="nk-tb-col"><span>Сумма</span></div>
+                                    <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                                </div>
+                                {% for item in items %}
+                                <div class="nk-tb-item">
+                                    <div class="nk-tb-col">
+                                        {{item.good_title or ''}}
+                                    </div>
+                                    <div class="nk-tb-col">
+                                        <span>{{item.price}} x {{item.count}}</span>
+                                    </div>
+
+                                    <div class="nk-tb-col">
+                                        <span>{{item.sum}}</span>
+                                    </div>
+
+                                    <div class="nk-tb-col nk-tb-col-tools">
+                                        <ul class="nk-tb-actions gx-1 my-n1">
+                                            <li class="me-n1">
+                                                <div class="dropdown"><a href="#"
+                                                                         class="dropdown-toggle btn btn-icon btn-trigger"
+                                                                         data-bs-toggle="dropdown"><em
+                                                        class="icon ni ni-more-h"></em></a>
+                                                    <div class="dropdown-menu dropdown-menu-end">
+                                                        <ul class="link-list-opt no-bdr">
+                                                            <li onclick="removeItem('{{item._id}}')">
+                                                                <a>
+                                                                    <em class="icon ni ni-trash text-danger"></em>
+                                                                    <span class="tb-status text-danger">Удалить</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                <div class="nk-tb-item">
+                                    <div class="nk-tb-col">
+                                    </div>
+                                    <div class="nk-tb-col">
+                                    </div>
+
+                                    <div class="nk-tb-col">
+                                        <span class="tb-lead">Тотал: </span>
+                                    </div>
+
+                                    <div class="nk-tb-col nk-tb-col-tools">
+                                        <ul class="nk-tb-actions gx-1 my-n1">
+                                            <li>
+                                                <span class="tb-lead">₸ {{sum or 0.0}}</span>
+                                            </li>
+
+                                        </ul>
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="card-inner">
+                        <figure class="text-center">
+                            <blockquote class="blockquote"><h3>
+                                Cписок карзинки
+                            </h3></blockquote>
+                        </figure>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-aside card-aside-left user-aside toggle-slide toggle-slide-left toggle-break-lg"
+                     data-toggle-body="true" data-content="userAside" data-toggle-screen="lg"
+                     data-toggle-overlay="true">
+                    <div class="card-inner-group">
+                        <div class="card-inner p-0">
+                            <ul class="link-list-menu">
+                                <li>
+                                    <a class="{% if cashier_id == 1 %}active{% endif %}"
+                                       href="/api/sales/index?cashier_id=1">
+                                        <em class="icon ni ni-user-fill-c"></em><span>Касса 1</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="{% if cashier_id == 2 %}active{% endif %}"
+                                       href="/api/sales/index?cashier_id=2">
+                                        <em class="icon ni ni-user-fill-c"></em><span>Касса 2</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="{% if cashier_id == 3 %}active{% endif %}"
+                                       href="/api/sales/index?cashier_id=3">
+                                        <em class="icon ni ni-user-fill-c"></em><span>Касса 3</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="{% if cashier_id == 4 %}active{% endif %}"
+                                       href="/api/sales/index?cashier_id=4">
+                                        <em class="icon ni ni-user-fill-c"></em><span>Касса 4</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
+     data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+    <div class="nk-block">
+        <div class="row g-3">
+            <div class="col-12" id="div-category-goods">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-category">Выберите категории товара
+                    </label>
+                    <select id="cf-category"></select>
+                </div>
+            </div>
+
+            <div class="col-12" id="div-category-children" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-category-children">Выберите под категории товара
+                    </label>
+                    <select id="cf-category-children"></select>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-goods">Выберите товары
+                    </label>
+                    <select id="cf-goods" name="good_id"></select>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-count">Количество
+                    </label>
+                    <input type="number" min="0.0" class="form-control"
+                           name="count"
+                           id="cf-count">
+                </div>
+            </div>
+
+            <div class="col-12">
+                <a onclick="createItem()" class="btn btn-primary"><em
+                        class="icon ni ni-plus"></em><span>Добавить</span></a>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+        </div>
+    </div>
+</div>
+<div class="modal fade" role="dialog" id="profile-edit">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content"><a href="#" class="close" data-bs-dismiss="modal"><em
+                class="icon ni ni-cross-sm"></em></a>
+            <div class="modal-body modal-body-lg"><h5 class="title">Оплата</h5>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="personal">
+                        <div class="row gy-4">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label class="form-label"
+                                           for="op-prev-sum">Сумма
+                                    </label>
+                                    <input type="number" min="0.0" class="form-control"
+                                           value="{{sum or 0.0}}" disabled
+                                           id="op-prev-sum">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label class="form-label"
+                                           for="op-discount">Скидка
+                                    </label>
+                                    <input type="number" class="form-control"
+                                           name="discount" value="0"
+                                           id="op-discount">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label class="form-label"
+                                           for="op-sum">Сумма к оплате
+                                    </label>
+                                    <input type="number" class="form-control"
+                                           name="discount" value="{{sum or 0.0}}"
+                                           id="op-sum">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label class="form-label"
+                                           for="cf-pledge">Заклад
+                                    </label>
+                                    <input type="number" min="0.0" class="form-control"
+                                           name="pledge"
+                                           id="cf-pledge">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="cf-is-paid">
+                                    <label class="custom-control-label" for="cf-is-paid">Оплатил</label>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                                    <li><a href="#" data-bs-dismiss="modal" onclick="closeCashier()"
+                                           class="btn btn-lg btn-primary">Оплатить</a></li>
+                                    <li><a href="#" data-bs-dismiss="modal" class="link link-light">Отмена</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
+<script>
+    let discount = 0
+    let sum = parseFloat('{{sum or 0}}')
+    let sumWithDiscount = parseFloat('{{sum or 0}}')
+    $('#op-discount').on('change', function () {
+        discount = $(this).val()
+        if (discount && sum) {
+            sumWithDiscount = (100 - discount) * sum / 100
+            $('#op-sum').val(sumWithDiscount)
+        }
+    })
+
+    let is_paid = false;
+    $('#cf-is-paid').on('change', function () {
+        if ($(this).is(':checked')) {
+            is_paid = true;
+        } else {
+            is_paid = false;
+        }
+    });
+
+    async function createItem() {
+        try {
+            let response = await fetch('/api/sales/index/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'add',
+                    cashier_id: `{{request.args.get('cashier_id')}}`,
+                    ...getValues('#new-data-item')
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success');
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function closeCashier() {
+        console.log({
+            action: 'close',
+            cashier_id: `{{request.args.get('cashier_id')}}`,
+            prev_sum: sum,
+            sum: sumWithDiscount,
+            is_paid: is_paid,
+            pledge: $('#cf-pledge').val(),
+            discount: $('#op-discount').val()
+        })
+        try {
+            let response = await fetch('/api/sales/index/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'close',
+                    cashier_id: `{{request.args.get('cashier_id')}}`,
+                    prev_sum: sum,
+                    sum: sumWithDiscount,
+                    is_paid: is_paid,
+                    pledge: $('#cf-pledge').val(),
+                    discount: $('#op-discount').val()
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success');
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function removeItem(itemId) {
+        try {
+            let response = await fetch('/api/sales/index/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'remove',
+                    _id: itemId
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success');
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    $('#cf-category').select2({
+        placeholder: 'Выберите категории',
+        language: {
+            noResults: function () {
+                return "Категории не найден";
+            }
+        },
+        ajax: {
+            transport: async function (params, success, failure) {
+                try {
+                    const query = params.data.q || '';
+                    const response = await fetch(`/api/sales/categories?response_type=json&query=${encodeURIComponent(query)}&parent_id=-1`);
+
+                    const data = await response.json();
+                    console.log(data)
+                    const results = data.items.map(category => ({
+                        id: category.id,
+                        text: `${category.title}`,
+                        value: category.id
+                    }));
+
+                    success({results});
+                } catch (error) {
+                    failure(error);
+                }
+            },
+            processResults: function (data) {
+                return data;
+            }
+        }
+    });
+    let categoryId = null
+    $('#cf-category').on('select2:select', function (e) {
+        const parentId = e.params.data.id;
+        categoryId = parentId
+
+        $('#div-category-children').show();
+        $('#cf-category-children').empty().trigger('change');
+        $('#cf-category-children').select2({
+            placeholder: 'Выберите под категории',
+            language: {
+                noResults: function () {
+                    return "Категории не найден";
+                }
+            },
+            ajax: {
+                transport: async function (params, success, failure) {
+                    try {
+                        const query = params.data.q || '';
+                        const response = await fetch(`/api/store/categories?response_type=json&query=${encodeURIComponent(query)}&parent_id=${parentId}`);
+
+                        const data = await response.json();
+                        console.log(data)
+                        const results = data.categories.map(category => ({
+                            id: category.id,
+                            text: `${category.title}`,
+                            value: category.id
+                        }));
+
+                        success({results});
+                    } catch (error) {
+                        failure(error);
+                    }
+                },
+                processResults: function (data) {
+                    return data;
+                }
+            }
+        });
+    });
+
+    $('#cf-category-children').on('select2:select', function (e) {
+        categoryId = e.params.data.id
+    })
+
+    $('#cf-goods').select2({
+        placeholder: 'Выберите товар',
+        language: {
+            noResults: function () {
+                return "Товар не найден";
+            }
+        },
+        ajax: {
+            transport: async function (params, success, failure) {
+                try {
+                    const query = params.data.q || '';
+                    const response = await fetch(`/api/sales/goods?response_type=json&query=${encodeURIComponent(query)}&category_id=${categoryId}`);
+
+                    const data = await response.json();
+                    const results = data.items.map(good => ({
+                        id: good.id,
+                        text: `${good.title} (остаток ${good.balance})`,
+                        value: good.id
+                    }));
+
+                    success({results});
+                } catch (error) {
+                    failure(error);
+                }
+            },
+            processResults: function (data) {
+                return data;
+            }
+        }
+    });
+</script>
+{% endblock %}
