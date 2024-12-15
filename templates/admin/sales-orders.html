@@ -1,0 +1,172 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="components-preview wide-md mx-auto">
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title"></h3>
+            </div>
+
+        </div>
+    </div>
+    <div class="nk-block">
+        <div class="card card-stretch">
+            <div class="card-inner">
+                <div class="card-title-group">
+                    <div class="card-title"><h5 class="title">Заказы</h5></div>
+                </div>
+            </div>
+            <div class="card-inner p-0">
+                {% if items %}
+                <div class="nk-block">
+                    <div class="card">
+                        <div class="nk-tb-list nk-tb-ulist is-compact">
+                            <div class="nk-tb-item nk-tb-head">
+                                <div class="nk-tb-col"><span>#</span></div>
+                                <div class="nk-tb-col"><span>Сумма</span></div>
+                                <div class="nk-tb-col"><span>Скидка (%)</span></div>
+                                <div class="nk-tb-col"><span>Итоговая сумма</span></div>
+                                <div class="nk-tb-col"><span>Оплата</span></div>
+                                <div class="nk-tb-col"><span>Заклад</span></div>
+                                <div class="nk-tb-col"><span>Вид оплаты</span></div>
+                                <div class="nk-tb-col"><span>Дата</span></div>
+                                <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                            </div>
+                            {% for item in items %}
+                            <div class="nk-tb-item">
+                                <div class="nk-tb-col">
+                                    {{item.id}}
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span>{{item.sum or ''}}</span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span>{{item.discount or ''}}</span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span>{{item.total_sum or ''}}</span>
+                                </div>
+
+                                <div class="nk-tb-col">
+                                    {% if item.is_paid %}
+                                    <span class="badge badge-dim bg-success">Оплачен</span>
+                                    {% else %}
+                                    <span class="badge badge-dim bg-warning">Ожидание</span>
+                                    {% endif %}
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span>{{item.pledge or ''}}</span>
+                                </div>
+                                <div class="nk-tb-col">
+                                    {% if item.paid_type == 'KASPI' %}
+                                    <span class="badge badge-dot bg-danger">Каспи</span>
+                                    {% else %}
+                                    <span class="badge badge-dot bg-dark">Наличный</span>
+                                    {% endif %}
+                                </div>
+                                <div class="nk-tb-col">
+                                    <span>{{item.created_at and item.created_at.strftime('%Y-%m-%d %H:%M') or ''}}</span>
+                                </div>
+
+                                <div class="nk-tb-col nk-tb-col-tools">
+                                    <ul class="nk-tb-actions gx-1 my-n1">
+                                        <li class="me-n1">
+                                            <div class="dropdown"><a href="#"
+                                                                     class="dropdown-toggle btn btn-icon btn-trigger"
+                                                                     data-bs-toggle="dropdown"><em
+                                                    class="icon ni ni-more-h"></em></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <ul class="link-list-opt no-bdr">
+                                                        <li><a onclick="openItem({{item.id}})">
+                                                            <em class="icon ni ni-eye"></em>
+                                                            <span>Просмотр</span>
+                                                        </a></li>
+                                                        {% if not item.is_paid %}
+                                                        <li><a onclick="paidItem({{item.id}})">
+                                                            <em class="icon ni ni-money"></em>
+                                                            <span>Оплатить</span>
+                                                        </a></li>
+                                                        {% endif %}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% if pager %}
+                <div class="card-inner">
+                    <ul class="pagination justify-content-center justify-content-md-start">
+                        <li class="page-item">
+                            <a class="page-link"
+                               {% if pager.prev_page %}
+                               href="/api/sales/orders?page={{pager.prev_page}}"
+                               {% endif %}
+                            >{% if pager.prev_page %}Prev{% else %}&nbsp;{% endif %}</a>
+                        </li>
+                        <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               {% if pager.next_page %}
+                               href="/api/sales/orders?page={{pager.next_page}}"
+                               {% endif %}
+                            >{% if pager.next_page %}Prev{% else %}&nbsp;{% endif %}</a>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="card-inner">
+                    <figure class="text-center">
+                        <blockquote class="blockquote"><h3>
+                            Cписок услуг
+                        </h3></blockquote>
+                    </figure>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
+
+<script>
+    $('li[data-li="sales"]').addClass('active')
+    $('li[data-li="sales-orders"]').addClass('active')
+
+    async function paidItem(itemId) {
+        try {
+            let response = await fetch(`/api/sales/orders/`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'paid',
+                    order_id: itemId,
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function openItem(itemId) {
+        if (itemId) {
+            window.location.href = `/api/sales/orders/${itemId}/items`
+        }
+    }
+
+</script>
+{% endblock %}

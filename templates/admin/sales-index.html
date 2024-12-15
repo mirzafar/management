@@ -279,6 +279,9 @@
 {% block js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
 <script>
+    $('li[data-li="sales"]').addClass('active')
+    $('li[data-li="sales-index"]').addClass('active')
+
     let discount = 0
     let sum = parseFloat('{{sum or 0}}')
     let sumWithDiscount = parseFloat('{{sum or 0}}')

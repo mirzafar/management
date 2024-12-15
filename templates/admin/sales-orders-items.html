@@ -1,0 +1,60 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="nk-block">
+    <div class="invoice">
+        <div class="card invoice-wrap">
+
+            <div class="invoice-head">
+                <div class="invoice-desc"><h3 class="title">Заказ</h3>
+                    <ul class="list-plain">
+                        <li class="invoice-id"><span>Номер</span>:<span>{{order and order.id or ''}}</span></li>
+                        <li class="invoice-date"><span>Время</span>:<span>{{order and order.created_at and order.created_at.strftime('%Y-%m-%d %H:%M') or ''}}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="invoice-bills">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th class="w-60">Товар</th>
+                            <th>Цена</th>
+                            <th>Количество</th>
+                            <th>Сумма</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{item.good_title}}</td>
+                            <td>{{item.count}}</td>
+                            <td>{{item.price}}</td>
+                            <td>${{item.sum}}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2">Сумма</td>
+                            <td>₸ {{order and order.sum or 0.0}}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2">Скидка</td>
+                            <td>{{order and order.discount or 0}}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2">Итоговая сумма</td>
+                            <td>₸ {{order and order.total_sum or 0}}</td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
