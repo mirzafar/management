@@ -2,9 +2,11 @@ from core.db import db
 from core.handlers import BaseAPIView
 from core.pager import Pager
 from core.tools import set_counters
+from utils.bools import BoolUtils
 from utils.ints import IntUtils
 from utils.lists import ListUtils
 from utils.strs import StrUtils
+from utils.tools import order_date
 
 
 class StoreOrdersView(BaseAPIView):
@@ -16,6 +18,27 @@ class StoreOrdersView(BaseAPIView):
         pager = Pager()
         pager.set_page(request.args.get('page', 1))
         pager.set_limit(request.args.get('limit', 50))
+
+        start_date = StrUtils.to_str(request.args.get('start_date'))
+        stop_date = StrUtils.to_str(request.args.get('stop_date'))
+        paid_type = StrUtils.to_str(request.args.get('paid_type'))
+        is_paid = BoolUtils.to_bool(request.args.get('is_paid'))
+
+        if start_date and stop_date:
+            start_date, stop_date = order_date(
+                request.args.get('start_date'),
+                request.args.get('stop_date')
+            )
+            cond.extend(['o.created_at >= {}', 'o.created_at <= {}'])
+            cond_vars.extend([start_date, stop_date])
+
+        if paid_type:
+            cond.append('o.paid_type = {}')
+            cond_vars.append(paid_type)
+
+        if is_paid is not None:
+            cond.append('o.is_paid = {}')
+            cond_vars.append(is_paid)
 
         cond, _ = set_counters(' AND '.join(cond))
         items = ListUtils.to_list_of_dicts(await db.fetch(

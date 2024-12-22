@@ -1,5 +1,19 @@
 {% extends 'admin/base.html' %}
 {% block container %}
+<div class="nk-block-head nk-block-head-sm">
+    <div class="nk-block-between g-3">
+        <div class="nk-block-head-content">
+            <a href="/api/sales/orders/" class="btn btn-outline-light bg-white d-none d-sm-inline-flex">
+                <em class="icon ni ni-arrow-left"></em>
+                <span>Назад</span>
+            </a>
+            <a href="/api/sales/orders/"
+               class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none">
+                <em class="icon ni ni-arrow-left"></em>
+            </a>
+        </div>
+    </div>
+</div>
 <div class="nk-block">
     <div class="invoice">
         <div class="card invoice-wrap">
@@ -30,7 +44,7 @@
                             <td>{{item.good_title}}</td>
                             <td>{{item.count}}</td>
                             <td>{{item.price}}</td>
-                            <td>${{item.sum}}</td>
+                            <td>₸ {{item.sum}}</td>
                         </tr>
                         {% endfor %}
                         </tbody>

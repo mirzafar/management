@@ -67,6 +67,9 @@ class StoreOverheadsView(BaseAPIView):
         if date:
             date = datetime.strptime(date, '%Y-%m-%d')
 
+        if not title:
+            return self.error(message='Отсуствует обязательный параметры "Название"')
+
         item_id = await db.fetchval(
             '''
             INSERT INTO store.overheads (title, description, uid, date)
@@ -245,7 +248,7 @@ class StoreOverheadView(BaseAPIView):
                 '''
                 UPDATE store.overheads
                 SET is_close = TRUE 
-                WHERE id = $1
+                WHERE id = $1 AND is_active
                 RETURNING id
                 ''',
                 overhead_id
@@ -345,6 +348,17 @@ class StoreOverheadView(BaseAPIView):
         overhead_id = IntUtils.to_int(overhead_id)
         if not overhead_id:
             return self.error(message='Отсуствует обязательный параметры "ID"')
+
+        is_close = await db.fetchval(
+            '''
+            SELECT is_close
+            FROM store.overheads
+            WHERE id = $1
+            ''',
+            overhead_id
+        )
+        if is_close:
+            return self.error(message='Накладной уже зарегистирован в склад')
 
         item_id = await db.fetchval(
             '''

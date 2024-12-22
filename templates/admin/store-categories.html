@@ -1,12 +1,28 @@
 {% extends 'admin/base.html' %}
 {% block container %}
+
 <div class="components-preview wide-md mx-auto">
+    {% if parent %}
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between g-3">
+            <div class="nk-block-head-content">
+                <a href="/api/store/categories/" class="btn btn-outline-light bg-white d-none d-sm-inline-flex">
+                    <em class="icon ni ni-arrow-left"></em>
+                    <span>Назад</span>
+                </a>
+                <a href="/api/store/categories/"
+                   class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none">
+                    <em class="icon ni ni-arrow-left"></em>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     <div class="nk-block-head nk-block-head-sm">
         <div class="nk-block-between">
             <div class="nk-block-head-content">
                 <h3 class="nk-block-title page-title"></h3>
             </div>
-
         </div>
     </div>
     <div class="nk-block">
@@ -136,8 +152,8 @@
                 </div>
                 <input type="hidden" name="parent_id" value="{{request.args.get('parent_id', '')}}">
                 <div class="col-12">
-                    <a onclick="createItem()" class="btn btn-primary"><em
-                            class="icon ni ni-plus"></em><span>Добавить</span></a>
+                    <button id="createButton" onclick="createItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Добавить</span></button>
                 </div>
                 <br/>
                 <br/>
@@ -220,6 +236,7 @@
     }
 
     async function createItem() {
+        $('#createButton').prop('disabled', true)
         try {
             let response = await fetch('/api/store/categories/', {
                 method: 'POST',
@@ -230,10 +247,12 @@
             if (response._success === true) {
                 window.location.reload();
             } else {
+                $('#createButton').prop('disabled', false)
                 alert(response.message);
             }
 
         } catch (error) {
+            $('#createButton').prop('disabled', false)
             alertShow('waring', `${error.message}`);
         }
     }

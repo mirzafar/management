@@ -93,11 +93,12 @@
                                                             <span>Изменить</span>
                                                         </a>
                                                         </li>
-                                                        <li onclick="removeItem({{item.id}})">
-                                                            <a>
+                                                        <li>
+                                                            <button class="btn" id="removeItemButton"
+                                                                    onclick="removeItem({{item.id}})">
                                                                 <em class="icon ni ni-trash text-danger"></em>
                                                                 <span class="tb-status text-danger">Удалить</span>
-                                                            </a>
+                                                            </button>
                                                         </li>
                                                     </ul>
                                                 </div>
@@ -244,8 +245,8 @@
                 </div>
 
                 <div class="col-12">
-                    <a onclick="createItem()" class="btn btn-primary"><em
-                            class="icon ni ni-plus"></em><span>Добавить</span></a>
+                    <button id="createItemButton" onclick="createItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Добавить</span></button>
                 </div>
                 <br/>
                 <br/>
@@ -360,6 +361,7 @@
     $('li[data-li="store-visits"]').addClass('active')
 
     async function removeItem(itemId) {
+        $('#removeItemButton').prop('disabled', true)
         try {
             let response = await fetch('/api/store/visits/' + itemId, {
                 method: 'DELETE'
@@ -370,10 +372,12 @@
                 window.location.href = '/api/store/visits/';
             } else {
                 alert(response.message);
+                $('#removeItemButton').prop('disabled', false)
             }
 
         } catch (error) {
             alertShow('waring', `${error.message}`);
+            $('#removeItemButton').prop('disabled', false)
         }
     }
 
@@ -397,6 +401,7 @@
     });
 
     async function createItem() {
+        $('#createItemButton').prop('disabled', true)
         try {
             let response = await fetch('/api/store/visits/', {
                 method: 'POST',
@@ -413,10 +418,12 @@
                 window.location.href = '/api/store/visits/';
             } else {
                 alert(response.message);
+                $('#createItemButton').prop('disabled', false)
             }
 
         } catch (error) {
             alertShow('waring', `${error.message}`);
+            $('#createItemButton').prop('disabled', false)
         }
     }
 

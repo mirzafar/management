@@ -1,6 +1,20 @@
 {% extends 'admin/base.html' %}
 {% block container %}
 <div class="nk-content-body">
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between g-3">
+            <div class="nk-block-head-content">
+                <a href="/api/store/overheads/" class="btn btn-outline-light bg-white d-none d-sm-inline-flex">
+                    <em class="icon ni ni-arrow-left"></em>
+                    <span>Назад</span>
+                </a>
+                <a href="/api/store/overheads/"
+                   class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none">
+                    <em class="icon ni ni-arrow-left"></em>
+                </a>
+            </div>
+        </div>
+    </div>
     <div class="nk-block nk-block-lg">
         <div class="card">
             <div class="card-aside-wrap">
@@ -159,8 +173,8 @@
                                                                     class="icon ni ni-more-h"></em></a>
                                                                 <div class="dropdown-menu dropdown-menu-end">
                                                                     <ul class="link-list-opt no-bdr">
-                                                                        <li onclick="removeOverheadItem({{item.id}})">
-                                                                            <a>
+                                                                        <li>
+                                                                            <a onclick="removeOverheadItem({{item.id}})">
                                                                                 <em class="icon ni ni-trash text-danger"></em>
                                                                                 <span class="tb-status text-danger">Удалить</span>
                                                                             </a>
@@ -281,8 +295,8 @@
             </div>
 
             <div class="col-12">
-                <a onclick="createOverheadItem()" class="btn btn-primary"><em
-                        class="icon ni ni-plus"></em><span>Добавить</span></a>
+                <button id="createOverheadButton" onclick="createOverheadItem()" class="btn btn-primary"><em
+                        class="icon ni ni-plus"></em><span>Добавить</span></button>
             </div>
             <br/>
             <br/>
@@ -491,6 +505,7 @@
     })
 
     async function createOverheadItem() {
+        $('#createOverheadButton').prop('disabled', true)
         try {
             let response = await fetch('/api/store/overheads/' + itemId, {
                 method: 'POST',
@@ -505,15 +520,16 @@
                 window.location.reload();
             } else {
                 alert(response.message);
+                $('#createOverheadButton').prop('disabled', false)
             }
 
         } catch (error) {
             alertShow('waring', `${error.message}`);
+            $('#createOverheadButton').prop('disabled', false)
         }
     }
 
     async function removeOverheadItem(overheadItemId) {
-        alert(overheadItemId)
         try {
             let response = await fetch('/api/store/overheads/' + itemId, {
                 method: 'POST',

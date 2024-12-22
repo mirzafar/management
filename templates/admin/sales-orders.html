@@ -1,6 +1,76 @@
 {% extends 'admin/base.html' %}
 {% block container %}
 <div class="components-preview wide-md mx-auto">
+    <div class="col-lg-12">
+        <div class="nk-block-head">
+            <div class="nk-block-head-content"><h5 class="nk-block-title title">Фильтр</h5></div>
+        </div>
+        <div class="card card-bordered">
+            <div class="card-inner">
+                <div class="row gy-4" id="filter-data">
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input value="{{request.args.get('start_date') or ''}}" type="text"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="start_date" placeholder="С"></div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input type="text" value="{{request.args.get('stop_date') or ''}}"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="stop_date" placeholder="ПО"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <label class="form-label">Статус оплаты</label>
+                            <select class="form-select" name="is_paid">
+                                <option value="">Выберите</option>
+                                <option {% if request.args.get(
+                                'is_paid') == 'false' %} selected {% endif %} value="false">В ожидании</option>
+                                <option {% if request.args.get(
+                                'is_paid') == 'true' %} selected {% endif %} value="true">Оплачен</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <label class="form-label">Вид оплаты</label>
+                            <select class="form-select" name="paid_type">
+                                <option value="">Виберите</option>
+                                <option {% if request.args.get(
+                                'paid_type') == 'CASH' %} selected {% endif %} value="CASH">Наличный</option>
+                                <option {% if request.args.get(
+                                'paid_type') == 'KASPI' %} selected {% endif %} value="KASPI">Каспи</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group">
+                            <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                                <li>
+                                    <button onclick="searchFilter()" type="submit" class="btn btn-primary">Поиск
+                                    </button>
+                                </li>
+                                <li>
+                                    <button onclick="clearFilters()" data-bs-dismiss="modal" class="btn btn-danger">
+                                        Очистить
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="nk-block-head nk-block-head-sm">
         <div class="nk-block-between">
             <div class="nk-block-head-content">
@@ -60,7 +130,7 @@
                                 <div class="nk-tb-col">
                                     {% if item.paid_type == 'KASPI' %}
                                     <span class="badge badge-dot bg-danger">Каспи</span>
-                                    {% else %}
+                                    {% elif item.paid_type == 'CASH' %}
                                     <span class="badge badge-dot bg-dark">Наличный</span>
                                     {% endif %}
                                 </div>
@@ -166,6 +236,23 @@
         if (itemId) {
             window.location.href = `/api/sales/orders/${itemId}/items`
         }
+    }
+
+    function clearFilters() {
+        window.location.href = '/api/sales/orders/'
+    }
+
+    function paramsToQueryString(params) {
+        return Object.keys(params)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+            .join("&");
+    }
+
+    function searchFilter() {
+        let params = getValues('#filter-data')
+        let updatedQueryString = paramsToQueryString(params);
+        window.location.href = `/api/sales/orders?${updatedQueryString}`
+
     }
 
 </script>

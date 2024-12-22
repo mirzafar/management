@@ -36,7 +36,7 @@ class StoreIndexView(BaseAPIView):
                 return self.error(message='Выберите товар')
 
             count = FloatUtils.to_float(request.json.get('count'))
-            if not count:
+            if not count or count <= 0:
                 return self.error(message='Выберите количество')
 
             good = await db.fetchrow(
@@ -90,7 +90,7 @@ class StoreIndexView(BaseAPIView):
 
             cashier = await mongo.cashiers.find_one_and_delete({'_id': _id})
             if not cashier:
-                return self.error()
+                return self.error(message='Операция не выполнена')
 
             await db.execute(
                 '''
@@ -126,6 +126,10 @@ class StoreIndexView(BaseAPIView):
             if is_paid and pledge:
                 return self.error(message='Одновременно оплачен и заклад не возможно')
 
+            cashiers = await mongo.cashiers.find({'cashier_id': cashier_id}).to_list(length=None)
+            if not cashiers:
+                return self.error(message='Что то произошло не так')
+
             order_id = await db.fetchval(
                 '''
                 INSERT INTO sales.orders (sum, discount, cashier_id, is_paid, pledge, paid_type, total_sum)
@@ -141,7 +145,6 @@ class StoreIndexView(BaseAPIView):
                 summ
             )
 
-            cashiers = await mongo.cashiers.find({'cashier_id': cashier_id}).to_list(length=None)
             order_items = []
             for cashier in cashiers:
                 order_items.append((
@@ -151,16 +154,6 @@ class StoreIndexView(BaseAPIView):
                     cashier['sum'],
                     cashier['price']
                 ))
-
-                await db.execute(
-                    '''
-                    UPDATE public.goods
-                    SET balance = balance - $2
-                    WHERE id = $1
-                    ''',
-                    cashier['good_id'],
-                    cashier['count'],
-                )
 
             await db.executemany(
                 '''

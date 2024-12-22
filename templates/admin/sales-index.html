@@ -183,8 +183,8 @@
             </div>
 
             <div class="col-12">
-                <a onclick="createItem()" class="btn btn-primary"><em
-                        class="icon ni ni-plus"></em><span>Добавить</span></a>
+                <button id="createButton" onclick="createItem()" class="btn btn-primary"><em
+                        class="icon ni ni-plus"></em><span>Добавить</span></button>
             </div>
             <br/>
             <br/>
@@ -262,8 +262,8 @@
 
                             <div class="col-12">
                                 <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
-                                    <li><a href="#" data-bs-dismiss="modal" onclick="closeCashier()"
-                                           class="btn btn-lg btn-primary">Оплатить</a></li>
+                                    <li><button id="closeButton" href="#" data-bs-dismiss="modal" onclick="closeCashier()"
+                                           class="btn btn-lg btn-primary">Оплатить</button></li>
                                     <li><a href="#" data-bs-dismiss="modal" class="link link-light">Отмена</a></li>
                                 </ul>
                             </div>
@@ -303,6 +303,7 @@
     });
 
     async function createItem() {
+        $('#createButton').prop('disabled', true)
         try {
             let response = await fetch('/api/sales/index/', {
                 method: 'POST',
@@ -319,23 +320,17 @@
                 window.location.reload();
             } else {
                 alert(response.message);
+                $('#createButton').prop('disabled', false)
             }
 
         } catch (error) {
+            $('#createButton').prop('disabled', false)
             alertShow('waring', `${error.message}`);
         }
     }
 
     async function closeCashier() {
-        console.log({
-            action: 'close',
-            cashier_id: `{{request.args.get('cashier_id')}}`,
-            prev_sum: sum,
-            sum: sumWithDiscount,
-            is_paid: is_paid,
-            pledge: $('#cf-pledge').val(),
-            discount: $('#op-discount').val()
-        })
+        $('#closeButton').prop('disabled', true)
         try {
             let response = await fetch('/api/sales/index/', {
                 method: 'POST',
@@ -356,10 +351,12 @@
                 alertShow('success');
                 window.location.reload();
             } else {
+                $('#closeButton').prop('disabled', false)
                 alert(response.message);
             }
 
         } catch (error) {
+            $('#closeButton').prop('disabled', false)
             alertShow('waring', `${error.message}`);
         }
     }

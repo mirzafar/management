@@ -191,8 +191,8 @@
                 </div>
 
                 <div class="col-12">
-                    <a onclick="createItem()" class="btn btn-primary"><em
-                            class="icon ni ni-plus"></em><span>Добавить</span></a>
+                    <button id="createItemButton" onclick="createItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Добавить</span></button>
                 </div>
                 <br/>
                 <br/>
@@ -231,6 +231,7 @@
 
 
     async function createItem() {
+        $('#createItemButton').prop('disabled', true)
         try {
             let response = await fetch('/api/store/expenses/', {
                 method: 'POST',
@@ -244,10 +245,12 @@
                 window.location.href = '/api/store/expenses/';
             } else {
                 alert(response.message);
+                $('#createItemButton').prop('disabled', false)
             }
 
         } catch (error) {
             alertShow('waring', `${error.message}`);
+            $('#createItemButton').prop('disabled', false)
         }
     }
 
