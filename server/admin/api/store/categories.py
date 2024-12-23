@@ -15,10 +15,7 @@ class StoreCategoriesView(BaseAPIView):
         cond, cond_vars = ['is_active'], []
 
         parent = {}
-        if parent_id == -1:
-            cond.append('parent_id IS NULL')
-
-        elif parent_id:
+        if parent_id:
             cond.append('parent_id = {}')
             cond_vars.append(parent_id)
 
@@ -30,6 +27,9 @@ class StoreCategoriesView(BaseAPIView):
                 ''',
                 parent_id
             ) or {}
+
+        else:
+            cond.append('parent_id IS NULL')
 
         if query:
             cond.append('title ILIKE {}')

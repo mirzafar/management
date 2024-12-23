@@ -423,7 +423,7 @@
             transport: async function (params, success, failure) {
                 try {
                     const query = params.data.q || '';
-                    const response = await fetch(`/api/store/categories?response_type=json&query=${encodeURIComponent(query)}&parent_id=-1`);
+                    const response = await fetch(`/api/store/categories?response_type=json&query=${encodeURIComponent(query)}`);
 
 
                     if (!response.ok) {

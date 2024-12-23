@@ -395,7 +395,7 @@
             transport: async function (params, success, failure) {
                 try {
                     const query = params.data.q || '';
-                    const response = await fetch(`/api/sales/categories?response_type=json&query=${encodeURIComponent(query)}&parent_id=-1`);
+                    const response = await fetch(`/api/sales/categories?response_type=json&query=${encodeURIComponent(query)}`);
 
                     const data = await response.json();
                     console.log(data)

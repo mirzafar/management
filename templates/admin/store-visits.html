@@ -544,7 +544,7 @@
             transport: async function (params, success, failure) {
                 try {
                     const query = params.data.q || '';
-                    const response = await fetch(`/api/store/reasons?response_type=json&parent_id=-1&query=${encodeURIComponent(query)}`);
+                    const response = await fetch(`/api/store/reasons?response_type=json&query=${encodeURIComponent(query)}`);
 
                     if (!response.ok) {
                         throw new Error('Network response was not ok');

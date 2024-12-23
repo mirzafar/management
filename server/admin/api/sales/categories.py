@@ -13,12 +13,11 @@ class SalesCategoriesView(BaseAPIView):
         query = StrUtils.to_str(request.args.get('query'))
         cond, cond_vars = ['is_active'], []
 
-        if parent_id == -1:
-            cond.append('parent_id IS NULL')
-
-        elif parent_id:
+        if parent_id:
             cond.append('parent_id = {}')
             cond_vars.append(parent_id)
+        else:
+            cond.append('parent_id IS NULL')
 
         if query:
             cond.append('title ILIKE {}')
