@@ -1,11 +1,11 @@
 from sanic import Blueprint
 
-from .item import UsersItemView
-from .list import UsersListView
+from .item import EmployeeView
+from .list import EmployeesView
 
-__all__ = ['users_bp']
+__all__ = ['employees_bp']
 
-users_bp = Blueprint('users', url_prefix='/users')
+employees_bp = Blueprint('employees', url_prefix='/employees')
 
-users_bp.add_route(UsersListView.as_view(), '/')
-users_bp.add_route(UsersItemView.as_view(), '/<user_id>/')
+employees_bp.add_route(EmployeesView.as_view(), '/')
+employees_bp.add_route(EmployeeView.as_view(), '/<employee_id>/')
