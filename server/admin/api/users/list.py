@@ -20,7 +20,7 @@ class EmployeesView(BaseAPIView):
 
         query = StrUtils.to_str(request.args.get('query'))
 
-        cond, cond_vars = [], []
+        cond, cond_vars = ['u.is_active'], []
 
         if query:
             cond.append('(u.first_name ILIKE {same} OR u.last_name ILIKE {})')
