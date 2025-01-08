@@ -3,7 +3,7 @@ import os
 from sanic import Sanic
 from sanic.exceptions import NotFound
 
-from admin import admin_bp
+from admin import auth_bp
 from admin.api import api_group
 from api.core.upload import UploadView
 from core.auth import auth
@@ -15,7 +15,7 @@ from settings import settings
 
 app = Sanic(name='demo')
 
-app.config.AUTH_LOGIN_URL = '/admin/login/'
+app.config.AUTH_LOGIN_URL = '/auth/login/'
 app.config.AUTH_LOGOUT_URL = '/api/'
 app.config.ACCESS_LOG = False
 app.config.DB_HOST = settings.get('db', {}).get('host', '127.0.0.1')
@@ -45,7 +45,7 @@ async def initialize_modules(_app, _loop):
 
 app.blueprint([
     api_group,
-    admin_bp
+    auth_bp
 ])
 
 app.add_route(UploadView.as_view(), '/upload/')
