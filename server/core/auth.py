@@ -20,6 +20,7 @@ class Auth:
     app = None
     login_endpoint = None
     login_url = None
+    logout_url = None
 
     def initialize(self, app):
         if self.app is not None:
@@ -27,6 +28,7 @@ class Auth:
         self.app = app
         self.login_endpoint = app.config.get('AUTH_LOGIN_ENDPOINT', None)
         self.login_url = app.config.get('AUTH_LOGIN_URL', None)
+        self.logout_url = app.config.get('AUTH_LOGOUT_URL', None)
 
     @classmethod
     def generate_token(cls, user_id) -> Optional[str]:
@@ -46,9 +48,14 @@ class Auth:
             'device': request.headers.get('user-agent', None)
         }}, upsert=True)
 
-    @classmethod
-    async def logout(cls, request):
+    async def logout(self, request):
         request.ctx.session['_delete'] = True
+        if settings.get('response_type') == 'json':
+            return response.json({
+                '_success': True
+            })
+
+        return response.redirect(self.logout_url)
 
     @classmethod
     async def current_user(cls, request):
@@ -72,14 +79,13 @@ class Auth:
 
         await cache.setex(f'session:{token}', 60 * 60 * 1, ujson.dumps(request.ctx.session))
 
-        return await db.fetchrow(
+        return dict(await db.fetchrow(
             '''
             SELECT 
                 u.id, 
                 u.last_name,
                 u.first_name,
                 u.middle_name,
-                u.status,
                 u.password,
                 u.username,
                 u.photo,
@@ -89,7 +95,7 @@ class Auth:
             WHERE u.id = $1
             ''',
             user['user_id']
-        )
+        ) or {})
 
     def login_required(
         self,
@@ -121,7 +127,7 @@ class Auth:
                             'override user keyword %r in route' % user_keyword
                         )
 
-                    kwargs[user_keyword] = dict(user)
+                    kwargs[user_keyword] = user
 
                 resp = route(request, *args, **kwargs)
             else:

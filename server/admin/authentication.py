@@ -38,7 +38,7 @@ class LoginAdminView(TemplateHTTPView):
 
         user = await db.fetchrow(
             '''
-            SELECT *
+            SELECT id, username, is_blocked, is_active
             FROM public.users u
             WHERE u.username = $1 AND u.password = $2
             ''',
@@ -54,13 +54,13 @@ class LoginAdminView(TemplateHTTPView):
                 'message': 'Пользователь не найден(-o, -а) в системе'
             })
 
-        if user['status'] == -1:
+        if user['is_blocked']:
             return response.json({
                 '_success': False,
                 'message': 'Пользователь заблокирован(-о, -а) в системе'
             })
 
-        elif user['status'] == -2:
+        if not user['is_active']:
             return response.json({
                 '_success': False,
                 'message': 'Пользователь удален(-о, -а) из системы'
@@ -79,5 +79,4 @@ class LoginAdminView(TemplateHTTPView):
 
 class LogoutAdminView(BaseAPIView):
     async def get(self, request, user):
-        await auth.logout(request)
-        return response.redirect('/api/')
+        return await auth.logout(request)
