@@ -24,8 +24,11 @@ class ExceptionsView:
 
     @classmethod
     def not_found(cls, request, exception):
-        return response.HTTPResponse(env.get_template('errors/404.html').render(
-            request=request,
-            app=request.app,
-            url_for=request.app.url_for
-        ), content_type='text/html')
+        if  settings.get('response_type') in ['json']:
+            return response.json({'_success': False, 'message': 'Page not found'},status=404)
+        else:
+            return response.HTTPResponse(env.get_template('errors/404.html').render(
+                request=request,
+                app=request.app,
+                url_for=request.app.url_for
+            ), content_type='text/html')
