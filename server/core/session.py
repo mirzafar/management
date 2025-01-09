@@ -19,7 +19,7 @@ class Session:
 
     @classmethod
     def is_protected_path(cls, path) -> bool:
-        if path.startswith('/api') or path.startswith('/admin'):
+        if path.startswith('/api') or path.startswith('/admin') or path.startswith('/auth'):
             return True
         return False
 
@@ -42,20 +42,15 @@ class Session:
         if not session_id:
             if hasattr(request.ctx, 'session_id'):
                 session_id = request.ctx.session_id
-                response.cookies['sid'] = session_id
-                response.cookies['sid']['max-age'] = 60 * 60 * 24 * 365 * 10
 
-        if not session_id:
-            session_id = uuid.uuid4().hex
-            response.cookies['sid'] = session_id
-            response.cookies['sid']['max-age'] = 60 * 60 * 24 * 365 * 10
-
-        if hasattr(request.ctx, 'session'):
+        if hasattr(request.ctx, 'session') and session_id:
             if request.ctx.session.get('_delete'):
                 del response.cookies['sid']
                 await cache.delete(f'session:{session_id}')
                 await mongo.users.delete_one({'token': session_id})
             else:
+                response.cookies['sid'] = session_id
+                response.cookies['sid']['max-age'] = 60 * 60 * 24 * 365 * 10  # 1 hour lifetime
                 await cache.setex(f'session:{session_id}', 60 * 60 * 1, ujson.dumps(request.ctx.session))
 
     @classmethod
