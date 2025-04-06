@@ -1,0 +1,265 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+
+<div class="components-preview wide-md mx-auto">
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title"></h3>
+            </div>
+        </div>
+    </div>
+    <div class="nk-block">
+        <div class="card card-stretch">
+            <div class="card-inner">
+                <div class="card-title-group">
+                    <div class="card-title">
+                        <h5 class="title">
+                            Компании
+                        </h5>
+                    </div>
+                    <div class="nk-block-head-content">
+                        <div class="toggle-wrap nk-block-tools-toggle">
+                            <a href="#"
+                               class="btn btn-icon btn-trigger toggle-expand me-n1"
+                               data-target="pageMenu">
+                                <em class="icon ni ni-more-v"></em>
+                            </a>
+                            <div class="toggle-expand-content" data-content="pageMenu">
+                                <ul class="nk-block-tools g-3">
+                                    <li class="nk-block-tools-opt">
+                                        <a href="#" data-target="addProduct"
+                                           class="toggle btn btn-icon btn-primary d-md-none">
+                                            <em class="icon ni ni-plus"></em>
+                                        </a>
+                                        <a href="#"
+                                           data-target="addProduct"
+                                           class="toggle btn btn-primary d-none d-md-inline-flex">
+                                            <em class="icon ni ni-plus"></em>
+                                            <span>Добавить</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="nk-block">
+                <div class="card">
+                    <div class="nk-tb-list nk-tb-ulist is-compact">
+                        <div class="nk-tb-item nk-tb-head">
+                            <div class="nk-tb-col"><span>Название</span></div>
+                            <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                        </div>
+                        {% for item in companies %}
+                        <div class="nk-tb-item">
+                            <div class="nk-tb-col">
+                                {{item.title}}
+                            </div>
+                            <div class="nk-tb-col nk-tb-col-tools">
+                                <ul class="nk-tb-actions gx-1 my-n1">
+                                    <li class="me-n1">
+                                        <div class="dropdown"><a href="#"
+                                                                 class="dropdown-toggle btn btn-icon btn-trigger"
+                                                                 data-bs-toggle="dropdown"><em
+                                                class="icon ni ni-more-h"></em></a>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <ul class="link-list-opt no-bdr">
+                                                    <li><a data-target="updateProduct" class="toggle"
+                                                           onclick="openItem('{{item._id}}')">
+                                                        <em class="icon ni ni-eye text-info"></em>
+                                                        <span class="tb-status text-info">Просмотр</span>
+                                                    </a>
+                                                    </li>
+                                                    <li><a onclick="removeItem('{{item._id}}')"><em
+                                                            class="icon ni ni-trash text-danger"></em>
+                                                        <span class="tb-status text-danger">Удалить</span></a></li>
+
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
+         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+        <div class="nk-block">
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-title">Название
+                        </label>
+                        <input class="form-control" type="text" name="title" id="cf-title">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-phone">Телефон номер
+                        </label>
+                        <input class="form-control" type="text" name="phone" id="cf-phone"
+                               placeholder="7 XXX XXX XX XX">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-address">Адрес
+                        </label>
+                        <input class="form-control" type="text" name="address" id="cf-address">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <button id="createButton" onclick="createItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Добавить</span></button>
+                </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+        </div>
+    </div>
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="updateProduct"
+         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar
+         id="update-data-item">
+        <div class="nk-block">
+            <div class="row g-3">
+                <input type="hidden" id="up-id" name="_id">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-title">Название
+                        </label>
+                        <input class="form-control" type="text" name="title" id="up-title">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-phone">Телефон номер
+                        </label>
+                        <input class="form-control" type="text" name="phone" id="up-phone">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-address">Адрес
+                        </label>
+                        <input class="form-control" type="text" name="address" id="up-address">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <a onclick="updateItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Изменить</span></a>
+                </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    $('li[data-li="store"]').addClass('active')
+    $('li[data-li="store-categories"]').addClass('active')
+
+    async function removeItem(itemId) {
+        try {
+            let response = await fetch('/api/companies/' + itemId, {
+                method: 'DELETE'
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    };
+
+    async function createItem() {
+        $('#createButton').prop('disabled', true)
+        try {
+            let response = await fetch('/api/companies/', {
+                method: 'POST',
+                body: JSON.stringify(getValues('#new-data-item'))
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
+            } else {
+                $('#createButton').prop('disabled', false)
+                alert(response.message);
+            }
+
+        } catch (error) {
+            $('#createButton').prop('disabled', false)
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function updateItem() {
+        try {
+            let data = getValues('#update-data-item')
+            let response = await fetch(`/api/companies/${data._id}`, {
+                method: 'PUT',
+                body: JSON.stringify(data)
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function openItem(itemId) {
+        try {
+            let response = await fetch(`/api/companies/${itemId}?response_type=json`, {
+                method: 'GET'
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                $('#up-title').val(response.company.title)
+                $('#up-address').val(response.company.address)
+                $('#up-phone').val(response.company.phone)
+                $('#up-id').val(itemId)
+
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+</script>
+{% endblock %}
