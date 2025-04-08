@@ -1,0 +1,687 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="components-preview">
+    <div class="col-lg-12">
+        <div class="nk-block-head">
+            <div class="nk-block-head-content"><h5 class="nk-block-title title">Фильтр</h5></div>
+        </div>
+        <div class="card card-bordered">
+            <div class="card-inner">
+                <div class="row gy-4" id="filter-data">
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label">Дата принятия (C)</label>
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input value="{{request.args.get('start_arrived_at') or ''}}" type="text"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="start_arrived_at" placeholder="С"></div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label">Дата принятия (По)</label>
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input type="text" value="{{request.args.get('stop_arrived_at') or ''}}"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="stop_arrived_at" placeholder="ПО"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <label class="form-label">Номер вагон</label>
+                            <input type="text" class="form-control" name="track_id"
+                                   value="{{request.args.get('track_id') or ''}}">
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label">Дата выставление (C)</label>
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input value="{{request.args.get('start_billed_at') or ''}}" type="text"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="start_billed_at" placeholder="С"></div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label">Дата выставление (По)</label>
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input type="text" value="{{request.args.get('stop_billed_at') or ''}}"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="stop_billed_at" placeholder="ПО"></div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                                <li>
+                                    <button onclick="searchFilter()" type="submit" class="btn btn-primary">Поиск
+                                    </button>
+                                </li>
+                                <li>
+                                    <button onclick="clearFilters()" data-bs-dismiss="modal" class="btn btn-danger">
+                                        Очистить
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title"></h3>
+            </div>
+
+        </div>
+    </div>
+    <div class="nk-block">
+        <div class="card card-stretch">
+            <div class="card-inner">
+                <div class="card-title-group">
+                    <div class="card-title"><h5 class="title"></h5></div>
+                    <div class="nk-block-head-content">
+                        <div class="toggle-wrap nk-block-tools-toggle">
+                            <a href="#"
+                               class="btn btn-icon btn-trigger toggle-expand me-n1"
+                               data-target="pageMenu">
+                                <em class="icon ni ni-more-v"></em>
+                            </a>
+                            <div class="toggle-expand-content" data-content="pageMenu">
+                                <ul class="nk-block-tools g-3">
+                                    <li class="nk-block-tools-opt">
+                                        <a href="#" data-target="addProduct"
+                                           class="toggle btn btn-icon btn-primary d-md-none">
+                                            <em class="icon ni ni-plus"></em>
+                                        </a>
+                                        <a href="#"
+                                           data-target="addProduct"
+                                           class="toggle btn btn-primary d-none d-md-inline-flex">
+                                            <em class="icon ni ni-plus"></em>
+                                            <span>Добавить</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-inner p-0">
+                {% if receipts %}
+                <div class="nk-block">
+                    <div class="card">
+                        <div class="nk-tb-list nk-tb-ulist is-compact">
+                            <div class="nk-tb-item nk-tb-head">
+                                <div class="nk-tb-col"><span>Дата принятия</span></div>
+                                <div class="nk-tb-col"><span>№ Вагонов</span></div>
+                                <div class="nk-tb-col"><span class="sub-text">Состаяние</span><span>Вид</span></div>
+                                <div class="nk-tb-col"><span>Компания</span></div>
+                                <div class="nk-tb-col"><span>Дата выставление</span></div>
+                                <div class="nk-tb-col tb-col-sm"><span>Вагона в сутки</span></div>
+                                <div class="nk-tb-col tb-col-sm"><span>Изначальный весь</span></div>
+                                <div class="nk-tb-col tb-col-sm"><span>Конечный весь</span></div>
+                                <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                            </div>
+                            {% for item in receipts %}
+                            <div class="nk-tb-item">
+                                <div class="nk-tb-col">
+                                    {{item.arrived_at or ''}}
+                                </div>
+
+                                <div class="nk-tb-col">
+                                    <span>{{item.track_id}}</span>
+                                </div>
+
+
+                                <div class="nk-tb-col">
+                                    <div class="user-card">
+                                        <div class="user-info">
+                                            <span class="tb-lead">{{item.state_id and states and item.state_id in states and states[item.state_id].title or ''}}</span>
+                                            <span>{{item.type_id and types and item.type_id in types and types[item.type_id].title or ''}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="nk-tb-col">
+                                    <span>{{item.company_id and companies and item.company_id in companies and companies[item.company_id].title or ''}}</span>
+                                </div>
+
+                                <div class="nk-tb-col">
+                                    {{item.billed_at or ''}}
+                                </div>
+
+                                <div class="nk-tb-col tb-col-sm">
+                                    {{item.stayed_day or ''}}
+                                </div>
+
+                                <div class="nk-tb-col tb-col-sm">
+                                    {{item.before_weight or ''}}
+
+                                </div>
+                                <div class="nk-tb-col tb-col-sm">
+                                    {{item.after_weight or ''}}
+                                </div>
+
+                                <div class="nk-tb-col nk-tb-col-tools">
+                                    <ul class="nk-tb-actions gx-1 my-n1">
+                                        <li class="me-n1">
+                                            <div class="dropdown"><a href="#"
+                                                                     class="dropdown-toggle btn btn-icon btn-trigger"
+                                                                     data-bs-toggle="dropdown"><em
+                                                    class="icon ni ni-more-h"></em></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <ul class="link-list-opt no-bdr">
+                                                        <li><a data-target="updateProduct" class="toggle"
+                                                               onclick="openItem('{{item._id}}')">
+                                                            <em class="icon ni ni-edit-fill"></em>
+                                                            <span>Изменить</span>
+                                                        </a>
+                                                        </li>
+                                                        <li>
+                                                            <button class="btn" id="removeItemButton"
+                                                                    onclick="removeItem('{{item._id}}')">
+                                                                <em class="icon ni ni-trash text-danger"></em>
+                                                                <span class="tb-status text-danger">Удалить</span>
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% if pager %}
+                <div class="card-inner">
+                    <ul class="pagination justify-content-center justify-content-md-start">
+                        <li class="page-item">
+                            <a class="page-link"
+                               {% if pager.prev_page %}
+                               href="/api/receipts?page={{pager.prev_page}}"
+                               {% endif %}
+                            >{% if pager.prev_page %}Prev{% else %}&nbsp;{% endif %}</a>
+                        </li>
+                        <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               {% if pager.next_page %}
+                               href="/api/receipts?page={{pager.next_page}}"
+                               {% endif %}
+                            >{% if pager.next_page %}Prev{% else %}&nbsp;{% endif %}</a>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="card-inner">
+                    <figure class="text-center">
+                        <blockquote class="blockquote"><h3>
+                            Cписок расписка
+                        </h3></blockquote>
+                    </figure>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
+         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+        <div class="nk-block">
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-arrived-at">Дата принятия
+                        </label>
+                        <input type="text" class="form-control date-picker-alt"
+                               data-date-format="yyyy-mm-dd"
+                               name="arrived_at"
+                               id="cf-arrived-at">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-track-id">№ Вагонов
+                        </label>
+                        <input type="text" class="form-control"
+                               name="track_id"
+                               id="cf-track-id">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-state">Состаяние вагона
+                        </label>
+                        <select id="cf-state" name="state_id"></select>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-type">Вид вагона
+                        </label>
+                        <select id="cf-type" name="type_id"></select>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-company">Выберите компанию
+                        </label>
+                        <select id="cf-company" name="company_id"></select>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-billed-at">Дата выставление
+                        </label>
+                        <input type="text" class="form-control date-picker-alt"
+                               data-date-format="yyyy-mm-dd"
+                               name="billed_at"
+                               id="cf-billed-at">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-before-weight">Изначальный весь
+                        </label>
+                        <input type="number" min="0.0" class="form-control" name="before_weight" id="cf-before-weight">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-after-weight">Конечный весь
+                        </label>
+                        <input type="number" min="0.0" class="form-control" name="after_weight" id="cf-after-weight">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-description">Описание
+                        </label>
+                        <textarea class="form-control" name="description" id="cf-description"></textarea>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <button id="createItemButton" onclick="createItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Добавить</span></button>
+                </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+        </div>
+    </div>
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="updateProduct"
+         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar
+         id="update-data-item">
+        <div class="nk-block">
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-arrived-at">Дата принятия
+                        </label>
+                        <input type="text" class="form-control date-picker-alt"
+                               data-date-format="yyyy-mm-dd"
+                               name="arrived_at"
+                               id="up-arrived-at">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-state">Состаяние вагона
+                        </label>
+                        <select class="form-control" name="state_id" id="up-state">
+                            <option value=""></option>
+                            {% for state in states.values() %}
+                            <option value="{{state._id}}">{{state.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-type">Вид вагона
+                        </label>
+                        <select class="form-control" name="type_id" id="up-type">
+                            <option value=""></option>
+                            {% for type in types.values() %}
+                            <option value="{{type._id}}">{{type.title}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-billed-at">Дата выставление
+                        </label>
+                        <input type="text" class="form-control date-picker-alt"
+                               data-date-format="yyyy-mm-dd"
+                               name="billed_at"
+                               id="up-billed-at">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-before-weight">Изначальный весь
+                        </label>
+                        <input type="number" min="0.0" class="form-control" name="before_weight" id="up-before-weight">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-after-weight">Конечный весь
+                        </label>
+                        <input type="number" min="0.0" class="form-control" name="after_weight" id="up-after-weight">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-description">Описание
+                        </label>
+                        <textarea class="form-control" name="description" id="up-description"></textarea>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <a onclick="updateItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Изменить</span></a>
+                </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
+
+<script>
+    $('li[data-li="control"]').addClass('active')
+    $('li[data-li="control-receipts"]').addClass('active')
+
+    async function removeItem(itemId) {
+        $('#removeItemButton').prop('disabled', true)
+        try {
+            let response = await fetch('/api/receipts/' + itemId, {
+                method: 'DELETE'
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.href = '/api/receipts/';
+            } else {
+                alert(response.message);
+                $('#removeItemButton').prop('disabled', false)
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+            $('#removeItemButton').prop('disabled', false)
+        }
+    }
+
+
+    async function createItem() {
+        $('#createItemButton').prop('disabled', true)
+        try {
+            let response = await fetch('/api/receipts/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    ...getValues('#new-data-item')
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.href = '/api/receipts/';
+            } else {
+                alert(response.message);
+                $('#createItemButton').prop('disabled', false)
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+            $('#createItemButton').prop('disabled', false)
+        }
+    }
+
+    async function updateItem() {
+        try {
+            let data = getValues('#update-data-item')
+            console.log(data)
+            let response = await fetch(`/api/receipts/${updatedId}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    ...data
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+
+    function dateToString(timestamp) {
+        if (!timestamp) {
+            return ''
+        }
+        const date = new Date(timestamp * 1000);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`
+    }
+
+    let updatedId = null
+
+    async function openItem(itemId) {
+        updatedId = null
+        $('#up-arrived-at, #up-track-id, #up-billed-at, #up-before-weight, #up-after-weight').val()
+        $("#up-state option:first").prop("selected", true);
+        $("#up-type option:first").prop("selected", true);
+        $('#up-description').text()
+
+        try {
+            let response = await fetch(`/api/receipts/${itemId}?response_type=json`, {
+                method: 'GET'
+            });
+            response = await response.json();
+            if (response._success === true) {
+                updatedId = response.receipt._id
+                $('#up-arrived-at').val(dateToString(response.receipt.arrived_at))
+                $('#up-track-id').val(response.receipt.track_id)
+                $('#up-billed-at').val(dateToString(response.receipt.billed_at))
+                $('#up-before-weight').val(response.receipt.before_weight)
+                $('#up-after-weight').val(response.receipt.after_weight)
+                $('#up-description').text(response.receipt.description)
+
+                if(response.receipt.state_id) {
+                    $(`#up-state option[value='${response.receipt.state_id}']`).prop("selected", true);
+                }
+
+                if(response.receipt.type_id) {
+                    $(`#up-type option[value='${response.receipt.type_id}']`).prop("selected", true);
+                }
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    $('#cf-company').select2({
+        placeholder: 'Выберите',
+        language: {
+            noResults: function () {
+                return "Компания не найден";
+            }
+        },
+        ajax: {
+            transport: async function (params, success, failure) {
+                try {
+                    const query = params.data.q || '';
+                    const response = await fetch(`/api/controls/companies?response_type=json&query=${encodeURIComponent(query)}`);
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    const results = data.companies.map(company => ({
+                        id: company._id,
+                        text: `${company.title}`,
+                        value: company._id
+                    }));
+
+                    success({results});
+                } catch (error) {
+                    failure(error);
+                }
+            },
+            processResults: function (data) {
+                return data;
+            }
+        }
+    });
+
+    $('#cf-state').select2({
+        placeholder: 'Выберите',
+        language: {
+            noResults: function () {
+                return "Не найден";
+            }
+        },
+        ajax: {
+            transport: async function (params, success, failure) {
+                try {
+                    const query = params.data.q || '';
+                    const response = await fetch(`/api/states?response_type=json&query=${encodeURIComponent(query)}`);
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    const results = data.states.map(state => ({
+                        id: state._id,
+                        text: `${state.title}`,
+                        value: state._id
+                    }));
+
+                    success({results});
+                } catch (error) {
+                    failure(error);
+                }
+            },
+            processResults: function (data) {
+                return data;
+            }
+        }
+    });
+
+    $('#cf-type').select2({
+        placeholder: 'Выберите',
+        language: {
+            noResults: function () {
+                return "Не найден";
+            }
+        },
+        ajax: {
+            transport: async function (params, success, failure) {
+                try {
+                    const query = params.data.q || '';
+                    const response = await fetch(`/api/types?response_type=json&query=${encodeURIComponent(query)}`);
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    const results = data.types.map(type => ({
+                        id: type._id,
+                        text: `${type.title}`,
+                        value: type._id
+                    }));
+
+                    success({results});
+                } catch (error) {
+                    failure(error);
+                }
+            },
+            processResults: function (data) {
+                return data;
+            }
+        }
+    });
+
+
+    function paramsToQueryString(params) {
+        return Object.keys(params)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+            .join("&");
+    }
+
+    function clearFilters() {
+        window.location.href = '/api/sales/orders/'
+    }
+
+    function searchFilter() {
+        let params = getValues('#filter-data')
+        let updatedQueryString = paramsToQueryString(params);
+        window.location.href = `/api/receipts?${updatedQueryString}`
+    }
+
+</script>
+{% endblock %}

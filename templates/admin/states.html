@@ -15,7 +15,7 @@
                 <div class="card-title-group">
                     <div class="card-title">
                         <h5 class="title">
-                            Компании
+                            Состояние вагонов
                         </h5>
                     </div>
                     <div class="nk-block-head-content">
@@ -52,7 +52,7 @@
                             <div class="nk-tb-col"><span>Название</span></div>
                             <div class="nk-tb-col nk-tb-col-tools text-end"></div>
                         </div>
-                        {% for item in companies %}
+                        {% for item in states %}
                         <div class="nk-tb-item">
                             <div class="nk-tb-col">
                                 {{item.title}}
@@ -102,23 +102,6 @@
                     </div>
                 </div>
                 <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="cf-phone">Телефон номер
-                        </label>
-                        <input class="form-control" type="text" name="phone" id="cf-phone"
-                               placeholder="7 XXX XXX XX XX">
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="cf-address">Адрес
-                        </label>
-                        <input class="form-control" type="text" name="address" id="cf-address">
-                    </div>
-                </div>
-                <div class="col-12">
                     <button id="createButton" onclick="createItem()" class="btn btn-primary"><em
                             class="icon ni ni-plus"></em><span>Добавить</span></button>
                 </div>
@@ -145,22 +128,6 @@
                     </div>
                 </div>
                 <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="up-phone">Телефон номер
-                        </label>
-                        <input class="form-control" type="text" name="phone" id="up-phone">
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="up-address">Адрес
-                        </label>
-                        <input class="form-control" type="text" name="address" id="up-address">
-                    </div>
-                </div>
-                <div class="col-12">
                     <a onclick="updateItem()" class="btn btn-primary"><em
                             class="icon ni ni-plus"></em><span>Изменить</span></a>
                 </div>
@@ -176,12 +143,12 @@
 {% endblock %}
 {% block js %}
 <script>
-    $('li[data-li="companies"]').addClass('active')
-    $('li[data-li="companies-list"]').addClass('active')
+    $('li[data-li="control"]').addClass('active')
+    $('li[data-li="control-states"]').addClass('active')
 
     async function removeItem(itemId) {
         try {
-            let response = await fetch('/api/companies/' + itemId, {
+            let response = await fetch('/api/states/' + itemId, {
                 method: 'DELETE'
             });
 
@@ -200,7 +167,7 @@
     async function createItem() {
         $('#createButton').prop('disabled', true)
         try {
-            let response = await fetch('/api/companies/', {
+            let response = await fetch('/api/states/', {
                 method: 'POST',
                 body: JSON.stringify(getValues('#new-data-item'))
             });
@@ -222,7 +189,7 @@
     async function updateItem() {
         try {
             let data = getValues('#update-data-item')
-            let response = await fetch(`/api/companies/${data._id}`, {
+            let response = await fetch(`/api/states/${data._id}`, {
                 method: 'PUT',
                 body: JSON.stringify(data)
             });
@@ -241,15 +208,13 @@
 
     async function openItem(itemId) {
         try {
-            let response = await fetch(`/api/companies/${itemId}?response_type=json`, {
+            let response = await fetch(`/api/states/${itemId}?response_type=json`, {
                 method: 'GET'
             });
 
             response = await response.json();
             if (response._success === true) {
-                $('#up-title').val(response.company.title)
-                $('#up-address').val(response.company.address)
-                $('#up-phone').val(response.company.phone)
+                $('#up-title').val(response.state.title)
                 $('#up-id').val(itemId)
 
             } else {
