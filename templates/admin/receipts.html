@@ -68,6 +68,11 @@
                                         Очистить
                                     </button>
                                 </li>
+                                <li>
+                                    <button onclick="genReports()" data-bs-dismiss="modal" class="btn btn-success">
+                                        Отчет
+                                    </button>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -674,13 +679,19 @@
     }
 
     function clearFilters() {
-        window.location.href = '/api/sales/orders/'
+        window.location.href = '/api/receipts/'
     }
 
     function searchFilter() {
         let params = getValues('#filter-data')
         let updatedQueryString = paramsToQueryString(params);
         window.location.href = `/api/receipts?${updatedQueryString}`
+    }
+
+    function genReports(){
+        let params = getValues('#filter-data')
+        let updatedQueryString = paramsToQueryString(params);
+        window.location.href = `/api/reports/receipts/?${updatedQueryString}`
     }
 
 </script>
