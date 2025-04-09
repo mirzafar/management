@@ -424,8 +424,8 @@
                     </div>
                 </div>
                 <div class="col-12">
-                    <a onclick="updateItem()" class="btn btn-primary"><em
-                            class="icon ni ni-plus"></em><span>Изменить</span></a>
+                    <button onclick="updateItem()" id="updateButton" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Изменить</span></button>
                 </div>
                 <br/>
                 <br/>
@@ -530,6 +530,8 @@
     let updatedId = null
 
     async function openItem(itemId) {
+        $('#updateButton').prop('disabled', true)
+
         updatedId = null
         $('#up-arrived-at, #up-track-id, #up-billed-at, #up-before-weight, #up-after-weight').val()
         $("#up-state option:first").prop("selected", true);
@@ -550,13 +552,18 @@
                 $('#up-after-weight').val(response.receipt.after_weight)
                 $('#up-description').text(response.receipt.description)
 
-                if(response.receipt.state_id) {
+                if (response.receipt.state_id) {
                     $(`#up-state option[value='${response.receipt.state_id}']`).prop("selected", true);
                 }
 
-                if(response.receipt.type_id) {
+                if (response.receipt.type_id) {
                     $(`#up-type option[value='${response.receipt.type_id}']`).prop("selected", true);
                 }
+
+                if (updatedId) {
+                    $('#updateButton').prop('disabled', false);
+                }
+
             } else {
                 alert(response.message);
             }
@@ -688,7 +695,7 @@
         window.location.href = `/api/receipts?${updatedQueryString}`
     }
 
-    function genReports(){
+    function genReports() {
         let params = getValues('#filter-data')
         let updatedQueryString = paramsToQueryString(params);
         window.location.href = `/api/reports/receipts/?${updatedQueryString}`

@@ -102,7 +102,7 @@ class ReceiptsReportsView(BaseAPIView):
             dict(name='№ Вагонов', width=19),
             dict(name='Вид вагона', width=19),
             dict(name='Состаяние вагона', width=19),
-            dict(name='Компания', width=19),
+            dict(name='Компания', width=38),
             dict(name='Дата выставление', width=19),
             dict(name='Вагона в сутки', width=19),
             dict(name='Изначальный весь', width=19),

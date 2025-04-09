@@ -1,7 +1,7 @@
 {% extends 'admin/base.html' %}
 {% block container %}
 
-<div class="components-preview wide-md mx-auto">
+<div class="components-preview">
     <div class="nk-block-head nk-block-head-sm">
         <div class="nk-block-between">
             <div class="nk-block-head-content">
@@ -9,6 +9,7 @@
             </div>
         </div>
     </div>
+
     <div class="nk-block">
         <div class="card card-stretch">
             <div class="card-inner">
@@ -27,6 +28,14 @@
                             </a>
                             <div class="toggle-expand-content" data-content="pageMenu">
                                 <ul class="nk-block-tools g-3">
+                                    <li>
+                                        <div class="form-control-wrap">
+                                            <div class="form-icon form-icon-right"><em
+                                                    class="icon ni ni-search"></em></div>
+                                            <input type="text" class="form-control" id="filter-query"
+                                                   value="{{request.args.get('query', '')}}"
+                                                   placeholder="Поиск"></div>
+                                    </li>
                                     <li class="nk-block-tools-opt">
                                         <a href="#" data-target="addProduct"
                                            class="toggle btn btn-icon btn-primary d-md-none">
@@ -55,7 +64,9 @@
                         {% for item in companies %}
                         <div class="nk-tb-item">
                             <div class="nk-tb-col">
-                                {{item.title}}
+                                {{item.title}} {% if item.is_favorite %}
+                                <em class="icon ni ni-star-fill text-azure"></em>
+                                {% endif %}
                             </div>
                             <div class="nk-tb-col nk-tb-col-tools">
                                 <ul class="nk-tb-actions gx-1 my-n1">
@@ -72,6 +83,21 @@
                                                         <span class="tb-status text-info">Просмотр</span>
                                                     </a>
                                                     </li>
+                                                    {% if item.is_favorite %}
+                                                    <li>
+                                                        <a onclick="removeFavorite('{{item._id}}')">
+                                                            <em class="icon ni ni-star"></em>
+                                                            <span class="tb-status">Удалить из избранных</span>
+                                                        </a>
+                                                    </li>
+                                                    {% else %}
+                                                    <li>
+                                                        <a onclick="addFavorite('{{item._id}}')">
+                                                            <em class="icon ni ni-star-fill text-azure"></em>
+                                                            <span class="tb-status">Добавить в избранные</span>
+                                                        </a>
+                                                    </li>
+                                                    {% endif %}
                                                     <li><a onclick="removeItem('{{item._id}}')"><em
                                                             class="icon ni ni-trash text-danger"></em>
                                                         <span class="tb-status text-danger">Удалить</span></a></li>
@@ -89,6 +115,27 @@
             </div>
         </div>
     </div>
+    {% if pager %}
+    <div class="card-inner">
+        <ul class="pagination justify-content-center justify-content-md-start">
+            <li class="page-item">
+                <a class="page-link"
+                   {% if pager.prev_page %}
+                   href="/api/companies?page={{pager.prev_page}}"
+                   {% endif %}
+                >{% if pager.prev_page %}Prev{% else %}&nbsp;{% endif %}</a>
+            </li>
+            <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
+            <li class="page-item">
+                <a class="page-link"
+                   {% if pager.next_page %}
+                   href="/api/companies?page={{pager.next_page}}"
+                   {% endif %}
+                >{% if pager.next_page %}Prev{% else %}&nbsp;{% endif %}</a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
     <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
          data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
         <div class="nk-block">
@@ -135,7 +182,6 @@
          id="update-data-item">
         <div class="nk-block">
             <div class="row g-3">
-                <input type="hidden" id="up-id" name="_id">
                 <div class="col-12">
                     <div class="form-group">
                         <label class="form-label"
@@ -161,8 +207,8 @@
                     </div>
                 </div>
                 <div class="col-12">
-                    <a onclick="updateItem()" class="btn btn-primary"><em
-                            class="icon ni ni-plus"></em><span>Изменить</span></a>
+                    <button id="updateButton" onclick="updateItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Изменить</span></button>
                 </div>
                 <br/>
                 <br/>
@@ -222,7 +268,7 @@
     async function updateItem() {
         try {
             let data = getValues('#update-data-item')
-            let response = await fetch(`/api/companies/${data._id}`, {
+            let response = await fetch(`/api/companies/${updatedId}`, {
                 method: 'PUT',
                 body: JSON.stringify(data)
             });
@@ -239,7 +285,10 @@
         }
     }
 
+    let updatedId = null
+
     async function openItem(itemId) {
+        $('#updateButton').prop('disabled', true)
         try {
             let response = await fetch(`/api/companies/${itemId}?response_type=json`, {
                 method: 'GET'
@@ -247,11 +296,65 @@
 
             response = await response.json();
             if (response._success === true) {
-                $('#up-title').val(response.company.title)
-                $('#up-address').val(response.company.address)
-                $('#up-phone').val(response.company.phone)
-                $('#up-id').val(itemId)
+                updatedId = itemId
+                $('#up-title').val(response.company.title);
+                $('#up-address').val(response.company.address);
+                $('#up-phone').val(response.company.phone);
+                $('#updateButton').prop('disabled', false);
+            } else {
+                alert(response.message);
+            }
 
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    let urlParams = new URLSearchParams(window.location.search);
+
+    $('#filter-query').change(function () {
+        if (urlParams.has('query')) {
+            urlParams.delete('query')
+        }
+
+        urlParams.append('query', $(this).val())
+        window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + urlParams.toString()
+    })
+
+
+    async function addFavorite(itemId) {
+        try {
+            let response = await fetch(`/api/companies/${itemId}`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    'action': 'add_favorite'
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
+            } else {
+                alert(response.message);
+            }
+
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function removeFavorite(itemId) {
+        try {
+            let response = await fetch(`/api/companies/${itemId}`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    'action': 'remove_favorite'
+                })
+            });
+
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
             } else {
                 alert(response.message);
             }

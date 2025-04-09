@@ -20,6 +20,26 @@ class CompanyView(BaseAPIView):
             'company': company
         })
 
+    async def post(self, request, user, company_id):
+        company_id = StrUtils.to_str(company_id)
+        if not company_id or not ObjectId.is_valid(company_id):
+            return self.error(message='Отсуствует обязательный параметр "company_id"')
+        action = StrUtils.to_str(request.json.get('action'))
+        if action == 'add_favorite':
+            await mongo.companies.update_one({'_id': ObjectId(company_id)}, {'$set': {
+                'is_favorite': True
+            }})
+
+            return self.success()
+
+        if action == 'remove_favorite':
+            await mongo.companies.update_one({'_id': ObjectId(company_id)}, {'$set': {
+                'is_favorite': False
+            }})
+            return self.success()
+
+        return self.error()
+
     async def put(self, request, user, company_id):
         company_id = StrUtils.to_str(company_id)
         if not company_id or not ObjectId.is_valid(company_id):
