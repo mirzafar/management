@@ -1,5 +1,5 @@
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from bson import ObjectId
 
@@ -176,6 +176,38 @@ class ReceiptsView(BaseAPIView):
 
         if inserted.inserted_id:
             data['id'] = inserted.inserted_id
+            operations = []
+            if arrived_at:
+                operations.append({
+                    'receipt_id': str(inserted.inserted_id),
+                    'company_id': company_id,
+                    'event': 'arrive',
+                    'dtn': arrived_at
+                })
+
+            if billed_at:
+                operations.append({
+                    'receipt_id': str(inserted.inserted_id),
+                    'company_id': company_id,
+                    'event': 'bill',
+                    'dtn': billed_at
+                })
+
+            if arrived_at and billed_at:
+                current_date = arrived_at
+
+                while current_date <= billed_at:
+                    operations.append({
+                        'receipt_id': str(inserted.inserted_id),
+                        'company_id': company_id,
+                        'event': 'stay',
+                        'dtn': current_date
+                    })
+                    current_date += timedelta(days=1)
+
+            if operations:
+                await mongo.db.lagging_receipts.insert_many(operations)
+
         else:
             return self.error(message='Операция не выполнена')
 

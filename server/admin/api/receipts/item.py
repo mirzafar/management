@@ -1,7 +1,8 @@
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from bson import ObjectId
+from pymongo import ReturnDocument
 
 from core.db import mongo
 from core.handlers import BaseAPIView
@@ -91,7 +92,42 @@ class ReceiptView(BaseAPIView):
             'type_id': type_id
         }
 
-        await mongo.receipts.update_one({'_id': ObjectId(receipt_id)}, {'$set': data})
+        receipt = await mongo.receipts.find_one_and_update(
+            {'_id': ObjectId(receipt_id)}, {'$set': data},
+            return_document=ReturnDocument.AFTER
+        )
+
+        await mongo.db.lagging_receipts.delete_many({'receipt_id': str(receipt_id)})
+        operations = []
+        if arrived_at:
+            operations.append({
+                'receipt_id': str(receipt_id),
+                'company_id': receipt['company_id'],
+                'event': 'arrive',
+                'dtn': arrived_at
+            })
+        if billed_at:
+            operations.append({
+                'receipt_id': str(receipt_id),
+                'company_id': receipt['company_id'],
+                'event': 'bill',
+                'dtn': billed_at
+            })
+
+        if arrived_at and billed_at:
+            current_date = arrived_at
+
+            while current_date <= billed_at:
+                operations.append({
+                    'receipt_id': str(receipt_id),
+                    'company_id': receipt['company_id'],
+                    'event': 'stay',
+                    'dtn': current_date
+                })
+                current_date += timedelta(days=1)
+
+        if operations:
+            await mongo.db.lagging_receipts.insert_many(operations)
 
         return self.success(data={
             'receipt': data
@@ -102,6 +138,7 @@ class ReceiptView(BaseAPIView):
         if not receipt_id or not ObjectId.is_valid(receipt_id):
             return self.error(message='Отсуствует обязательный параметр "receipt_id"')
 
+        await mongo.db.lagging_receipts.delete_many({'receipt_id': str(receipt_id)})
         await mongo.receipts.update_one({'_id': ObjectId(receipt_id)}, {'$set': {
             'is_active': False
         }})
