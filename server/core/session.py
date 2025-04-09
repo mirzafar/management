@@ -53,8 +53,7 @@ class Session:
         if hasattr(request.ctx, 'session'):
             if request.ctx.session.get('_delete'):
                 del response.cookies['sid']
-                await cache.delete(f'session:{session_id}')
-                await mongo.users.delete_one({'token': session_id})
+                await cache.delete(f'session:{session_id}', f'session:user_id:{session_id}')
             else:
                 await cache.setex(f'session:{session_id}', 60 * 60 * 1, ujson.dumps(request.ctx.session))
 

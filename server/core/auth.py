@@ -1,15 +1,13 @@
 import hashlib
-from datetime import datetime
 from functools import partial, wraps
 from inspect import isawaitable
 from typing import Optional
 
 import ujson
-from pymongo import ReturnDocument
 from sanic import response
 
 from core.cache import cache
-from core.db import db, mongo
+from core.db import db
 from local_settings import settings
 from utils.strs import StrUtils
 
@@ -40,39 +38,21 @@ class Auth:
     @classmethod
     async def login(cls, request, user, token):
         request.ctx.session['token'] = token
-
-        return await mongo.users.update_one({'user_id': user['id'], 'token': token}, {'$set': {
-            'logged_at': datetime.now(),
-            'device': request.headers.get('user-agent', None)
-        }}, upsert=True)
+        return await cache.set(f'session:user_id:{token}', user['id'])
 
     @classmethod
     async def logout(cls, request):
         request.ctx.session['_delete'] = True
 
     @classmethod
-    async def current_user(cls, request):
-        token = StrUtils.to_str(request.headers.get('X-API-Token') or request.args.get('token'))
+    async def select_user(cls, user_id):
+        user = await cache.get(f'users:{user_id}')
+        if user:
+            return ujson.loads(user)
 
-        if not token:
-            token = request.ctx.session.get('token')
-
-            if not token:
-                return
-
-        if not await cache.get(f'session:{token}'):
-            return
-
-        user = await mongo.users.find_one_and_update({'token': token}, {'$set': {
-            'viewed_at': datetime.now()
-        }}, return_document=ReturnDocument.AFTER)
-
-        if not user:
-            return
-
-        await cache.setex(f'session:{token}', 60 * 60 * 1, ujson.dumps(request.ctx.session))
-
-        return await db.fetchrow(
+        print()
+        print('db user')
+        user = await db.fetchrow(
             '''
             SELECT 
                 u.id, 
@@ -88,8 +68,34 @@ class Auth:
             LEFT JOIN public.roles r ON u.role_id = r.id
             WHERE u.id = $1
             ''',
-            user['user_id']
+            int(user_id)
         )
+
+        if user:
+            await cache.set(f'users:{user_id}', ujson.dumps(dict(user)))
+
+        return user
+
+    @classmethod
+    async def current_user(cls, request):
+        token = StrUtils.to_str(request.headers.get('X-API-Token') or request.args.get('token'))
+
+        if not token:
+            token = request.ctx.session.get('token')
+
+            if not token:
+                return
+
+        if not await cache.get(f'session:{token}'):
+            return
+
+        user_id = await cache.get(f'session:user_id:{token}')
+        if not user_id:
+            return
+
+        await cache.setex(f'session:{token}', 60 * 60 * 1, ujson.dumps(request.ctx.session))
+
+        return await cls.select_user(user_id)
 
     def login_required(
         self,

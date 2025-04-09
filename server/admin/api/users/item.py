@@ -1,5 +1,6 @@
 import asyncpg
 
+from core.cache import cache
 from core.datetimes import DatetimeUtils
 from core.db import db
 from core.handlers import BaseAPIView
@@ -160,6 +161,8 @@ class UsersItemView(BaseAPIView):
                     user_id,
                     password_to_hash(password)
                 )
+
+            await cache.delete(f'users:{user["id"]}')
 
             return self.success(data={'user': dict(user)})
 
