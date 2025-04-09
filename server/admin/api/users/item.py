@@ -53,8 +53,8 @@ class UsersItemView(BaseAPIView):
         role_id = IntUtils.to_int(request.json.get('role_id'))
         photo = StrUtils.to_str(request.json.get('photo'))
 
-        if not last_name:
-            return self.error(message='Отсуствует обязательный параметры "Фамилия"')
+        if not first_name:
+            return self.error(message='Отсуствует обязательный параметры "Имя"')
 
         if not username:
             return self.error(message='Отсуствует обязательный параметр "Логин"')
@@ -106,8 +106,8 @@ class UsersItemView(BaseAPIView):
             photo = StrUtils.to_str(request.json.get('photo'))
             password = StrUtils.to_str(request.json.get('password'))
 
-            if not last_name:
-                return self.error(message='Отсуствует обязательный параметры "Фамилия"')
+            if not first_name:
+                return self.error(message='Отсуствует обязательный параметры "Имя"')
 
             if not username:
                 return self.error(message='Отсуствует обязательный параметр "Логин"')
