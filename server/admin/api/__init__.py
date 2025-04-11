@@ -8,6 +8,7 @@ from admin.api.main import MainView
 from admin.api.profile import profile_bp
 from admin.api.receipts import receipts_bp
 from admin.api.reports import reports_bp
+from admin.api.roads import roads_bp
 from admin.api.roles import role_bp
 from admin.api.sales import sales_bp
 from admin.api.states import states_bp
@@ -31,6 +32,7 @@ api_group = Blueprint.group(
     states_bp,
     types_bp,
     receipts_bp,
+    roads_bp,
     controls_bp,
     reports_bp,
     url_prefix='/api'
