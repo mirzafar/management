@@ -6,7 +6,7 @@ from core.db import mongo
 
 class ControlTypesRepository:
     @classmethod
-    async def get_states(cls):
+    async def get_types(cls):
         types = await cache.get('control:types')
         if types:
             return ujson.loads(types)

@@ -6,6 +6,7 @@ from bson import ObjectId
 from core.db import mongo
 from core.handlers import BaseAPIView
 from core.pager import Pager
+from data.repository.roads import ControlRoadsRepository
 from data.repository.states import ControlStatesRepository
 from data.repository.types import ControlTypesRepository
 from utils.floats import FloatUtils
@@ -81,11 +82,14 @@ class ReceiptsView(BaseAPIView):
             if item.get('company_id'):
                 company_ids.append(ObjectId(item['company_id']))
 
+            if item.get('pp_company_id'):
+                company_ids.append(ObjectId(item['pp_company_id']))
+
             receipts.append({
                 '_id': str(item['_id']),
                 'track_id': item['track_id'],
-                'arrived_at': item['arrived_at'].date(),
-                'billed_at': item['billed_at'] and item['billed_at'].date(),
+                'arrived_at': item['arrived_at'] and datetime.strftime(item['arrived_at'].date(), '%d.%m.%Y') ,
+                'billed_at': item['billed_at'] and datetime.strftime(item['billed_at'].date(), '%d.%m.%Y'),
                 'before_weight': item['before_weight'],
                 'after_weight': item['after_weight'],
                 'description': item['description'],
@@ -93,14 +97,18 @@ class ReceiptsView(BaseAPIView):
                 'type_id': item.get('type_id'),
                 'stayed_day': item.get('stayed_day'),
                 'company_id': item.get('company_id'),
+                'pp_company_id': item.get('pp_company_id'),
+                'pp_state_id': item.get('pp_state_id'),
+                'netta': item.get('netta'),
             })
 
-        types = await ControlTypesRepository.get_states()
+        types = await ControlTypesRepository.get_types()
         states = await ControlStatesRepository.get_states()
+        roads = await ControlRoadsRepository.get_roads()
 
         companies = None
         if company_ids:
-            companies = await mongo.companies.find({'_id': {'$in': company_ids}}).to_list(length=None)
+            companies = await mongo.companies.find({'_id': {'$in': list(set(company_ids))}}).to_list(length=None)
             if companies:
                 companies = {str(k['_id']): k for k in companies}
 
@@ -110,6 +118,7 @@ class ReceiptsView(BaseAPIView):
             'receipts': receipts,
             'types': types,
             'states': states,
+            'roads': roads,
             'companies': companies,
             'pager': pager.dict()
         })
@@ -124,13 +133,17 @@ class ReceiptsView(BaseAPIView):
         state_id = StrUtils.to_str(request.json.get('state_id'))
         type_id = StrUtils.to_str(request.json.get('type_id'))
         company_id = StrUtils.to_str(request.json.get('company_id'))
+        pp_state_id = StrUtils.to_str(request.json.get('pp_state_id'))
+        pp_company_id = StrUtils.to_str(request.json.get('pp_company_id'))
+        road_id = StrUtils.to_str(request.json.get('road_id'))
+        rent = FloatUtils.to_float(request.json.get('rent'))
 
         if not track_id:
             return self.error(message='Отсуствует обязательный параметры "Номер вагона"')
 
         if arrived_at:
             try:
-                arrived_at = datetime.strptime(arrived_at, '%Y-%m-%d')
+                arrived_at = datetime.strptime(arrived_at, '%d.%m.%Y')
             except (Exception,):
                 traceback.print_exc()
 
@@ -139,7 +152,7 @@ class ReceiptsView(BaseAPIView):
 
         if billed_at:
             try:
-                billed_at = datetime.strptime(billed_at, '%Y-%m-%d')
+                billed_at = datetime.strptime(billed_at, '%d.%m.%Y')
             except (Exception,):
                 traceback.print_exc()
 
@@ -150,11 +163,15 @@ class ReceiptsView(BaseAPIView):
             stayed_day = (billed_at - arrived_at).days
 
         is_weighed = False
-        if before_weight and after_weight:
+        if before_weight:
             is_weighed = True
 
-        if after_weight and before_weight and after_weight > before_weight:
-            return self.error(message='Дата выставление не может быть больше чем дата принятия')
+        netta = None
+        if after_weight and before_weight:
+            if after_weight > before_weight:
+                return self.error(message='Дата выставление не может быть больше чем дата принятия')
+            else:
+                netta = before_weight - after_weight
 
         data = {
             'track_id': track_id,
@@ -168,6 +185,11 @@ class ReceiptsView(BaseAPIView):
             'state_id': state_id,
             'type_id': type_id,
             'company_id': company_id,
+            'pp_state_id': pp_state_id,
+            'pp_company_id': pp_company_id,
+            'road_id': road_id,
+            'rent': rent,
+            'netta': netta,
             'is_active': True,
             'created_at': datetime.now()
         }

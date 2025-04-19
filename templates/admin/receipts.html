@@ -132,26 +132,54 @@
                                 <div class="nk-tb-col"><span>Компания</span></div>
                                 <div class="nk-tb-col"><span>Дата выставление</span></div>
                                 <div class="nk-tb-col tb-col-sm"><span>Вагона в сутки</span></div>
-                                <div class="nk-tb-col tb-col-sm"><span>Изначальный весь</span></div>
-                                <div class="nk-tb-col tb-col-sm"><span>Конечный весь</span></div>
+                                <div class="nk-tb-col tb-col-sm"><span>Tonna</span></div>
+                                <div class="nk-tb-col tb-col-sm"><span>Tara</span></div>
+                                <div class="nk-tb-col tb-col-sm"><span>Netta</span></div>
+                                <div class="nk-tb-col"><span class="sub-text">ПП</span><span>Состаяние/Компания</span>
+                                </div>
                                 <div class="nk-tb-col nk-tb-col-tools text-end"></div>
                             </div>
                             {% for item in receipts %}
                             <div class="nk-tb-item">
                                 <div class="nk-tb-col">
-                                    {{item.arrived_at or ''}}
+                                    <input type="text" class="form-control date-picker-alt date-picker"
+                                           data-date-format="dd.mm.yyyy" value="{{item.arrived_at or ''}}"
+                                           name="arrived_at">
                                 </div>
 
                                 <div class="nk-tb-col">
-                                    <span>{{item.track_id}}</span>
+                                    <input type="text" class="form-control"
+                                           name="track_id" value="{{item.track_id}}">
+                                    <span></span>
                                 </div>
 
 
                                 <div class="nk-tb-col">
                                     <div class="user-card">
                                         <div class="user-info">
-                                            <span class="tb-lead">{{item.state_id and states and item.state_id in states and states[item.state_id].title or ''}}</span>
-                                            <span>{{item.type_id and types and item.type_id in types and types[item.type_id].title or ''}}</span>
+                                            <span class="tb-lead">
+                                                <select class="form-control" name="state_id">
+                                                    <option value="">Выберите</option>
+                                                    {% if states %}
+                                                    {% for state in states.values() %}
+                                                    <option {% if item.state_id== state._id %}selected{% endif %}
+                                                            value="{{state._id}}">{{state.title}}</option>
+                                                    {% endfor %}
+                                                    {% endif %}
+                                                </select>
+                                            </span>
+                                            <!--                                            <span>{{item.type_id and types and item.type_id in types and types[item.type_id].title or ''}}</span>-->
+                                            <span>
+                                                <select class="form-control" name="type_id">
+                                                    <option value="">Выберите</option>
+                                                    {% if types %}
+                                                    {% for type in types.values() %}
+                                                    <option {% if item.type_id== type._id %}selected{% endif %}
+                                                            value="{{type._id}}">{{type.title}}</option>
+                                                    {% endfor %}
+                                                    {% endif %}
+                                                </select>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -161,7 +189,10 @@
                                 </div>
 
                                 <div class="nk-tb-col">
-                                    {{item.billed_at or ''}}
+                                    <input type="text" class="form-control date-picker-alt date-picker"
+                                           data-date-format="dd.mm.yyyy"
+                                           name="billed_at" value="{{item.billed_at or ''}}">
+
                                 </div>
 
                                 <div class="nk-tb-col tb-col-sm">
@@ -169,11 +200,36 @@
                                 </div>
 
                                 <div class="nk-tb-col tb-col-sm">
-                                    {{item.before_weight or ''}}
+                                    <input type="number" min="0.0" value="{{item.before_weight or ''}}"
+                                           class="form-control" name="before_weight">
 
                                 </div>
                                 <div class="nk-tb-col tb-col-sm">
-                                    {{item.after_weight or ''}}
+                                    <input type="number" min="0.0" value="{{item.after_weight or ''}}"
+                                           class="form-control" name="after_weight">
+
+                                </div>
+
+                                <div class="nk-tb-col tb-col-sm">
+                                    {{item.netta or ''}}
+                                </div>
+
+                                <div class="nk-tb-col">
+                                    <div class="user-card">
+                                        <div class="user-info">
+                                            <span class="tb-lead">
+                                                <select class="form-control" name="pp_state_id">
+                                                    <option value="">Выберите</option>
+                                                    {% if states %}
+                                                    {% for state in states.values() %}
+                                                    <option {% if item.pp_state_id == state._id  %}selected{% endif %} value="{{state._id}}">{{state.title}}</option>
+                                                    {% endfor %}
+                                                    {% endif %}
+                                                </select>
+                                            </span>
+                                            <span>{{item.pp_company_id and companies and item.pp_company_id in companies and companies[item.pp_company_id].title or ''}}</span>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="nk-tb-col nk-tb-col-tools">
@@ -185,12 +241,6 @@
                                                     class="icon ni ni-more-h"></em></a>
                                                 <div class="dropdown-menu dropdown-menu-end">
                                                     <ul class="link-list-opt no-bdr">
-                                                        <li><a data-target="updateProduct" class="toggle"
-                                                               onclick="openItem('{{item._id}}')">
-                                                            <em class="icon ni ni-edit-fill"></em>
-                                                            <span>Изменить</span>
-                                                        </a>
-                                                        </li>
                                                         <li>
                                                             <button class="btn" id="removeItemButton"
                                                                     onclick="removeItem('{{item._id}}')">
@@ -251,8 +301,8 @@
                         <label class="form-label"
                                for="cf-arrived-at">Дата принятия
                         </label>
-                        <input type="text" class="form-control date-picker-alt"
-                               data-date-format="yyyy-mm-dd"
+                        <input type="text" class="form-control date-picker-alt date-picker"
+                               data-date-format="dd.mm.yyyy"
                                name="arrived_at"
                                id="cf-arrived-at">
                     </div>
@@ -272,7 +322,12 @@
                         <label class="form-label"
                                for="cf-state">Состаяние вагона
                         </label>
-                        <select id="cf-state" name="state_id"></select>
+                        <select class="form-control" id="cf-state" name="state_id">
+                            <option value="">Выберите</option>
+                            {% for state in states.values() %}
+                            <option value="{{state._id}}">{{state.title}}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
                 <div class="col-12">
@@ -280,7 +335,14 @@
                         <label class="form-label"
                                for="cf-type">Вид вагона
                         </label>
-                        <select id="cf-type" name="type_id"></select>
+                        <select class="form-control" id="cf-type" name="type_id">
+                            <option value="">Выберите</option>
+                            {% if types %}
+                            {% for type in types.values() %}
+                            <option value="{{type._id}}">{{type.title}}</option>
+                            {% endfor %}
+                            {% endif %}
+                        </select>
                     </div>
                 </div>
 
@@ -298,8 +360,8 @@
                         <label class="form-label"
                                for="cf-billed-at">Дата выставление
                         </label>
-                        <input type="text" class="form-control date-picker-alt"
-                               data-date-format="yyyy-mm-dd"
+                        <input type="text" class="form-control date-picker-alt date-picker"
+                               data-date-format="dd.mm.yyyy"
                                name="billed_at"
                                id="cf-billed-at">
                     </div>
@@ -308,7 +370,32 @@
                 <div class="col-12">
                     <div class="form-group">
                         <label class="form-label"
-                               for="cf-before-weight">Изначальный весь
+                               for="cf-pp-state">п/п состаяние вагона
+                        </label>
+                        <select class="form-control" id="cf-pp-state" name="pp_state_id">
+                            <option value="">Выберите</option>
+                            {% if states %}
+                            {% for state in states.values() %}
+                            <option value="{{state._id}}">{{state.title}}</option>
+                            {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-pp-company">п/п выберите компанию
+                        </label>
+                        <select id="cf-pp-company" name="pp_company_id"></select>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-before-weight">Tonna
                         </label>
                         <input type="number" min="0.0" class="form-control" name="before_weight" id="cf-before-weight">
                     </div>
@@ -316,11 +403,37 @@
                 <div class="col-12">
                     <div class="form-group">
                         <label class="form-label"
-                               for="cf-after-weight">Конечный весь
+                               for="cf-after-weight">Tara
                         </label>
                         <input type="number" min="0.0" class="form-control" name="after_weight" id="cf-after-weight">
                     </div>
                 </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-road">Путь
+                        </label>
+                        <select class="form-control" id="cf-road" name="road_id">
+                            <option value="">Выберите</option>
+                            {% if roads %}
+                            {% for road in roads.values() %}
+                            <option value="{{road.title}}">{{road.title}}</option>
+                            {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-rent">Аренда м/кв
+                        </label>
+                        <input class="form-control" id="cf-rent" name="rent" type="number" min="0">
+                    </div>
+                </div>
+
                 <div class="col-12">
                     <div class="form-group">
                         <label class="form-label"
@@ -608,28 +721,28 @@
         }
     });
 
-    $('#cf-state').select2({
+    $('#cf-pp-company').select2({
         placeholder: 'Выберите',
         language: {
             noResults: function () {
-                return "Не найден";
+                return "Компания не найден";
             }
         },
         ajax: {
             transport: async function (params, success, failure) {
                 try {
                     const query = params.data.q || '';
-                    const response = await fetch(`/api/states?response_type=json&query=${encodeURIComponent(query)}`);
+                    const response = await fetch(`/api/controls/companies?response_type=json&query=${encodeURIComponent(query)}`);
 
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
 
                     const data = await response.json();
-                    const results = data.states.map(state => ({
-                        id: state._id,
-                        text: `${state.title}`,
-                        value: state._id
+                    const results = data.companies.map(company => ({
+                        id: company._id,
+                        text: `${company.title}`,
+                        value: company._id
                     }));
 
                     success({results});
@@ -642,42 +755,6 @@
             }
         }
     });
-
-    $('#cf-type').select2({
-        placeholder: 'Выберите',
-        language: {
-            noResults: function () {
-                return "Не найден";
-            }
-        },
-        ajax: {
-            transport: async function (params, success, failure) {
-                try {
-                    const query = params.data.q || '';
-                    const response = await fetch(`/api/types?response_type=json&query=${encodeURIComponent(query)}`);
-
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-
-                    const data = await response.json();
-                    const results = data.types.map(type => ({
-                        id: type._id,
-                        text: `${type.title}`,
-                        value: type._id
-                    }));
-
-                    success({results});
-                } catch (error) {
-                    failure(error);
-                }
-            },
-            processResults: function (data) {
-                return data;
-            }
-        }
-    });
-
 
     function paramsToQueryString(params) {
         return Object.keys(params)
