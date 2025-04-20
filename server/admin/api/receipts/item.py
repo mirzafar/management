@@ -51,10 +51,17 @@ class ReceiptView(BaseAPIView):
         description = StrUtils.to_str(request.json.get('description'))
         state_id = StrUtils.to_str(request.json.get('state_id'))
         type_id = StrUtils.to_str(request.json.get('type_id'))
+        pp_state_id = StrUtils.to_str(request.json.get('pp_state_id'))
+        rent = FloatUtils.to_float(request.json.get('rent'))
+        track_id = StrUtils.to_str(request.json.get('track_id'))
+        road_id = StrUtils.to_str(request.json.get('road_id'))
+
+        if not track_id:
+            return self.error(message='Отсуствует обязательный параметры "Номер вагона"')
 
         if arrived_at:
             try:
-                arrived_at = datetime.strptime(arrived_at, '%Y-%m-%d')
+                arrived_at = datetime.strptime(arrived_at, '%d.%m.%Y')
             except (Exception,):
                 traceback.print_exc()
 
@@ -63,7 +70,7 @@ class ReceiptView(BaseAPIView):
 
         if billed_at:
             try:
-                billed_at = datetime.strptime(billed_at, '%Y-%m-%d')
+                billed_at = datetime.strptime(billed_at, '%d.%m.%Y')
             except (Exception,):
                 traceback.print_exc()
 
@@ -74,11 +81,15 @@ class ReceiptView(BaseAPIView):
             stayed_day = (billed_at - arrived_at).days
 
         is_weighed = False
-        if before_weight and after_weight:
+        if before_weight:
             is_weighed = True
 
-        if after_weight and before_weight and after_weight > before_weight:
-            return self.error(message='Дата выставление не может быть больше чем дата принятия')
+        netta = None
+        if after_weight and before_weight:
+            if after_weight > before_weight:
+                return self.error(message='Дата выставление не может быть больше чем дата принятия')
+            else:
+                netta = before_weight - after_weight
 
         data = {
             'arrived_at': arrived_at,
@@ -89,7 +100,12 @@ class ReceiptView(BaseAPIView):
             'is_weighed': is_weighed,
             'description': description,
             'state_id': state_id,
-            'type_id': type_id
+            'type_id': type_id,
+            'rent': rent,
+            'pp_state_id': pp_state_id,
+            'track_id': track_id,
+            'netta': netta,
+            'road_id': road_id,
         }
 
         receipt = await mongo.receipts.find_one_and_update(
@@ -117,7 +133,7 @@ class ReceiptView(BaseAPIView):
         if arrived_at and billed_at:
             current_date = arrived_at
 
-            while current_date <= billed_at:
+            while current_date < billed_at:
                 operations.append({
                     'receipt_id': str(receipt_id),
                     'company_id': receipt['company_id'],

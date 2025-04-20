@@ -86,9 +86,12 @@ class ReceiptsReportsView(BaseAPIView):
                 'type_id': item.get('type_id'),
                 'stayed_day': item.get('stayed_day'),
                 'company_id': item.get('company_id'),
+                'pp_company_id': item.get('pp_company_id'),
+                'pp_state_id': item.get('pp_state_id'),
+                'netta': item.get('netta'),
             })
 
-        types = await ControlTypesRepository.get_states() or {}
+        types = await ControlTypesRepository.get_types() or {}
         states = await ControlStatesRepository.get_states() or {}
 
         companies = None
@@ -105,8 +108,11 @@ class ReceiptsReportsView(BaseAPIView):
             dict(name='Компания', width=38),
             dict(name='Дата выставление', width=19),
             dict(name='Вагона в сутки', width=19),
-            dict(name='Изначальный весь', width=19),
-            dict(name='Конечный весь', width=19),
+            dict(name='п/п статус', width=19),
+            dict(name='п/п компания', width=19),
+            dict(name='Tonna', width=8),
+            dict(name='Tara', width=8),
+            dict(name='Netta', width=8),
         ]
 
         contents = BytesIO()
@@ -126,16 +132,21 @@ class ReceiptsReportsView(BaseAPIView):
 
         count = 1
         for receipt in receipts:
+            print()
+            print(receipt.get('pp_company_id'))
             worksheet.write_row(count, 0, [
                 str(receipt['arrived_at'] or ''),
                 receipt['track_id'],
-                receipt['type_id'] in types and types[receipt['type_id']]['title'],
-                receipt['state_id'] in states and states[receipt['state_id']]['title'],
+                receipt['type_id'] in (types or {}) and types[receipt['type_id']]['title'],
+                receipt['state_id'] in (states or {}) and states[receipt['state_id']]['title'],
                 receipt['company_id'] in (companies or {}) and companies[receipt['company_id']]['title'],
                 str(receipt['billed_at'] or ''),
                 receipt['stayed_day'],
+                receipt['pp_state_id'] in (states or {}) and states[receipt['pp_state_id']]['title'],
+                receipt['pp_company_id'] in (companies or {}) and companies[receipt['pp_company_id']]['title'],
                 receipt['before_weight'],
                 receipt['after_weight'],
+                receipt['netta'],
             ])
             count += 1
 

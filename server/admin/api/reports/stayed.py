@@ -38,6 +38,8 @@ class StayedReportsView(BaseAPIView):
             if not stopped_at:
                 stopped_at = datetime.now()
 
+            started_at = started_at - timedelta(days=1)
+
             data = {}
 
             arrive_data = await mongo.lagging_receipts.aggregate([
@@ -138,7 +140,7 @@ class StayedReportsView(BaseAPIView):
             worksheet = workbook.add_worksheet('sheet')
 
             titles = [
-                dict(name='№ п/п', width=19),
+                dict(name='№ п/п', width=5),
                 dict(name='Наименование', width=38),
             ]
             t = [
@@ -150,31 +152,36 @@ class StayedReportsView(BaseAPIView):
 
             date_keys = []
             while current_date <= stopped_at:
-                titles.append(dict(name=datetime.strftime(current_date, '%Y-%m-%d'), width=19, join_column=3))
-                t.extend(['принято', 'отстой', 'ушли'])
+                titles.append(dict(name=datetime.strftime(current_date, '%d.%m.%Y'), join_column=3, width=5))
+                t.extend(['прин', 'отс', 'ушл'])
                 date_keys.append(str(current_date.date()))
                 current_date += timedelta(days=1)
 
-            titles.append(dict(name='Общие итоги', width=19, join_column=3))
-            t.extend(['принято', 'отстой', 'ушли'])
+            titles.append(dict(name='Общие итоги', width=3, join_column=3))
+            t.extend(['прин', 'отс', 'ушл'])
 
             widths = []
             bold_format = workbook.add_format({'bold': True, 'align': 'center'})
+            center_format = workbook.add_format({'align': 'center'})
             i = 0
             for title in titles:
                 if title.get('join_column'):
                     worksheet.merge_range(0, i, 0, i + title['join_column'] - 1, title['name'], bold_format)
                     i += title['join_column']
+                    widths.extend([title['width']] * 3)
                 else:
                     worksheet.write(0, i, title['name'], bold_format)
                     i += 1
-                widths.append(title['width'])
+                    widths.append(title['width'])
+
 
             for i in range(len(widths)):
                 worksheet.set_column(i, i, widths[i])
-            worksheet.write_row(1, 0, t)
+            worksheet.write_row(1, 0, t, center_format)
 
             company_ids = []
+            total_by_dates = {'all': {'arrive': 0, 'bill': 0, 'stay': 0}}
+
             for x in arrive_data:
                 if not x.get('company_id'):
                     continue
@@ -188,10 +195,17 @@ class StayedReportsView(BaseAPIView):
                 if x['date'] not in data[x['company_id']]:
                     data[x['company_id']][x['date']] = {}
 
+                if x['date'] not in total_by_dates:
+                    total_by_dates[x['date']] = {}
+
                 if 'arrive' not in data[x['company_id']][x['date']]:
                     data[x['company_id']][x['date']]['arrive'] = 0
 
+                if 'arrive' not in total_by_dates[x['date']]:
+                    total_by_dates[x['date']]['arrive'] = 0
+
                 data[x['company_id']][x['date']]['arrive'] += (x.get('count') or 0)
+                total_by_dates[x['date']]['arrive'] += (x.get('count') or 0)
 
             for b in bill_data:
                 if not b.get('company_id'):
@@ -206,10 +220,17 @@ class StayedReportsView(BaseAPIView):
                 if b['date'] not in data[b['company_id']]:
                     data[b['company_id']][b['date']] = {}
 
+                if b['date'] not in total_by_dates:
+                    total_by_dates[b['date']] = {}
+
                 if 'bill' not in data[b['company_id']][b['date']]:
                     data[b['company_id']][b['date']]['bill'] = 0
 
+                if 'bill' not in total_by_dates[b['date']]:
+                    total_by_dates[b['date']]['bill'] = 0
+
                 data[b['company_id']][b['date']]['bill'] += (b.get('count') or 0)
+                total_by_dates[b['date']]['bill'] += (b.get('count') or 0)
 
             for s in stay_data:
                 if not s.get('company_id'):
@@ -224,10 +245,17 @@ class StayedReportsView(BaseAPIView):
                 if s['date'] not in data[s['company_id']]:
                     data[s['company_id']][s['date']] = {}
 
+                if s['date'] not in total_by_dates:
+                    total_by_dates[s['date']] = {}
+
                 if 'stay' not in data[s['company_id']][s['date']]:
                     data[s['company_id']][s['date']]['stay'] = 0
 
+                if 'stay' not in total_by_dates[s['date']]:
+                    total_by_dates[s['date']]['stay'] = 0
+
                 data[s['company_id']][s['date']]['stay'] += (s.get('count') or 0)
+                total_by_dates[s['date']]['stay'] += (s.get('count') or 0)
 
             companies = await mongo.companies.find({'_id': {'$in': company_ids}}).to_list(length=None)
             companies = {str(v['_id']): v['title'] for v in companies}
@@ -263,9 +291,35 @@ class StayedReportsView(BaseAPIView):
                     company_bill_count
                 ])
 
+                total_by_dates['all']['arrive'] += company_arrive_count
+                total_by_dates['all']['bill'] += company_bill_count
+                total_by_dates['all']['stay'] += company_stay_count
+
                 worksheet.write_row(count, 0, l)
                 index += 1
                 count += 1
+
+            l = [
+                '',
+                'Итого:',
+            ]
+
+            for d in date_keys:
+                if d in total_by_dates:
+                    l.extend([
+                        total_by_dates[d].get('arrive') or 0,
+                        total_by_dates[d].get('stay') or 0,
+                        total_by_dates[d].get('bill') or 0,
+                    ])
+                else:
+                    l.extend([0, 0, 0])
+
+            l.extend([
+                total_by_dates['all']['arrive'],
+                total_by_dates['all']['stay'],
+                total_by_dates['all']['bill'],
+            ])
+            worksheet.write_row(count, 0, l)
 
             workbook.close()
             contents.seek(0)

@@ -64,6 +64,15 @@ class ReceiptsView(BaseAPIView):
             except (Exception,):
                 traceback.print_exc()
 
+        if not filters.get('billed_at'):
+            today = datetime.today()
+            next_month = today.replace(day=28) + timedelta(days=4)
+
+            # filters['billed_at'] = {
+            #     '$gte': today.replace(day=1),
+            #     '$lte': next_month.replace(day=1) - timedelta(days=1)
+            # }
+
         items = await mongo.receipts.find(filters).skip(offset) \
             .limit(pager.limit) \
             .sort('_id', -1) \
@@ -85,10 +94,12 @@ class ReceiptsView(BaseAPIView):
             if item.get('pp_company_id'):
                 company_ids.append(ObjectId(item['pp_company_id']))
 
+            print(str(item['_id']))
+
             receipts.append({
                 '_id': str(item['_id']),
                 'track_id': item['track_id'],
-                'arrived_at': item['arrived_at'] and datetime.strftime(item['arrived_at'].date(), '%d.%m.%Y') ,
+                'arrived_at': item['arrived_at'] and datetime.strftime(item['arrived_at'].date(), '%d.%m.%Y'),
                 'billed_at': item['billed_at'] and datetime.strftime(item['billed_at'].date(), '%d.%m.%Y'),
                 'before_weight': item['before_weight'],
                 'after_weight': item['after_weight'],
@@ -100,6 +111,7 @@ class ReceiptsView(BaseAPIView):
                 'pp_company_id': item.get('pp_company_id'),
                 'pp_state_id': item.get('pp_state_id'),
                 'netta': item.get('netta'),
+                'road_id': item.get('road_id'),
             })
 
         types = await ControlTypesRepository.get_types()
@@ -218,7 +230,7 @@ class ReceiptsView(BaseAPIView):
             if arrived_at and billed_at:
                 current_date = arrived_at
 
-                while current_date <= billed_at:
+                while current_date < billed_at:
                     operations.append({
                         'receipt_id': str(inserted.inserted_id),
                         'company_id': company_id,

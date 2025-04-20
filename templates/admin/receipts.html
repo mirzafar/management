@@ -1,7 +1,7 @@
 {% extends 'admin/base.html' %}
 {% block container %}
 <div class="components-preview">
-    <div class="col-lg-12">
+    <div class="col-lg-12" id="div-filter">
         <div class="nk-block-head">
             <div class="nk-block-head-content"><h5 class="nk-block-title title">Фильтр</h5></div>
         </div>
@@ -95,25 +95,28 @@
                     <div class="card-title"><h5 class="title"></h5></div>
                     <div class="nk-block-head-content">
                         <div class="toggle-wrap nk-block-tools-toggle">
-                            <a href="#"
-                               class="btn btn-icon btn-trigger toggle-expand me-n1"
-                               data-target="pageMenu">
+                            <a class="btn btn-icon btn-trigger toggle-expand me-n1">
                                 <em class="icon ni ni-more-v"></em>
                             </a>
                             <div class="toggle-expand-content" data-content="pageMenu">
                                 <ul class="nk-block-tools g-3">
                                     <li class="nk-block-tools-opt">
-                                        <a href="#" data-target="addProduct"
+                                        <a class="btn btn-trigger btn-icon dropdown-toggle" onclick="toggleFilter()">
+                                            <em class="icon ni ni-filter-alt"></em>
+                                        </a>
+                                    </li>
+                                    <li class="nk-block-tools-opt">
+                                        <a data-target="addProduct"
                                            class="toggle btn btn-icon btn-primary d-md-none">
                                             <em class="icon ni ni-plus"></em>
                                         </a>
-                                        <a href="#"
-                                           data-target="addProduct"
+                                        <a data-target="addProduct"
                                            class="toggle btn btn-primary d-none d-md-inline-flex">
                                             <em class="icon ni ni-plus"></em>
                                             <span>Добавить</span>
                                         </a>
                                     </li>
+
                                 </ul>
                             </div>
                         </div>
@@ -137,10 +140,11 @@
                                 <div class="nk-tb-col tb-col-sm"><span>Netta</span></div>
                                 <div class="nk-tb-col"><span class="sub-text">ПП</span><span>Состаяние/Компания</span>
                                 </div>
+                                <div class="nk-tb-col tb-col-sm"><span>Путь</span></div>
                                 <div class="nk-tb-col nk-tb-col-tools text-end"></div>
                             </div>
                             {% for item in receipts %}
-                            <div class="nk-tb-item">
+                            <div class="nk-tb-item js-cont" data-id="{{ item._id }}">
                                 <div class="nk-tb-col">
                                     <input type="text" class="form-control date-picker-alt date-picker"
                                            data-date-format="dd.mm.yyyy" value="{{item.arrived_at or ''}}"
@@ -222,7 +226,8 @@
                                                     <option value="">Выберите</option>
                                                     {% if states %}
                                                     {% for state in states.values() %}
-                                                    <option {% if item.pp_state_id == state._id  %}selected{% endif %} value="{{state._id}}">{{state.title}}</option>
+                                                    <option {% if item.pp_state_id== state._id %}selected{% endif %}
+                                                            value="{{state._id}}">{{state.title}}</option>
                                                     {% endfor %}
                                                     {% endif %}
                                                 </select>
@@ -232,28 +237,39 @@
                                     </div>
                                 </div>
 
+                                <div class="nk-tb-col tb-col-sm">
+                                    <select class="form-control" name="road_id">
+                                        <option value="">Выберите</option>
+                                        {% if roads %}
+                                        {% for road in roads.values() %}
+                                        <option {% if road._id== item.road_id %}selected{% endif %}
+                                                value="{{road._id}}">{{road.title}}
+                                        </option>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+
+
                                 <div class="nk-tb-col nk-tb-col-tools">
-                                    <ul class="nk-tb-actions gx-1 my-n1">
-                                        <li class="me-n1">
-                                            <div class="dropdown"><a href="#"
-                                                                     class="dropdown-toggle btn btn-icon btn-trigger"
-                                                                     data-bs-toggle="dropdown"><em
-                                                    class="icon ni ni-more-h"></em></a>
-                                                <div class="dropdown-menu dropdown-menu-end">
-                                                    <ul class="link-list-opt no-bdr">
-                                                        <li>
-                                                            <button class="btn" id="removeItemButton"
-                                                                    onclick="removeItem('{{item._id}}')">
-                                                                <em class="icon ni ni-trash text-danger"></em>
-                                                                <span class="tb-status text-danger">Удалить</span>
-                                                            </button>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
+                                    <ul data-id="{{ item._id }}" class="nk-tb-actions gx-1">
+                                        <li class="nk-tb-action">
+                                            <a class="js-remove">
+                                                <span class="tb-status text-danger">
+                                                    <em class="icon ni ni-trash"></em>
+                                                </span>
+                                            </a>
+                                        </li>
+                                        <li class="nk-tb-action">
+                                            <a class="js-update">
+                                                <span class="tb-status text-success">
+                                                <em class="icon ni ni-check"></em>
+                                                </span>
+                                            </a>
                                         </li>
                                     </ul>
                                 </div>
+
                             </div>
                             {% endfor %}
                         </div>
@@ -418,7 +434,7 @@
                             <option value="">Выберите</option>
                             {% if roads %}
                             {% for road in roads.values() %}
-                            <option value="{{road.title}}">{{road.title}}</option>
+                            <option value="{{road._id}}">{{road.title}}</option>
                             {% endfor %}
                             {% endif %}
                         </select>
@@ -554,11 +570,31 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
 
 <script>
-    $('li[data-li="control"]').addClass('active')
-    $('li[data-li="control-receipts"]').addClass('active')
+    $('li[data-li="control"]').addClass('active');
+    $('li[data-li="control-receipts"]').addClass('active');
 
-    async function removeItem(itemId) {
-        $('#removeItemButton').prop('disabled', true)
+    let divFilter = $('#div-filter');
+    let isDivFilter = false;
+    divFilter.hide();
+
+    $('#toggleButton').click(function () {
+        alert()
+    })
+
+    function toggleFilter() {
+        if (isDivFilter) {
+            divFilter.hide();
+            isDivFilter = false;
+        } else {
+            divFilter.show();
+            isDivFilter = true;
+        }
+    }
+
+
+    $('.js-remove').click(async function () {
+        var itemId = $(this).parents('ul').data('id');
+
         try {
             let response = await fetch('/api/receipts/' + itemId, {
                 method: 'DELETE'
@@ -569,18 +605,15 @@
                 window.location.href = '/api/receipts/';
             } else {
                 alert(response.message);
-                $('#removeItemButton').prop('disabled', false)
             }
 
         } catch (error) {
             alertShow('waring', `${error.message}`);
-            $('#removeItemButton').prop('disabled', false)
         }
-    }
-
+    })
 
     async function createItem() {
-        $('#createItemButton').prop('disabled', true)
+        $('#createItemButton').prop('disabled', true);
         try {
             let response = await fetch('/api/receipts/', {
                 method: 'POST',
@@ -594,20 +627,21 @@
                 window.location.href = '/api/receipts/';
             } else {
                 alert(response.message);
-                $('#createItemButton').prop('disabled', false)
+                $('#createItemButton').prop('disabled', false);
             }
 
         } catch (error) {
             alertShow('waring', `${error.message}`);
-            $('#createItemButton').prop('disabled', false)
+            $('#createItemButton').prop('disabled', false);
         }
     }
 
-    async function updateItem() {
+    $('.js-update').click(async function () {
+        var itemId = $(this).parents('ul').data('id');
         try {
-            let data = getValues('#update-data-item')
+            let data = getValues('.js-cont[data-id="' + itemId + '"]')
             console.log(data)
-            let response = await fetch(`/api/receipts/${updatedId}`, {
+            let response = await fetch(`/api/receipts/${itemId}`, {
                 method: 'PUT',
                 body: JSON.stringify({
                     ...data
@@ -616,7 +650,7 @@
 
             response = await response.json();
             if (response._success === true) {
-                window.location.reload();
+                alertShow('success', 'Обнавлено');
             } else {
                 alert(response.message);
             }
@@ -624,7 +658,9 @@
         } catch (error) {
             alertShow('waring', `${error.message}`);
         }
-    }
+
+        return false;
+    })
 
 
     function dateToString(timestamp) {
@@ -638,52 +674,6 @@
         const day = String(date.getDate()).padStart(2, '0');
 
         return `${year}-${month}-${day}`
-    }
-
-    let updatedId = null
-
-    async function openItem(itemId) {
-        $('#updateButton').prop('disabled', true)
-
-        updatedId = null
-        $('#up-arrived-at, #up-track-id, #up-billed-at, #up-before-weight, #up-after-weight').val()
-        $("#up-state option:first").prop("selected", true);
-        $("#up-type option:first").prop("selected", true);
-        $('#up-description').text()
-
-        try {
-            let response = await fetch(`/api/receipts/${itemId}?response_type=json`, {
-                method: 'GET'
-            });
-            response = await response.json();
-            if (response._success === true) {
-                updatedId = response.receipt._id
-                $('#up-arrived-at').val(dateToString(response.receipt.arrived_at))
-                $('#up-track-id').val(response.receipt.track_id)
-                $('#up-billed-at').val(dateToString(response.receipt.billed_at))
-                $('#up-before-weight').val(response.receipt.before_weight)
-                $('#up-after-weight').val(response.receipt.after_weight)
-                $('#up-description').text(response.receipt.description)
-
-                if (response.receipt.state_id) {
-                    $(`#up-state option[value='${response.receipt.state_id}']`).prop("selected", true);
-                }
-
-                if (response.receipt.type_id) {
-                    $(`#up-type option[value='${response.receipt.type_id}']`).prop("selected", true);
-                }
-
-                if (updatedId) {
-                    $('#updateButton').prop('disabled', false);
-                }
-
-            } else {
-                alert(response.message);
-            }
-
-        } catch (error) {
-            alertShow('waring', `${error.message}`);
-        }
     }
 
     $('#cf-company').select2({
