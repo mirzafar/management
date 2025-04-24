@@ -2,7 +2,6 @@ import traceback
 from datetime import datetime, timedelta
 
 from bson import ObjectId
-from pymongo import ReturnDocument
 
 from core.db import mongo
 from core.handlers import BaseAPIView
@@ -55,6 +54,7 @@ class ReceiptView(BaseAPIView):
         rent = FloatUtils.to_float(request.json.get('rent'))
         track_id = StrUtils.to_str(request.json.get('track_id'))
         road_id = StrUtils.to_str(request.json.get('road_id'))
+        company_id = StrUtils.to_str(request.json.get('company_id'))
 
         if not track_id:
             return self.error(message='Отсуствует обязательный параметры "Номер вагона"')
@@ -106,11 +106,11 @@ class ReceiptView(BaseAPIView):
             'track_id': track_id,
             'netta': netta,
             'road_id': road_id,
+            'company_id': company_id
         }
 
-        receipt = await mongo.receipts.find_one_and_update(
-            {'_id': ObjectId(receipt_id)}, {'$set': data},
-            return_document=ReturnDocument.AFTER
+        await mongo.receipts.find_one_and_update(
+            {'_id': ObjectId(receipt_id)}, {'$set': data}
         )
 
         await mongo.db.lagging_receipts.delete_many({'receipt_id': str(receipt_id)})
@@ -118,14 +118,14 @@ class ReceiptView(BaseAPIView):
         if arrived_at:
             operations.append({
                 'receipt_id': str(receipt_id),
-                'company_id': receipt['company_id'],
+                'company_id': company_id,
                 'event': 'arrive',
                 'dtn': arrived_at
             })
         if billed_at:
             operations.append({
                 'receipt_id': str(receipt_id),
-                'company_id': receipt['company_id'],
+                'company_id': company_id,
                 'event': 'bill',
                 'dtn': billed_at
             })
@@ -136,7 +136,7 @@ class ReceiptView(BaseAPIView):
             while current_date < billed_at:
                 operations.append({
                     'receipt_id': str(receipt_id),
-                    'company_id': receipt['company_id'],
+                    'company_id': company_id,
                     'event': 'stay',
                     'dtn': current_date
                 })

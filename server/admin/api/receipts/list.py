@@ -6,6 +6,7 @@ from bson import ObjectId
 from core.db import mongo
 from core.handlers import BaseAPIView
 from core.pager import Pager
+from data.repository.companies import ControlCompaniesRepository
 from data.repository.roads import ControlRoadsRepository
 from data.repository.states import ControlStatesRepository
 from data.repository.types import ControlTypesRepository
@@ -28,6 +29,8 @@ class ReceiptsView(BaseAPIView):
         track_id = StrUtils.to_str(request.args.get('track_id'))
         start_billed_at = StrUtils.to_str(request.args.get('start_billed_at'))
         stop_billed_at = StrUtils.to_str(request.args.get('stop_billed_at'))
+
+        company_id = StrUtils.to_str(request.args.get('company_id'))
 
         filters = {
             'is_active': True
@@ -73,6 +76,9 @@ class ReceiptsView(BaseAPIView):
             #     '$lte': next_month.replace(day=1) - timedelta(days=1)
             # }
 
+        if company_id and company_id not in ['null', '0']:
+            filters['company_id'] = company_id
+
         items = await mongo.receipts.find(filters).skip(offset) \
             .limit(pager.limit) \
             .sort('_id', -1) \
@@ -93,8 +99,6 @@ class ReceiptsView(BaseAPIView):
 
             if item.get('pp_company_id'):
                 company_ids.append(ObjectId(item['pp_company_id']))
-
-            print(str(item['_id']))
 
             receipts.append({
                 '_id': str(item['_id']),
@@ -117,12 +121,7 @@ class ReceiptsView(BaseAPIView):
         types = await ControlTypesRepository.get_types()
         states = await ControlStatesRepository.get_states()
         roads = await ControlRoadsRepository.get_roads()
-
-        companies = None
-        if company_ids:
-            companies = await mongo.companies.find({'_id': {'$in': list(set(company_ids))}}).to_list(length=None)
-            if companies:
-                companies = {str(k['_id']): k for k in companies}
+        companies = await ControlCompaniesRepository.get_companies()
 
         pager.set_total(await mongo.receipts.count_documents(filters) or 0)
 
@@ -153,6 +152,8 @@ class ReceiptsView(BaseAPIView):
         if not track_id:
             return self.error(message='Отсуствует обязательный параметры "Номер вагона"')
 
+        now = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
         if arrived_at:
             try:
                 arrived_at = datetime.strptime(arrived_at, '%d.%m.%Y')
@@ -160,7 +161,7 @@ class ReceiptsView(BaseAPIView):
                 traceback.print_exc()
 
         if not arrived_at:
-            arrived_at = datetime.now()
+            arrived_at = now
 
         if billed_at:
             try:
@@ -227,17 +228,16 @@ class ReceiptsView(BaseAPIView):
                     'dtn': billed_at
                 })
 
-            if arrived_at and billed_at:
-                current_date = arrived_at
+            current_date = arrived_at
 
-                while current_date < billed_at:
-                    operations.append({
-                        'receipt_id': str(inserted.inserted_id),
-                        'company_id': company_id,
-                        'event': 'stay',
-                        'dtn': current_date
-                    })
-                    current_date += timedelta(days=1)
+            while current_date < (billed_at or now):
+                operations.append({
+                    'receipt_id': str(inserted.inserted_id),
+                    'company_id': company_id,
+                    'event': 'stay',
+                    'dtn': current_date
+                })
+                current_date += timedelta(days=1)
 
             if operations:
                 await mongo.db.lagging_receipts.insert_many(operations)

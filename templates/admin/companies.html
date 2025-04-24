@@ -166,6 +166,46 @@
                     </div>
                 </div>
                 <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-cleaning">Под-уборка
+                        </label>
+                        <input class="form-control" type="number" name="sum_cleaning" min="0" id="cf-cleaning">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-stay">Отстой ваг-в
+                        </label>
+                        <input class="form-control" type="number" name="sum_stay" min="0" id="cf-stay">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-weighing">Взвешивание
+                        </label>
+                        <input class="form-control" type="number" name="sum_weighing" min="0" id="cf-weighing">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-rent-m">Аренда пом-е
+                        </label>
+                        <input class="form-control" type="number" name="sum_rent_m" min="0" id="cf-rent-m">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-rent-scale">Аренда весов
+                        </label>
+                        <input class="form-control" type="number" name="sum_rent_scale" min="0" id="cf-rent-scale">
+                    </div>
+                </div>
+                <div class="col-12">
                     <button id="createButton" onclick="createItem()" class="btn btn-primary"><em
                             class="icon ni ni-plus"></em><span>Добавить</span></button>
                 </div>
@@ -204,6 +244,46 @@
                                for="up-address">Адрес
                         </label>
                         <input class="form-control" type="text" name="address" id="up-address">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-cleaning">Под-уборка
+                        </label>
+                        <input class="form-control" type="number" name="sum_cleaning" min="0" id="up-cleaning">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-stay">Отстой ваг-в
+                        </label>
+                        <input class="form-control" type="number" name="sum_stay" min="0" id="up-stay">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-weighing">Взвешивание
+                        </label>
+                        <input class="form-control" type="number" name="sum_weighing" min="0" id="up-weighing">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-rent-m">Аренда пом-е
+                        </label>
+                        <input class="form-control" type="number" name="sum_rent_m" min="0" id="up-rent-m">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="up-rent-scale">Аренда весов
+                        </label>
+                        <input class="form-control" type="number" name="sum_rent_scale" min="0" id="up-rent-scale">
                     </div>
                 </div>
                 <div class="col-12">
@@ -275,7 +355,8 @@
 
             response = await response.json();
             if (response._success === true) {
-                window.location.reload();
+                alertShow('success', 'Обнавлено')
+                // window.location.reload();
             } else {
                 alert(response.message);
             }
@@ -300,6 +381,12 @@
                 $('#up-title').val(response.company.title);
                 $('#up-address').val(response.company.address);
                 $('#up-phone').val(response.company.phone);
+                $('#up-cleaning').val(response.company.sum_cleaning);
+                $('#up-stay').val(response.company.sum_stay);
+                $('#up-weighing').val(response.company.sum_weighing);
+                $('#up-rent-m').val(response.company.sum_rent_m);
+                $('#up-rent-scale').val(response.company.sum_rent_scale);
+
                 $('#updateButton').prop('disabled', false);
             } else {
                 alert(response.message);

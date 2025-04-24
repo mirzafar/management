@@ -2,6 +2,7 @@ from bson import ObjectId
 
 from core.db import mongo
 from core.handlers import BaseAPIView
+from utils.floats import FloatUtils
 from utils.phones import PhoneNumberUtils
 from utils.strs import StrUtils
 
@@ -48,6 +49,11 @@ class CompanyView(BaseAPIView):
         title = StrUtils.to_str(request.json.get('title'))
         phone = PhoneNumberUtils.normalize(request.json.get('phone'))
         address = StrUtils.to_str(request.json.get('address'))
+        sum_cleaning = FloatUtils.to_float(request.json.get('sum_cleaning'))
+        sum_stay = FloatUtils.to_float(request.json.get('sum_stay'))
+        sum_weighing = FloatUtils.to_float(request.json.get('sum_weighing'))
+        sum_rent_scale = FloatUtils.to_float(request.json.get('sum_rent_scale'))
+        sum_rent_m = FloatUtils.to_float(request.json.get('sum_rent_m'))
 
         if not title:
             return self.error(message='Отсуствует обязательный параметры "Имя"')
@@ -55,7 +61,12 @@ class CompanyView(BaseAPIView):
         await mongo.companies.update_one({'_id': ObjectId(company_id)}, {'$set': {
             'title': title,
             'phone': phone,
-            'address': address
+            'address': address,
+            'sum_cleaning': sum_cleaning,
+            'sum_stay': sum_stay,
+            'sum_weighing': sum_weighing,
+            'sum_rent_scale': sum_rent_scale,
+            'sum_rent_m': sum_rent_m,
         }})
 
         return self.success()

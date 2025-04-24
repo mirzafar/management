@@ -21,6 +21,7 @@ class ReceiptsReportsView(BaseAPIView):
         track_id = StrUtils.to_str(request.args.get('track_id'))
         start_billed_at = StrUtils.to_str(request.args.get('start_billed_at'))
         stop_billed_at = StrUtils.to_str(request.args.get('stop_billed_at'))
+        company_id = StrUtils.to_str(request.args.get('company_id'))
 
         filters = {
             'is_active': True
@@ -56,6 +57,11 @@ class ReceiptsReportsView(BaseAPIView):
 
             except (Exception,):
                 traceback.print_exc()
+
+        if company_id and company_id not in ['null', '0']:
+            filters['company_id'] = company_id
+
+        print(filters)
 
         items = await mongo.receipts.find(filters) \
             .sort('_id', -1) \

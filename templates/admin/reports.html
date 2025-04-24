@@ -1,0 +1,289 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+<div class="components-preview">
+    <div class="col-lg-12" id="div-filter">
+        <div class="nk-block-head">
+            <div class="nk-block-head-content"><h5 class="nk-block-title title">Отчет по распискам</h5></div>
+        </div>
+        <div class="card card-bordered">
+            <div class="card-inner">
+                <div class="row gy-4" id="filter-data">
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label">Дата принятия (C)</label>
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input value="{{request.args.get('start_arrived_at') or ''}}" type="text"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="start_arrived_at" placeholder="С"></div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label">Дата принятия (По)</label>
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input type="text" value="{{request.args.get('stop_arrived_at') or ''}}"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="stop_arrived_at" placeholder="ПО"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <label class="form-label">Номер вагон</label>
+                            <input type="text" class="form-control" name="track_id"
+                                   value="{{request.args.get('track_id') or ''}}">
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label">Дата выставление (C)</label>
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input value="{{request.args.get('start_billed_at') or ''}}" type="text"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="start_billed_at" placeholder="С"></div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label">Дата выставление (По)</label>
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input type="text" value="{{request.args.get('stop_billed_at') or ''}}"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="stop_billed_at" placeholder="ПО"></div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label"
+                                       for="f-company">Выберите компанию
+                                </label>
+                                <select class="form-control" id="f-company" name="company_id"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group">
+                            <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                                <li>
+                                    <button onclick="genReports()" data-bs-dismiss="modal" class="btn btn-success">
+                                        Отчет
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title"></h3>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="components-preview">
+    <div class="col-lg-12">
+        <div class="nk-block-head">
+            <div class="nk-block-head-content"><h5 class="nk-block-title title">Сводка по движению и отстою вагонов</h5>
+            </div>
+        </div>
+        <div class="card card-bordered">
+            <div class="card-inner">
+                <div class="row gy-4" id="filter-stayed-data">
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input value="{{request.args.get('started_at') or ''}}" type="text"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="started_at" placeholder="С"></div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input type="text" value="{{request.args.get('stopped_at') or ''}}"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="stopped_at" placeholder="ПО"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group">
+                            <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                                <li>
+                                    <button onclick="genStayedReports()" data-bs-dismiss="modal"
+                                            class="btn btn-success">
+                                        Отчет
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title"></h3>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="components-preview">
+    <div class="col-lg-12">
+        <div class="nk-block-head">
+            <div class="nk-block-head-content"><h5 class="nk-block-title title">Справка о железнодорожных услугах</h5>
+            </div>
+        </div>
+        <div class="card card-bordered">
+            <div class="card-inner">
+                <div class="row gy-4" id="filter-services-reference-data">
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label"
+                                       for="r-month">Выберите месяц
+                                </label>
+                                <select class="form-control" id="r-month" name="r-month">
+                                    <option value="1">Январь</option>
+                                    <option value="2">Февраль</option>
+                                    <option value="3">Март</option>
+                                    <option value="4">Апрель</option>
+                                    <option value="5">Май</option>
+                                    <option value="6">Июнь</option>
+                                    <option value="7">Июль</option>
+                                    <option value="8">Август</option>
+                                    <option value="9">Сентябрь</option>
+                                    <option value="10">Октябрь</option>
+                                    <option value="11">Ноябрь</option>
+                                    <option value="12">Декабрь</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label"
+                                       for="r-year">Выберите год
+                                </label>
+                                <select class="form-control" id="r-year" name="r-year">
+                                    <option value="2025">2025</option>
+                                    <option value="2026">2026</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group">
+                            <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                                <li>
+                                    <button onclick="genServicesReferenceReports()" data-bs-dismiss="modal"
+                                            class="btn btn-success">
+                                        Отчет
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title"></h3>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
+
+<script>
+    $('li[data-li="control"]').addClass('active');
+    $('li[data-li="control-reports"]').addClass('active');
+
+    $('#f-company').select2({
+        placeholder: 'Выберите',
+        language: {
+            noResults: function () {
+                return "Компания не найден";
+            }
+        },
+        ajax: {
+            transport: async function (params, success, failure) {
+                try {
+                    const query = params.data.q || '';
+                    const response = await fetch(`/api/controls/companies?response_type=json&query=${encodeURIComponent(query)}`);
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    const results = data.companies.map(company => ({
+                        id: company._id,
+                        text: `${company.title}`,
+                        value: company._id
+                    }));
+
+                    success({results});
+                } catch (error) {
+                    failure(error);
+                }
+            },
+            processResults: function (data) {
+                return data;
+            }
+        }
+    });
+
+    function paramsToQueryString(params) {
+        return Object.keys(params)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+            .join("&");
+    }
+
+    function genReports() {
+        let params = getValues('#filter-data')
+        let updatedQueryString = paramsToQueryString(params);
+        window.location.href = `/api/reports/receipts/?${updatedQueryString}`
+    }
+
+    function genStayedReports() {
+        let params = getValues('#filter-stayed-data')
+        let updatedQueryString = paramsToQueryString(params);
+        window.location.href = `/api/reports/stayed?${updatedQueryString}`
+    }
+
+    function genServicesReferenceReports() {
+        let params = getValues('#filter-services-reference-data')
+        let updatedQueryString = paramsToQueryString(params);
+        window.location.href = `/api/reports/services-reference?${updatedQueryString}`
+    }
+
+</script>
+{% endblock %}

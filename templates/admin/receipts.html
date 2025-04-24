@@ -1,7 +1,7 @@
 {% extends 'admin/base.html' %}
 {% block container %}
 <div class="components-preview">
-    <div class="col-lg-12" id="div-filter">
+    <div class="col-lg-12" id="div-filter" style="display: none;">
         <div class="nk-block-head">
             <div class="nk-block-head-content"><h5 class="nk-block-title title">Фильтр</h5></div>
         </div>
@@ -54,6 +54,16 @@
                                 <input type="text" value="{{request.args.get('stop_billed_at') or ''}}"
                                        class="form-control date-picker" data-date-format="yyyy-mm-dd"
                                        name="stop_billed_at" placeholder="ПО"></div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label"
+                                       for="f-company">Выберите компанию
+                                </label>
+                                <select class="form-control" id="f-company" name="company_id"></select>
+                            </div>
                         </div>
                     </div>
                     <div class="col-12">
@@ -134,10 +144,8 @@
                                 <div class="nk-tb-col"><span class="sub-text">Состаяние</span><span>Вид</span></div>
                                 <div class="nk-tb-col"><span>Компания</span></div>
                                 <div class="nk-tb-col"><span>Дата выставление</span></div>
-                                <div class="nk-tb-col tb-col-sm"><span>Вагона в сутки</span></div>
                                 <div class="nk-tb-col tb-col-sm"><span>Tonna</span></div>
                                 <div class="nk-tb-col tb-col-sm"><span>Tara</span></div>
-                                <div class="nk-tb-col tb-col-sm"><span>Netta</span></div>
                                 <div class="nk-tb-col"><span class="sub-text">ПП</span><span>Состаяние/Компания</span>
                                 </div>
                                 <div class="nk-tb-col tb-col-sm"><span>Путь</span></div>
@@ -172,7 +180,6 @@
                                                     {% endif %}
                                                 </select>
                                             </span>
-                                            <!--                                            <span>{{item.type_id and types and item.type_id in types and types[item.type_id].title or ''}}</span>-->
                                             <span>
                                                 <select class="form-control" name="type_id">
                                                     <option value="">Выберите</option>
@@ -189,7 +196,16 @@
                                 </div>
 
                                 <div class="nk-tb-col">
-                                    <span>{{item.company_id and companies and item.company_id in companies and companies[item.company_id].title or ''}}</span>
+                                    <select class="form-control" name="company_id">
+                                        <option value="">Выберите</option>
+                                        {% if companies %}
+                                        {% for company in companies.values() %}
+                                        <option {% if item.company_id == company._id %}selected{% endif %}
+                                                value="{{company._id}}">{{company.title}}
+                                        </option>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </select>
                                 </div>
 
                                 <div class="nk-tb-col">
@@ -197,10 +213,6 @@
                                            data-date-format="dd.mm.yyyy"
                                            name="billed_at" value="{{item.billed_at or ''}}">
 
-                                </div>
-
-                                <div class="nk-tb-col tb-col-sm">
-                                    {{item.stayed_day or ''}}
                                 </div>
 
                                 <div class="nk-tb-col tb-col-sm">
@@ -212,10 +224,6 @@
                                     <input type="number" min="0.0" value="{{item.after_weight or ''}}"
                                            class="form-control" name="after_weight">
 
-                                </div>
-
-                                <div class="nk-tb-col tb-col-sm">
-                                    {{item.netta or ''}}
                                 </div>
 
                                 <div class="nk-tb-col">
@@ -232,7 +240,17 @@
                                                     {% endif %}
                                                 </select>
                                             </span>
-                                            <span>{{item.pp_company_id and companies and item.pp_company_id in companies and companies[item.pp_company_id].title or ''}}</span>
+                                            <span>
+                                                <select class="form-control" name="pp_company_id">
+                                                    <option value="">Выберите</option>
+                                                    {% if companies %}
+                                                    {% for company in companies.values() %}
+                                                    <option {% if item.pp_company_id== company._id %}selected{% endif %}
+                                                            value="{{company._id}}">{{company.title}}</option>
+                                                    {% endfor %}
+                                                    {% endif %}
+                                                </select>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -575,7 +593,6 @@
 
     let divFilter = $('#div-filter');
     let isDivFilter = false;
-    divFilter.hide();
 
     $('#toggleButton').click(function () {
         alert()
@@ -677,6 +694,41 @@
     }
 
     $('#cf-company').select2({
+        placeholder: 'Выберите',
+        language: {
+            noResults: function () {
+                return "Компания не найден";
+            }
+        },
+        ajax: {
+            transport: async function (params, success, failure) {
+                try {
+                    const query = params.data.q || '';
+                    const response = await fetch(`/api/controls/companies?response_type=json&query=${encodeURIComponent(query)}`);
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    const results = data.companies.map(company => ({
+                        id: company._id,
+                        text: `${company.title}`,
+                        value: company._id
+                    }));
+
+                    success({results});
+                } catch (error) {
+                    failure(error);
+                }
+            },
+            processResults: function (data) {
+                return data;
+            }
+        }
+    });
+
+    $('#f-company').select2({
         placeholder: 'Выберите',
         language: {
             noResults: function () {
