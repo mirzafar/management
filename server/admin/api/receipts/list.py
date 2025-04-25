@@ -217,6 +217,7 @@ class ReceiptsView(BaseAPIView):
                     'receipt_id': str(inserted.inserted_id),
                     'company_id': company_id,
                     'event': 'arrive',
+                    'is_weighed': is_weighed,
                     'dtn': arrived_at
                 })
 
