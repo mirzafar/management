@@ -16,7 +16,7 @@ class CompaniesView(BaseAPIView):
     async def get(self, request, user):
         pager = Pager()
         pager.set_page(request.args.get('page', 1))
-        pager.set_limit(request.args.get('limit', 20))
+        pager.set_limit(request.args.get('limit', 100   ))
         offset = IntUtils.to_int(request.args.get('offset')) or pager.offset
 
         query = StrUtils.to_str(request.args.get('query'))

@@ -53,32 +53,25 @@
                             <div class="nk-tb-col nk-tb-col-tools text-end"></div>
                         </div>
                         {% for item in roads %}
-                        <div class="nk-tb-item">
+                        <div class="nk-tb-item js-cont" data-id="{{item._id}}">
                             <div class="nk-tb-col">
-                                {{item.title}}
+                                <input type="text" name="title" class="form-control" value="{{item.title}}">
                             </div>
                             <div class="nk-tb-col nk-tb-col-tools">
-                                <ul class="nk-tb-actions gx-1 my-n1">
-                                    <li class="me-n1">
-                                        <div class="dropdown"><a href="#"
-                                                                 class="dropdown-toggle btn btn-icon btn-trigger"
-                                                                 data-bs-toggle="dropdown"><em
-                                                class="icon ni ni-more-h"></em></a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <ul class="link-list-opt no-bdr">
-                                                    <li><a data-target="updateProduct" class="toggle"
-                                                           onclick="openItem('{{item._id}}')">
-                                                        <em class="icon ni ni-eye text-info"></em>
-                                                        <span class="tb-status text-info">Просмотр</span>
-                                                    </a>
-                                                    </li>
-                                                    <li><a onclick="removeItem('{{item._id}}')"><em
-                                                            class="icon ni ni-trash text-danger"></em>
-                                                        <span class="tb-status text-danger">Удалить</span></a></li>
-
-                                                </ul>
-                                            </div>
-                                        </div>
+                                <ul data-id="{{ item._id }}" class="nk-tb-actions gx-1">
+                                    <li class="nk-tb-action">
+                                        <a class="js-remove">
+                                                <span class="tb-status text-danger">
+                                                    <em class="icon ni ni-trash"></em>
+                                                </span>
+                                        </a>
+                                    </li>
+                                    <li class="nk-tb-action">
+                                        <a class="js-update">
+                                                <span class="tb-status text-success">
+                                                <em class="icon ni ni-check"></em>
+                                                </span>
+                                        </a>
                                     </li>
                                 </ul>
                             </div>
@@ -113,31 +106,6 @@
             </div>
         </div>
     </div>
-    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="updateProduct"
-         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar
-         id="update-data-item">
-        <div class="nk-block">
-            <div class="row g-3">
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="up-title">Название
-                        </label>
-                        <input class="form-control" type="text" name="title" id="up-title">
-                    </div>
-                </div>
-                <div class="col-12">
-                    <button id="updateButton" onclick="updateItem()" class="btn btn-primary"><em
-                            class="icon ni ni-plus"></em><span>Изменить</span></button>
-                </div>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %}
 {% block js %}
@@ -145,7 +113,9 @@
     $('li[data-li="control"]').addClass('active')
     $('li[data-li="control-roads"]').addClass('active')
 
-    async function removeItem(itemId) {
+    $('.js-remove').click(async function () {
+        var itemId = $(this).parents('ul').data('id');
+
         try {
             let response = await fetch('/api/roads/' + itemId, {
                 method: 'DELETE'
@@ -161,7 +131,7 @@
         } catch (error) {
             alertShow('waring', `${error.message}`);
         }
-    };
+    })
 
     async function createItem() {
         $('#createButton').prop('disabled', true)
@@ -185,19 +155,19 @@
         }
     }
 
-    async function updateItem() {
-        $('#updateButton').prop('disabled', true);
+    $('.js-update').click(async function () {
+        var itemId = $(this).parents('ul').data('id');
+
         try {
-            let data = getValues('#update-data-item')
-            let response = await fetch(`/api/roads/${updateId}`, {
+            let data = getValues('.js-cont[data-id="' + itemId + '"]')
+            let response = await fetch(`/api/roads/${itemId}`, {
                 method: 'PUT',
                 body: JSON.stringify(data)
             });
 
             response = await response.json();
             if (response._success === true) {
-                $('#updateButton').prop('disabled', false);
-                window.location.reload();
+                alertShow('success', 'Обнавлено')
             } else {
                 alert(response.message);
             }
@@ -205,29 +175,7 @@
         } catch (error) {
             alertShow('waring', `${error.message}`);
         }
-    }
-
-    let updateId = null
-
-    async function openItem(itemId) {
-        updateId = null
-        try {
-            let response = await fetch(`/api/roads/${itemId}?response_type=json`, {
-                method: 'GET'
-            });
-
-            response = await response.json();
-            if (response._success === true) {
-                updateId = itemId
-                $('#up-title').val(response.road.title)
-            } else {
-                alert(response.message);
-            }
-
-        } catch (error) {
-            alertShow('waring', `${error.message}`);
-        }
-    }
+    })
 
 </script>
 {% endblock %}

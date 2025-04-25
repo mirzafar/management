@@ -489,99 +489,6 @@
             </div>
         </div>
     </div>
-    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="updateProduct"
-         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar
-         id="update-data-item">
-        <div class="nk-block">
-            <div class="row g-3">
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="up-arrived-at">Дата принятия
-                        </label>
-                        <input type="text" class="form-control date-picker-alt"
-                               data-date-format="yyyy-mm-dd"
-                               name="arrived_at"
-                               id="up-arrived-at">
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="up-state">Состаяние вагона
-                        </label>
-                        <select class="form-control" name="state_id" id="up-state">
-                            <option value=""></option>
-                            {% for state in states.values() %}
-                            <option value="{{state._id}}">{{state.title}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="up-type">Вид вагона
-                        </label>
-                        <select class="form-control" name="type_id" id="up-type">
-                            <option value=""></option>
-                            {% for type in types.values() %}
-                            <option value="{{type._id}}">{{type.title}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="up-billed-at">Дата выставление
-                        </label>
-                        <input type="text" class="form-control date-picker-alt"
-                               data-date-format="yyyy-mm-dd"
-                               name="billed_at"
-                               id="up-billed-at">
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="up-before-weight">Изначальный весь
-                        </label>
-                        <input type="number" min="0.0" class="form-control" name="before_weight" id="up-before-weight">
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="up-after-weight">Конечный весь
-                        </label>
-                        <input type="number" min="0.0" class="form-control" name="after_weight" id="up-after-weight">
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="up-description">Описание
-                        </label>
-                        <textarea class="form-control" name="description" id="up-description"></textarea>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <button onclick="updateItem()" id="updateButton" class="btn btn-primary"><em
-                            class="icon ni ni-plus"></em><span>Изменить</span></button>
-                </div>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %}
 {% block js %}
@@ -679,19 +586,6 @@
         return false;
     })
 
-
-    function dateToString(timestamp) {
-        if (!timestamp) {
-            return ''
-        }
-        const date = new Date(timestamp * 1000);
-
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-
-        return `${year}-${month}-${day}`
-    }
 
     $('#cf-company').select2({
         placeholder: 'Выберите',
