@@ -2,6 +2,7 @@ from bson import ObjectId
 
 from core.db import mongo
 from core.handlers import BaseAPIView
+from data.repository.states import ControlStatesRepository
 from utils.strs import StrUtils
 
 
@@ -32,6 +33,7 @@ class StateView(BaseAPIView):
         await mongo.states.update_one({'_id': ObjectId(state_id)}, {'$set': {
             'title': title
         }})
+        await ControlStatesRepository.delete_cache()
 
         return self.success()
 
@@ -43,5 +45,5 @@ class StateView(BaseAPIView):
         await mongo.states.update_one({'_id': ObjectId(state_id)}, {'$set': {
             'is_active': False
         }})
-
+        await ControlStatesRepository.delete_cache()
         return self.success()

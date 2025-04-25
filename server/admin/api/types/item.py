@@ -2,6 +2,7 @@ from bson import ObjectId
 
 from core.db import mongo
 from core.handlers import BaseAPIView
+from data.repository.types import ControlTypesRepository
 from utils.strs import StrUtils
 
 
@@ -32,6 +33,7 @@ class TypeView(BaseAPIView):
         await mongo.types.update_one({'_id': ObjectId(type_id)}, {'$set': {
             'title': title
         }})
+        await ControlTypesRepository.delete_cache()
 
         return self.success()
 
@@ -44,4 +46,5 @@ class TypeView(BaseAPIView):
             'is_active': False
         }})
 
+        await ControlTypesRepository.delete_cache()
         return self.success()

@@ -2,6 +2,7 @@ from bson import ObjectId
 
 from core.db import mongo
 from core.handlers import BaseAPIView
+from data.repository.companies import ControlCompaniesRepository
 from utils.floats import FloatUtils
 from utils.phones import PhoneNumberUtils
 from utils.strs import StrUtils
@@ -69,6 +70,8 @@ class CompanyView(BaseAPIView):
             'sum_rent_m': sum_rent_m,
         }})
 
+        await ControlCompaniesRepository.delete_cache()
+
         return self.success()
 
     async def delete(self, request, user, company_id):
@@ -79,5 +82,7 @@ class CompanyView(BaseAPIView):
         await mongo.companies.update_one({'_id': ObjectId(company_id)}, {'$set': {
             'is_active': False
         }})
+
+        await ControlCompaniesRepository.delete_cache()
 
         return self.success()

@@ -2,6 +2,7 @@ from bson import ObjectId
 
 from core.db import mongo
 from core.handlers import BaseAPIView
+from data.repository.roads import ControlRoadsRepository
 from utils.strs import StrUtils
 
 
@@ -32,6 +33,7 @@ class RoadView(BaseAPIView):
         await mongo.roads.update_one({'_id': ObjectId(road_id)}, {'$set': {
             'title': title
         }})
+        await ControlRoadsRepository.delete_cache()
 
         return self.success()
 
@@ -43,5 +45,7 @@ class RoadView(BaseAPIView):
         await mongo.roads.update_one({'_id': ObjectId(road_id)}, {'$set': {
             'is_active': False
         }})
+
+        await ControlRoadsRepository.delete_cache()
 
         return self.success()

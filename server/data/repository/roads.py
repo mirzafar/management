@@ -23,3 +23,7 @@ class ControlRoadsRepository:
             await cache.set('control:roads', ujson.dumps(roads))
 
         return roads
+
+    @classmethod
+    async def delete_cache(cls):
+        return await cache.delete('control:roads')

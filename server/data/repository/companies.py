@@ -6,6 +6,10 @@ from core.db import mongo
 
 class ControlCompaniesRepository:
     @classmethod
+    async def delete_cache(cls):
+        return await cache.delete('control:companies')
+
+    @classmethod
     async def get_companies(cls) -> dict:
         companies = await cache.get('control:companies')
         if companies:

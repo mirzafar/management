@@ -104,7 +104,7 @@
                         <div class="form-group">
                             <div class="form-control-wrap">
                                 <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
-                                <input value="{{request.args.get('started_at') or ''}}" type="text"
+                                <input value="{{first_day}}" type="text"
                                        class="form-control date-picker" data-date-format="yyyy-mm-dd"
                                        name="started_at" placeholder="С"></div>
                         </div>
@@ -113,7 +113,7 @@
                         <div class="form-group">
                             <div class="form-control-wrap">
                                 <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
-                                <input type="text" value="{{request.args.get('stopped_at') or ''}}"
+                                <input type="text" value="{{last_day}}"
                                        class="form-control date-picker" data-date-format="yyyy-mm-dd"
                                        name="stopped_at" placeholder="ПО"></div>
                         </div>
@@ -160,18 +160,18 @@
                                        for="r-month">Выберите месяц
                                 </label>
                                 <select class="form-control" id="r-month" name="r-month">
-                                    <option value="1">Январь</option>
-                                    <option value="2">Февраль</option>
-                                    <option value="3">Март</option>
-                                    <option value="4">Апрель</option>
-                                    <option value="5">Май</option>
-                                    <option value="6">Июнь</option>
-                                    <option value="7">Июль</option>
-                                    <option value="8">Август</option>
-                                    <option value="9">Сентябрь</option>
-                                    <option value="10">Октябрь</option>
-                                    <option value="11">Ноябрь</option>
-                                    <option value="12">Декабрь</option>
+                                    <option {% if month and month == 1 %}selected{% endif %} value="1">Январь</option>
+                                    <option {% if month and month == 2 %}selected{% endif %} value="2">Февраль</option>
+                                    <option {% if month and month == 3 %}selected{% endif %} value="3">Март</option>
+                                    <option {% if month and month == 4 %}selected{% endif %} value="4">Апрель</option>
+                                    <option {% if month and month == 5 %}selected{% endif %} value="5">Май</option>
+                                    <option {% if month and month == 6 %}selected{% endif %} value="6">Июнь</option>
+                                    <option {% if month and month == 7 %}selected{% endif %} value="7">Июль</option>
+                                    <option {% if month and month == 8 %}selected{% endif %} value="8">Август</option>
+                                    <option {% if month and month == 9 %}selected{% endif %} value="9">Сентябрь</option>
+                                    <option {% if month and month == 10 %}selected{% endif %} value="10">Октябрь</option>
+                                    <option {% if month and month == 11 %}selected{% endif %} value="11">Ноябрь</option>
+                                    <option {% if month and month == 12 %}selected{% endif %} value="12">Декабрь</option>
                                 </select>
                             </div>
                         </div>
@@ -184,8 +184,8 @@
                                        for="r-year">Выберите год
                                 </label>
                                 <select class="form-control" id="r-year" name="r-year">
-                                    <option value="2025">2025</option>
-                                    <option value="2026">2026</option>
+                                    <option {% if year and year == 2025 %}selected{% endif %} value="2025">2025</option>
+                                    <option {% if year and year == 2026 %}selected{% endif %} value="2026">2026</option>
                                 </select>
                             </div>
                         </div>
@@ -196,6 +196,103 @@
                             <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
                                 <li>
                                     <button onclick="genServicesReferenceReports()" data-bs-dismiss="modal"
+                                            class="btn btn-success">
+                                        Отчет
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title"></h3>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="components-preview">
+    <div class="col-lg-12">
+        <div class="nk-block-head">
+            <div class="nk-block-head-content"><h5 class="nk-block-title title">Справка учета принятия и выставления вагонов</h5>
+            </div>
+        </div>
+        <div class="card card-bordered">
+            <div class="card-inner">
+                <div class="row gy-4" id="filter-record-acceptance-data">
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label" for="r-a-number">Лист №</label>
+                                <input type="text" id="r-a-number" name="r-a-number" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label"
+                                       for="r-a-company-id">Выберите компания
+                                </label>
+                                <select class="form-control" id="r-a-company-id" name="r-a-company-id">
+                                    <option value="">Выберите</option>
+                                    {% if companies %}
+                                    {% for company in companies.values() %}
+                                    <option value="{{company._id}}">{{company.title}}</option>
+                                    {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label"
+                                       for="r-month">Выберите месяц
+                                </label>
+                                <select class="form-control" id="r-a-month" name="r-a-month">
+                                    <option {% if month and month == 1 %}selected{% endif %} value="1">Январь</option>
+                                    <option {% if month and month == 2 %}selected{% endif %} value="2">Февраль</option>
+                                    <option {% if month and month == 3 %}selected{% endif %} value="3">Март</option>
+                                    <option {% if month and month == 4 %}selected{% endif %} value="4">Апрель</option>
+                                    <option {% if month and month == 5 %}selected{% endif %} value="5">Май</option>
+                                    <option {% if month and month == 6 %}selected{% endif %} value="6">Июнь</option>
+                                    <option {% if month and month == 7 %}selected{% endif %} value="7">Июль</option>
+                                    <option {% if month and month == 8 %}selected{% endif %} value="8">Август</option>
+                                    <option {% if month and month == 9 %}selected{% endif %} value="9">Сентябрь</option>
+                                    <option {% if month and month == 10 %}selected{% endif %} value="10">Октябрь</option>
+                                    <option {% if month and month == 11 %}selected{% endif %} value="11">Ноябрь</option>
+                                    <option {% if month and month == 12 %}selected{% endif %} value="12">Декабрь</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <label class="form-label"
+                                       for="r-year">Выберите год
+                                </label>
+                                <select class="form-control" id="r-a-year" name="r-a-year">
+                                    <option {% if year and year == 2025 %}selected{% endif %} value="2025">2025</option>
+                                    <option {% if year and year == 2026 %}selected{% endif %} value="2026">2026</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group">
+                            <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                                <li>
+                                    <button onclick="genRecordAcceptanceReports()" data-bs-dismiss="modal"
                                             class="btn btn-success">
                                         Отчет
                                     </button>
@@ -283,6 +380,12 @@
         let params = getValues('#filter-services-reference-data')
         let updatedQueryString = paramsToQueryString(params);
         window.location.href = `/api/reports/services-reference?${updatedQueryString}`
+    }
+
+    function genRecordAcceptanceReports() {
+        let params = getValues('#filter-record-acceptance-data')
+        let updatedQueryString = paramsToQueryString(params);
+        window.location.href = `/api/reports/record-acceptance?${updatedQueryString}`
     }
 
 </script>

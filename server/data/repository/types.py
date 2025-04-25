@@ -23,3 +23,7 @@ class ControlTypesRepository:
             await cache.set('control:types', ujson.dumps(types))
 
         return types
+
+    @classmethod
+    async def delete_cache(cls):
+        return await cache.delete('control:types')

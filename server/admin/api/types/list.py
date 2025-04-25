@@ -3,6 +3,7 @@ from datetime import datetime
 from core.db import mongo
 from core.handlers import BaseAPIView
 from core.pager import Pager
+from data.repository.types import ControlTypesRepository
 from utils.ints import IntUtils
 from utils.strs import StrUtils
 
@@ -50,6 +51,7 @@ class TypesView(BaseAPIView):
 
         if inserted.inserted_id:
             data['id'] = inserted.inserted_id
+            await ControlTypesRepository.delete_cache()
         else:
             return self.error(message='Операция не выполнена')
 
