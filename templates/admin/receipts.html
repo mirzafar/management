@@ -56,16 +56,6 @@
                                        name="stop_billed_at" placeholder="ПО"></div>
                         </div>
                     </div>
-                    <div class="col-xxl-4 col-sm-6">
-                        <div class="form-group">
-                            <div class="form-control-wrap">
-                                <label class="form-label"
-                                       for="f-company">Выберите компанию
-                                </label>
-                                <select class="form-control" id="f-company" name="company_id"></select>
-                            </div>
-                        </div>
-                    </div>
                     <div class="col-12">
                         <div class="form-group">
                             <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
@@ -76,11 +66,6 @@
                                 <li>
                                     <button onclick="clearFilters()" data-bs-dismiss="modal" class="btn btn-danger">
                                         Очистить
-                                    </button>
-                                </li>
-                                <li>
-                                    <button onclick="genReports()" data-bs-dismiss="modal" class="btn btn-success">
-                                        Отчет
                                     </button>
                                 </li>
                             </ul>
@@ -200,7 +185,7 @@
                                         <option value="">Выберите</option>
                                         {% if companies %}
                                         {% for company in companies.values() %}
-                                        <option {% if item.company_id == company._id %}selected{% endif %}
+                                        <option {% if item.company_id== company._id %}selected{% endif %}
                                                 value="{{company._id}}">{{company.title}}
                                         </option>
                                         {% endfor %}
@@ -385,7 +370,14 @@
                         <label class="form-label"
                                for="cf-company">Выберите компанию
                         </label>
-                        <select id="cf-company" name="company_id"></select>
+                        <select id="cf-company" class="form-control" name="company_id">
+                            <option value="">Выберите</option>
+                            {% if companies %}
+                            {% for company in companies.values() %}
+                            <option value="{{company._id}}">{{company.title}}</option>
+                            {% endfor %}
+                            {% endif %}
+                        </select>
                     </div>
                 </div>
 
@@ -422,7 +414,14 @@
                         <label class="form-label"
                                for="cf-pp-company">п/п выберите компанию
                         </label>
-                        <select id="cf-pp-company" name="pp_company_id"></select>
+                        <select id="cf-pp-company" class="form-control" name="pp_company_id">
+                            <option value="">Выберите</option>
+                            {% if companies %}
+                            {% for company in companies.values() %}
+                            <option value="{{company._id}}">{{company.title}}</option>
+                            {% endfor %}
+                            {% endif %}
+                        </select>
                     </div>
                 </div>
 
@@ -501,10 +500,6 @@
     let divFilter = $('#div-filter');
     let isDivFilter = false;
 
-    $('#toggleButton').click(function () {
-        alert()
-    })
-
     function toggleFilter() {
         if (isDivFilter) {
             divFilter.hide();
@@ -517,26 +512,26 @@
 
 
     $('.js-remove').click(async function () {
-        var itemId = $(this).parents('ul').data('id');
-
-        try {
-            let response = await fetch('/api/receipts/' + itemId, {
-                method: 'DELETE'
-            });
-
-            response = await response.json();
-            if (response._success === true) {
-                window.location.href = '/api/receipts/';
-            } else {
-                alert(response.message);
+        if (confirm('Действительно хотите удалить?')) {
+            var itemId = $(this).parents('ul').data('id');
+            try {
+                let response = await fetch('/api/receipts/' + itemId, {
+                    method: 'DELETE'
+                });
+                response = await response.json();
+                if (response._success === true) {
+                    window.location.href = '/api/receipts/';
+                } else {
+                    alert(response.message);
+                }
+            } catch (error) {
+                alertShow('waring', `${error.message}`);
             }
-
-        } catch (error) {
-            alertShow('waring', `${error.message}`);
         }
     })
 
     async function createItem() {
+        alertShow('waring', 'Загрузка...')
         $('#createItemButton').prop('disabled', true);
         try {
             let response = await fetch('/api/receipts/', {
@@ -561,17 +556,16 @@
     }
 
     $('.js-update').click(async function () {
+        alertShow('waring', 'Загрузка...')
         var itemId = $(this).parents('ul').data('id');
         try {
             let data = getValues('.js-cont[data-id="' + itemId + '"]')
-            console.log(data)
             let response = await fetch(`/api/receipts/${itemId}`, {
                 method: 'PUT',
                 body: JSON.stringify({
                     ...data
                 })
             });
-
             response = await response.json();
             if (response._success === true) {
                 alertShow('success', 'Обнавлено');
@@ -585,112 +579,6 @@
 
         return false;
     })
-
-
-    $('#cf-company').select2({
-        placeholder: 'Выберите',
-        language: {
-            noResults: function () {
-                return "Компания не найден";
-            }
-        },
-        ajax: {
-            transport: async function (params, success, failure) {
-                try {
-                    const query = params.data.q || '';
-                    const response = await fetch(`/api/controls/companies?response_type=json&query=${encodeURIComponent(query)}`);
-
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-
-                    const data = await response.json();
-                    const results = data.companies.map(company => ({
-                        id: company._id,
-                        text: `${company.title}`,
-                        value: company._id
-                    }));
-
-                    success({results});
-                } catch (error) {
-                    failure(error);
-                }
-            },
-            processResults: function (data) {
-                return data;
-            }
-        }
-    });
-
-    $('#f-company').select2({
-        placeholder: 'Выберите',
-        language: {
-            noResults: function () {
-                return "Компания не найден";
-            }
-        },
-        ajax: {
-            transport: async function (params, success, failure) {
-                try {
-                    const query = params.data.q || '';
-                    const response = await fetch(`/api/controls/companies?response_type=json&query=${encodeURIComponent(query)}`);
-
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-
-                    const data = await response.json();
-                    const results = data.companies.map(company => ({
-                        id: company._id,
-                        text: `${company.title}`,
-                        value: company._id
-                    }));
-
-                    success({results});
-                } catch (error) {
-                    failure(error);
-                }
-            },
-            processResults: function (data) {
-                return data;
-            }
-        }
-    });
-
-    $('#cf-pp-company').select2({
-        placeholder: 'Выберите',
-        language: {
-            noResults: function () {
-                return "Компания не найден";
-            }
-        },
-        ajax: {
-            transport: async function (params, success, failure) {
-                try {
-                    const query = params.data.q || '';
-                    const response = await fetch(`/api/controls/companies?response_type=json&query=${encodeURIComponent(query)}`);
-
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-
-                    const data = await response.json();
-                    const results = data.companies.map(company => ({
-                        id: company._id,
-                        text: `${company.title}`,
-                        value: company._id
-                    }));
-
-                    success({results});
-                } catch (error) {
-                    failure(error);
-                }
-            },
-            processResults: function (data) {
-                return data;
-            }
-        }
-    });
 
     function paramsToQueryString(params) {
         return Object.keys(params)
@@ -706,12 +594,6 @@
         let params = getValues('#filter-data')
         let updatedQueryString = paramsToQueryString(params);
         window.location.href = `/api/receipts?${updatedQueryString}`
-    }
-
-    function genReports() {
-        let params = getValues('#filter-data')
-        let updatedQueryString = paramsToQueryString(params);
-        window.location.href = `/api/reports/receipts/?${updatedQueryString}`
     }
 
 </script>

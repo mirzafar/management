@@ -1,27 +1,34 @@
-function login() {
-    let new_data = getValues('#data-items')
-    $.ajax({
-        type: 'POST',
-        dataType: 'json',
-        url: '/admin/login/',
-        data: JSON.stringify(new_data),
-        success: function (d) {
-            if (d['_success'] === true) {
-                location.href = '/api/'
-            } else {
-                alert(d['message'])
-            }
-        },
-        error: function (d) {
-            alert('errors')
+async function login() {
+    let loginButton = $('#loginButton')
+    loginButton.prop('disabled', true)
+
+    let data = getValues('#data-items')
+
+    try {
+        let response = await fetch(`/admin/login/`, {
+            method: 'POST',
+            body: JSON.stringify({
+                ...data
+            })
+        });
+
+        response = await response.json();
+        if (response._success === true) {
+            location.href = '/api/';
+        } else {
+            alert(response.message);
+            loginButton.prop('disabled', false)
         }
-    });
-    return false;
+
+    } catch (error) {
+        alert(`${error.message}`);
+        loginButton.prop('disabled', false)
+    }
 }
 
-$(document).on('keypress', function (e) {
+$(document).on('keypress', async function (e) {
     if (e.which === 13) {
-        login();
+        await login();
     }
 });
 

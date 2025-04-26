@@ -2,10 +2,8 @@ from datetime import datetime
 
 from core.db import mongo
 from core.handlers import BaseAPIView
-from core.pager import Pager
 from data.repository.companies import ControlCompaniesRepository
 from utils.floats import FloatUtils
-from utils.ints import IntUtils
 from utils.phones import PhoneNumberUtils
 from utils.strs import StrUtils
 
@@ -14,11 +12,6 @@ class CompaniesView(BaseAPIView):
     template_name = 'admin/companies.html'
 
     async def get(self, request, user):
-        pager = Pager()
-        pager.set_page(request.args.get('page', 1))
-        pager.set_limit(request.args.get('limit', 100   ))
-        offset = IntUtils.to_int(request.args.get('offset')) or pager.offset
-
         query = StrUtils.to_str(request.args.get('query'))
 
         filters = {
@@ -28,16 +21,10 @@ class CompaniesView(BaseAPIView):
         if query:
             filters['title'] = {'$regex': query, '$options': 'i'}
 
-        items = await mongo.companies.find(filters).skip(offset) \
-            .limit(pager.limit) \
-            .sort('_id', -1) \
-            .to_list(length=None)
-
-        pager.set_total(await mongo.companies.count_documents(filters) or 0)
+        items = await mongo.companies.find(filters).sort('_id', -1).to_list(length=None)
 
         return self.success(request=request, user=user, data={
-            'companies': items,
-            'pager': pager.dict()
+            'companies': items
         })
 
     async def post(self, request, user):

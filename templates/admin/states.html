@@ -114,22 +114,21 @@
     $('li[data-li="control-states"]').addClass('active')
 
     $('.js-remove').click(async function () {
-        var itemId = $(this).parents('ul').data('id');
-
-        try {
-            let response = await fetch('/api/states/' + itemId, {
-                method: 'DELETE'
-            });
-
-            response = await response.json();
-            if (response._success === true) {
-                window.location.reload();
-            } else {
-                alert(response.message);
+        if (confirm('Действительно хотите удалить?')) {
+            var itemId = $(this).parents('ul').data('id');
+            try {
+                let response = await fetch('/api/states/' + itemId, {
+                    method: 'DELETE'
+                });
+                response = await response.json();
+                if (response._success === true) {
+                    window.location.reload();
+                } else {
+                    alert(response.message);
+                }
+            } catch (error) {
+                alertShow('waring', `${error.message}`);
             }
-
-        } catch (error) {
-            alertShow('waring', `${error.message}`);
         }
     })
 
@@ -140,7 +139,6 @@
                 method: 'POST',
                 body: JSON.stringify(getValues('#new-data-item'))
             });
-
             response = await response.json();
             if (response._success === true) {
                 window.location.reload();
@@ -148,7 +146,6 @@
                 $('#createButton').prop('disabled', false)
                 alert(response.message);
             }
-
         } catch (error) {
             $('#createButton').prop('disabled', false)
             alertShow('waring', `${error.message}`);
@@ -156,22 +153,20 @@
     }
 
     $('.js-update').click(async function () {
+        alertShow('waring', 'Загрузка...')
         var itemId = $(this).parents('ul').data('id');
-
         try {
             let data = getValues('.js-cont[data-id="' + itemId + '"]')
             let response = await fetch(`/api/states/${itemId}`, {
                 method: 'PUT',
                 body: JSON.stringify(data)
             });
-
             response = await response.json();
             if (response._success === true) {
                 alertShow('success', 'Обнавлено')
             } else {
                 alert(response.message);
             }
-
         } catch (error) {
             alertShow('waring', `${error.message}`);
         }

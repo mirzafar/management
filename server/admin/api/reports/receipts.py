@@ -61,8 +61,6 @@ class ReceiptsReportsView(BaseAPIView):
         if company_id and company_id not in ['null', '0']:
             filters['company_id'] = company_id
 
-        print(filters)
-
         items = await mongo.receipts.find(filters) \
             .sort('_id', -1) \
             .to_list(length=None)
@@ -131,29 +129,27 @@ class ReceiptsReportsView(BaseAPIView):
             headers.append(title['name'])
             widths.append(title['width'])
 
-        bold_format = workbook.add_format({'bold': True, 'align': 'center'})
+        bold_format = workbook.add_format({'bold': True, 'align': 'center', 'border': 1})
         worksheet.write_row(0, 0, headers, bold_format)
         for i in range(len(widths)):
             worksheet.set_column(i, i, widths[i])
 
         count = 1
         for receipt in receipts:
-            print()
-            print(receipt.get('pp_company_id'))
             worksheet.write_row(count, 0, [
-                str(receipt['arrived_at'] or ''),
-                receipt['track_id'],
-                receipt['type_id'] in (types or {}) and types[receipt['type_id']]['title'],
-                receipt['state_id'] in (states or {}) and states[receipt['state_id']]['title'],
-                receipt['company_id'] in (companies or {}) and companies[receipt['company_id']]['title'],
+                str(receipt['arrived_at'] or '') or '',
+                receipt['track_id'] or '',
+                receipt['type_id'] in (types or {}) and types[receipt['type_id']]['title'] or '',
+                receipt['state_id'] in (states or {}) and states[receipt['state_id']]['title'] or '',
+                receipt['company_id'] in (companies or {}) and companies[receipt['company_id']]['title'] or '',
                 str(receipt['billed_at'] or ''),
-                receipt['stayed_day'],
-                receipt['pp_state_id'] in (states or {}) and states[receipt['pp_state_id']]['title'],
-                receipt['pp_company_id'] in (companies or {}) and companies[receipt['pp_company_id']]['title'],
-                receipt['before_weight'],
-                receipt['after_weight'],
-                receipt['netta'],
-            ])
+                receipt['stayed_day'] or '',
+                receipt['pp_state_id'] in (states or {}) and states[receipt['pp_state_id']]['title'] or '',
+                receipt['pp_company_id'] in (companies or {}) and companies[receipt['pp_company_id']]['title'] or '',
+                receipt['before_weight'] or '',
+                receipt['after_weight'] or '',
+                receipt['netta'] or '',
+            ], cell_format=workbook.add_format({'border': 1}))
             count += 1
 
         workbook.close()

@@ -123,27 +123,6 @@
             </div>
         </div>
     </div>
-    {% if pager %}
-    <div class="card-inner">
-        <ul class="pagination justify-content-center justify-content-md-start">
-            <li class="page-item">
-                <a class="page-link"
-                   {% if pager.prev_page %}
-                   href="/api/companies?page={{pager.prev_page}}"
-                   {% endif %}
-                >{% if pager.prev_page %}Prev{% else %}&nbsp;{% endif %}</a>
-            </li>
-            <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
-            <li class="page-item">
-                <a class="page-link"
-                   {% if pager.next_page %}
-                   href="/api/companies?page={{pager.next_page}}"
-                   {% endif %}
-                >{% if pager.next_page %}Prev{% else %}&nbsp;{% endif %}</a>
-            </li>
-        </ul>
-    </div>
-    {% endif %}
     <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
          data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
         <div class="nk-block">
@@ -288,22 +267,21 @@
     })
 
     $('.js-remove').click(async function () {
-        var itemId = $(this).parents('ul').data('id');
-
-        try {
-            let response = await fetch('/api/companies/' + itemId, {
-                method: 'DELETE'
-            });
-
-            response = await response.json();
-            if (response._success === true) {
-                window.location.reload();
-            } else {
-                alert(response.message);
+        if (confirm('Действительно хотите удалить')) {
+            var itemId = $(this).parents('ul').data('id');
+            try {
+                let response = await fetch('/api/companies/' + itemId, {
+                    method: 'DELETE'
+                });
+                response = await response.json();
+                if (response._success === true) {
+                    window.location.reload();
+                } else {
+                    alert(response.message);
+                }
+            } catch (error) {
+                alertShow('waring', `${error.message}`);
             }
-
-        } catch (error) {
-            alertShow('waring', `${error.message}`);
         }
     })
 

@@ -136,11 +136,11 @@ class StayedReportsView(BaseAPIView):
         workbook = xlsxwriter.Workbook(contents)
         worksheet = workbook.add_worksheet('sheet')
 
-        titles = [
+        headers = [
             dict(name='№ п/п', width=5),
             dict(name='Наименование', width=38),
         ]
-        t = [
+        titles = [
             '',
             'Услуги по отстою вагонов',
         ]
@@ -149,31 +149,41 @@ class StayedReportsView(BaseAPIView):
 
         date_keys = []
         while current_date <= stopped_at:
-            titles.append(dict(name=datetime.strftime(current_date, '%d.%m.%Y'), join_column=3, width=5))
-            t.extend(['прин', 'отс', 'ушл'])
+            headers.append(dict(name=datetime.strftime(current_date, '%d.%m.%Y'), join_column=3, width=5))
+            titles.extend(['прин', 'отс', 'ушл'])
             date_keys.append(str(current_date.date()))
             current_date += timedelta(days=1)
 
-        titles.append(dict(name='Общие итоги', width=3, join_column=3))
-        t.extend(['прин', 'отс', 'ушл'])
+        headers.append(dict(name='Общие итоги', width=3, join_column=3))
+        titles.extend(['прин', 'отс', 'ушл'])
 
         widths = []
-        bold_format = workbook.add_format({'bold': True, 'align': 'center'})
-        center_format = workbook.add_format({'align': 'center'})
         i = 0
-        for title in titles:
-            if title.get('join_column'):
-                worksheet.merge_range(0, i, 0, i + title['join_column'] - 1, title['name'], bold_format)
-                i += title['join_column']
-                widths.extend([title['width']] * 3)
+        for header in headers:
+            if header.get('join_column'):
+                worksheet.merge_range(0, i, 0, i + header['join_column'] - 1, header['name'],
+                                      workbook.add_format({'bold': True, 'align': 'center', 'border': 1}))
+                i += header['join_column']
+                widths.extend([header['width']] * 3)
             else:
-                worksheet.write(0, i, title['name'], bold_format)
+                worksheet.write(0, i, header['name'],
+                                workbook.add_format({'bold': True, 'align': 'center', 'border': 1}))
                 i += 1
-                widths.append(title['width'])
+                widths.append(header['width'])
 
         for i in range(len(widths)):
             worksheet.set_column(i, i, widths[i])
-        worksheet.write_row(1, 0, t, center_format)
+
+        i = 0
+        for title in titles:
+            if title == 'отс':
+                worksheet.write(1, i, title,
+                                workbook.add_format({'align': 'center', 'border': 1, 'font_color': 'blue'}))
+            elif title == 'ушл':
+                worksheet.write(1, i, title, workbook.add_format({'align': 'center', 'border': 1, 'font_color': 'red'}))
+            else:
+                worksheet.write(1, i, title, workbook.add_format({'align': 'center', 'border': 1}))
+            i += 1
 
         company_ids = []
         total_by_dates = {'all': {'arrive': 0, 'bill': 0, 'stay': 0}}
@@ -259,10 +269,13 @@ class StayedReportsView(BaseAPIView):
         count = 2
         index = 1
         for k, v in data.items():
-            l = [
-                index,
-                companies[k]
-            ]
+            i = 0
+
+            worksheet.write(count, i, index, workbook.add_format({'align': 'center', 'border': 1}))
+            i += 1
+
+            worksheet.write(count, i, companies[k], workbook.add_format({'align': 'center', 'border': 1}))
+            i += 1
 
             company_arrive_count = 0
             company_bill_count = 0
@@ -273,49 +286,94 @@ class StayedReportsView(BaseAPIView):
                     company_arrive_count += v[d].get('arrive') or 0
                     company_bill_count += v[d].get('bill') or 0
                     company_stay_count += v[d].get('stay') or 0
-                    l.extend([
-                        v[d].get('arrive') or 0,
-                        v[d].get('stay') or 0,
-                        v[d].get('bill') or 0,
-                    ])
-                else:
-                    l.extend([0, 0, 0])
 
-            l.extend([
-                company_arrive_count,
-                company_stay_count,
-                company_bill_count
-            ])
+                    worksheet.write(count, i, v[d].get('arrive') or 0,
+                                    workbook.add_format({'align': 'center', 'border': 1}))
+                    i += 1
+
+                    worksheet.write(count, i, v[d].get('stay') or 0,
+                                    workbook.add_format({'align': 'center', 'border': 1, 'font_color': 'blue'}))
+                    i += 1
+
+                    worksheet.write(count, i, v[d].get('bill') or 0,
+                                    workbook.add_format({'align': 'center', 'border': 1, 'font_color': 'red'}))
+                    i += 1
+
+                else:
+                    worksheet.write(count, i, 0,
+                                    workbook.add_format({'align': 'center', 'border': 1}))
+                    i += 1
+
+                    worksheet.write(count, i, 0,
+                                    workbook.add_format({'align': 'center', 'border': 1, 'font_color': 'blue'}))
+                    i += 1
+
+                    worksheet.write(count, i, 0,
+                                    workbook.add_format({'align': 'center', 'border': 1, 'font_color': 'red'}))
+                    i += 1
+
+            worksheet.write(count, i, company_arrive_count,
+                            workbook.add_format({'align': 'center', 'border': 1}))
+            i += 1
+
+            worksheet.write(count, i, company_stay_count,
+                            workbook.add_format({'align': 'center', 'border': 1, 'font_color': 'blue'}))
+            i += 1
+
+            worksheet.write(count, i, company_bill_count,
+                            workbook.add_format({'align': 'center', 'border': 1, 'font_color': 'red'}))
+            i += 1
 
             total_by_dates['all']['arrive'] += company_arrive_count
             total_by_dates['all']['bill'] += company_bill_count
             total_by_dates['all']['stay'] += company_stay_count
 
-            worksheet.write_row(count, 0, l)
             index += 1
             count += 1
 
-        l = [
-            '',
-            'Итого:',
-        ]
+        i = 1
+        worksheet.write(count, i, 'Итого:',
+                        workbook.add_format({'align': 'center'}))
+        i += 1
 
         for d in date_keys:
             if d in total_by_dates:
-                l.extend([
-                    total_by_dates[d].get('arrive') or 0,
-                    total_by_dates[d].get('stay') or 0,
-                    total_by_dates[d].get('bill') or 0,
-                ])
-            else:
-                l.extend([0, 0, 0])
+                worksheet.write(count, i, total_by_dates[d].get('arrive') or 0,
+                                workbook.add_format({'align': 'center'}))
+                i += 1
 
-        l.extend([
-            total_by_dates['all']['arrive'],
-            total_by_dates['all']['stay'],
-            total_by_dates['all']['bill'],
-        ])
-        worksheet.write_row(count, 0, l)
+                worksheet.write(count, i, total_by_dates[d].get('stay') or 0,
+                                workbook.add_format({'align': 'center', 'font_color': 'blue'}))
+                i += 1
+
+                worksheet.write(count, i, total_by_dates[d].get('bill') or 0,
+                                workbook.add_format({'align': 'center', 'font_color': 'red'}))
+                i += 1
+
+            else:
+                worksheet.write(count, i, 0,
+                                workbook.add_format({'align': 'center'}))
+                i += 1
+
+                worksheet.write(count, i, 0,
+                                workbook.add_format({'align': 'center', 'font_color': 'blue'}))
+                i += 1
+
+                worksheet.write(count, i, 0,
+                                workbook.add_format({'align': 'center', 'font_color': 'red'}))
+                i += 1
+
+        worksheet.write(count, i, total_by_dates['all']['arrive'],
+                        workbook.add_format({'align': 'center'}))
+        i += 1
+
+        worksheet.write(count, i, total_by_dates['all']['stay'],
+                        workbook.add_format({'align': 'center', 'font_color': 'blue'}))
+        i += 1
+
+        worksheet.write(count, i, total_by_dates['all']['bill'],
+                        workbook.add_format({'align': 'center', 'font_color': 'red'}))
+        i += 1
 
         workbook.close()
         contents.seek(0)

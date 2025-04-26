@@ -19,14 +19,14 @@ function alertShow(type, text, is_reload) {
         return
 
     } else if (type === 'waring') {
-        $('#alert-waring').css('display', 'block');
+        $('#alert-warning').css('display', 'block');
         if (text) {
-            $('#alert-waring span').text(text)
+            $('#alert-warning span').text(text)
         }
         setTimeout(function () {
-            $('#alert-waring').css('display', 'none');
+            $('#alert-warning').css('display', 'none');
             $('#alert-block').hide()
-        }, 1500);
+        }, 1000);
         return
 
     } else if (type === 'info') {
