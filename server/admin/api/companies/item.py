@@ -55,6 +55,7 @@ class CompanyView(BaseAPIView):
         sum_weighing = FloatUtils.to_float(request.json.get('sum_weighing'))
         sum_rent_scale = FloatUtils.to_float(request.json.get('sum_rent_scale'))
         sum_rent_m = FloatUtils.to_float(request.json.get('sum_rent_m'))
+        manager = StrUtils.to_str(request.json.get('manager'))
 
         if not title:
             return self.error(message='Отсуствует обязательный параметры "Имя"')
@@ -68,6 +69,7 @@ class CompanyView(BaseAPIView):
             'sum_weighing': sum_weighing,
             'sum_rent_scale': sum_rent_scale,
             'sum_rent_m': sum_rent_m,
+            'manager': manager
         }})
 
         await ControlCompaniesRepository.delete_cache()

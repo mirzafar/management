@@ -59,8 +59,9 @@
                     <div class="nk-tb-list nk-tb-ulist is-compact">
                         <div class="nk-tb-item nk-tb-head">
                             <div class="nk-tb-col col-3"><span>Название</span></div>
-                            <div class="nk-tb-col"><span>Телефон номер</span></div>
-                            <div class="nk-tb-col"><span>Адрес</span></div>
+                            <div class="nk-tb-col col-1"><span>Телефон номер</span></div>
+                            <div class="nk-tb-col col-1"><span>Адрес</span></div>
+                            <div class="nk-tb-col col-2"><span>Руководитель</span></div>
                             <div class="nk-tb-col"><span>Под-уборка</span></div>
                             <div class="nk-tb-col"><span>Отстой ваг-в</span></div>
                             <div class="nk-tb-col"><span>Взвешивание</span></div>
@@ -73,11 +74,14 @@
                             <div class="nk-tb-col col-3">
                                 <input class="form-control" name="title" type="text" value="{{item.title}}">
                             </div>
-                            <div class="nk-tb-col">
+                            <div class="nk-tb-col col-1">
                                 <input class="form-control" name="phone" type="text" value="{{item.phone or ''}}">
                             </div>
-                            <div class="nk-tb-col">
+                            <div class="nk-tb-col col-1">
                                 <input class="form-control" name="address" type="text" value="{{item.address or ''}}">
+                            </div>
+                            <div class="nk-tb-col col-2">
+                                <input class="form-control" name="manager" type="text" value="{{item.manager or ''}}">
                             </div>
                             <div class="nk-tb-col">
                                 <input class="form-control" name="sum_cleaning" type="text"
@@ -150,6 +154,14 @@
                                for="cf-address">Адрес
                         </label>
                         <input class="form-control" type="text" name="address" id="cf-address">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-manager">Руководитель
+                        </label>
+                        <input class="form-control" type="text" name="manager" id="cf-manager">
                     </div>
                 </div>
                 <div class="col-12">
