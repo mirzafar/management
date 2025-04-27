@@ -313,6 +313,59 @@
         </div>
     </div>
 </div>
+<div class="components-preview">
+    <div class="col-lg-12">
+        <div class="nk-block-head">
+            <div class="nk-block-head-content"><h5 class="nk-block-title title">Путь</h5>
+            </div>
+        </div>
+        <div class="card card-bordered">
+            <div class="card-inner">
+                <div class="row gy-4" id="filter-roads-data">
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input value="{{first_day}}" type="text"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="rd-started-at" placeholder="С"></div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="form-group">
+                            <div class="form-control-wrap">
+                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
+                                <input type="text" value="{{last_day}}"
+                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
+                                       name="rd-stopped-at" placeholder="ПО"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group">
+                            <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
+                                <li>
+                                    <button onclick="genRoadsReports()" data-bs-dismiss="modal"
+                                            class="btn btn-success">
+                                        Отчет
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title"></h3>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 
 {% endblock %}
@@ -386,6 +439,12 @@
         let params = getValues('#filter-record-acceptance-data')
         let updatedQueryString = paramsToQueryString(params);
         window.location.href = `/api/reports/record-acceptance?${updatedQueryString}`
+    }
+
+    function genRoadsReports() {
+        let params = getValues('#filter-roads-data')
+        let updatedQueryString = paramsToQueryString(params);
+        window.location.href = `/api/reports/roads?${updatedQueryString}`
     }
 
 </script>

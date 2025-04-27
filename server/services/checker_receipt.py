@@ -35,6 +35,7 @@ async def start():
                     filter={'receipt_id': str(item['_id']), 'dtn': dtn},
                     update={'$set': {
                         'company_id': item.get('company_id') and str(item['company_id']) or None,
+                        'road_id': item.get('road_id') and str(item['road_id']) or None,
                         'event': 'stay'
                     }},
                     upsert=True

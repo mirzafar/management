@@ -8,6 +8,7 @@ from sanic import response
 
 from core.db import mongo
 from core.handlers import BaseAPIView
+from data.repository.companies import ControlCompaniesRepository
 from utils.strs import StrUtils
 
 
@@ -263,8 +264,7 @@ class StayedReportsView(BaseAPIView):
             data[s['company_id']][s['date']]['stay'] += (s.get('count') or 0)
             total_by_dates[s['date']]['stay'] += (s.get('count') or 0)
 
-        companies = await mongo.companies.find({'_id': {'$in': company_ids}}).to_list(length=None)
-        companies = {str(v['_id']): v['title'] for v in companies}
+        companies = await ControlCompaniesRepository.get_companies()
 
         count = 2
         index = 1

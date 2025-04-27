@@ -138,7 +138,8 @@ class ReceiptView(BaseAPIView):
                     'receipt_id': str(receipt_id),
                     'company_id': company_id,
                     'event': 'stay',
-                    'dtn': current_date
+                    'dtn': current_date,
+                    'road_id': road_id
                 })
                 current_date += timedelta(days=1)
 
