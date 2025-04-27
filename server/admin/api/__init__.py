@@ -4,6 +4,7 @@ from admin.api.analytics import analytics_bp
 from admin.api.clients import clients_bp
 from admin.api.companies import companies_bp
 from admin.api.controls import controls_bp
+from admin.api.expenses import expenses_bp
 from admin.api.main import MainView
 from admin.api.profile import profile_bp
 from admin.api.receipts import receipts_bp
@@ -13,6 +14,7 @@ from admin.api.roles import role_bp
 from admin.api.sales import sales_bp
 from admin.api.states import states_bp
 from admin.api.store import store_bp
+from admin.api.teplovoz import teplovoz_bp
 from admin.api.types import types_bp
 from admin.api.users import users_bp
 
@@ -35,5 +37,7 @@ api_group = Blueprint.group(
     roads_bp,
     controls_bp,
     reports_bp,
+    teplovoz_bp,
+    expenses_bp,
     url_prefix='/api'
 )

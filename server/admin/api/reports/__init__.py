@@ -1,5 +1,7 @@
 from sanic import Blueprint
 
+from admin.api.reports.expeneses import ExpensesReportsView
+from admin.api.reports.invoice_company import InvoiceCompanyReportsView
 from admin.api.reports.list import ReportsView
 from admin.api.reports.receipts import ReceiptsReportsView
 from admin.api.reports.record_acceptance import RecordAcceptanceReportsView
@@ -16,4 +18,6 @@ reports_bp.add_route(StayedReportsView.as_view(), '/stayed')
 reports_bp.add_route(ServicesReferenceReportsView.as_view(), '/services-reference')
 reports_bp.add_route(RecordAcceptanceReportsView.as_view(), '/record-acceptance')
 reports_bp.add_route(RoadsReportsView.as_view(), '/roads')
+reports_bp.add_route(ExpensesReportsView.as_view(), '/expenses')
+reports_bp.add_route(InvoiceCompanyReportsView.as_view(), '/invoice-company')
 reports_bp.add_route(ReportsView.as_view(), '/')

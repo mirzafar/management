@@ -1,0 +1,231 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+
+<div class="components-preview wide-md mx-auto">
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title"></h3>
+            </div>
+        </div>
+    </div>
+    <div class="nk-block">
+        <div class="card card-stretch">
+            <div class="card-inner">
+                <div class="card-title-group">
+                    <div class="card-title">
+                        <h5 class="title">
+                            Расходы
+                        </h5>
+                    </div>
+                    <div class="nk-block-head-content">
+                        <div class="toggle-wrap nk-block-tools-toggle">
+                            <a href="#"
+                               class="btn btn-icon btn-trigger toggle-expand me-n1"
+                               data-target="pageMenu">
+                                <em class="icon ni ni-more-v"></em>
+                            </a>
+                            <div class="toggle-expand-content" data-content="pageMenu">
+                                <ul class="nk-block-tools g-3">
+                                    <li class="nk-block-tools-opt">
+                                        <a href="#" data-target="addProduct"
+                                           class="toggle btn btn-icon btn-primary d-md-none">
+                                            <em class="icon ni ni-plus"></em>
+                                        </a>
+                                        <a href="#"
+                                           data-target="addProduct"
+                                           class="toggle btn btn-primary d-none d-md-inline-flex">
+                                            <em class="icon ni ni-plus"></em>
+                                            <span>Добавить</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="nk-block">
+                <div class="card">
+                    <div class="nk-tb-list nk-tb-ulist is-compact">
+                        <div class="nk-tb-item nk-tb-head">
+                            <div class="nk-tb-col"><span>Тепловоз</span></div>
+                            <div class="nk-tb-col"><span>Дата</span></div>
+                            <div class="nk-tb-col"><span>Приход</span></div>
+                            <div class="nk-tb-col"><span>Расход</span></div>
+                            <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                        </div>
+                        {% for item in expenses %}
+                        <div class="nk-tb-item js-cont" data-id="{{ item._id }}">
+                            <div class="nk-tb-col">
+                                <select class="form-control" name="teplovoz_id">
+                                    <option>Выберите</option>
+                                    {% if teplovoz %}
+                                    {% for t in teplovoz.values() %}
+                                    <option {% if item.teplovoz_id == t._id %}selected{% endif %} value="{{t._id}}">{{t.title}}</option>
+                                    {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="nk-tb-col">
+                                <input type="text" class="form-control date-picker-alt date-picker"
+                                       data-date-format="dd.mm.yyyy" value="{{item.dtn or ''}}"
+                                       name="dtn">
+                            </div>
+                            <div class="nk-tb-col">
+                                <input class="form-control" type="number" min="0" name="coming" value="{{item.coming}}">
+                            </div>
+                            <div class="nk-tb-col">
+                                <input class="form-control" type="number" min="0" name="expense" value="{{item.expense}}">
+                            </div>
+                            <div class="nk-tb-col nk-tb-col-tools">
+                                <ul data-id="{{ item._id }}" class="nk-tb-actions gx-1">
+                                    <li class="nk-tb-action">
+                                        <a class="js-remove">
+                                                <span class="tb-status text-danger">
+                                                    <em class="icon ni ni-trash"></em>
+                                                </span>
+                                        </a>
+                                    </li>
+                                    <li class="nk-tb-action">
+                                        <a class="js-update">
+                                                <span class="tb-status text-success">
+                                                <em class="icon ni ni-check"></em>
+                                                </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
+         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+        <div class="nk-block">
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-dtn">Тепловоз
+                        </label>
+                        <select name="teplovoz_id" class="form-control">
+                            <option>Выберите</option>
+                            {% if teplovoz %}
+                            {% for t in teplovoz.values() %}
+                            <option value="{{t._id}}">{{t.title}}</option>
+                            {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-dtn">Дата
+                        </label>
+                        <input type="text" class="form-control date-picker-alt date-picker"
+                               data-date-format="dd.mm.yyyy"
+                               name="dtn"
+                               id="cf-dtn">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-coming">Приход
+                        </label>
+                        <input class="form-control" type="number" min="0" name="coming" id="cf-coming">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label"
+                               for="cf-expense">Расход
+                        </label>
+                        <input class="form-control" type="number" min="0" name="expense" id="cf-expense">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <button id="createButton" onclick="createItem()" class="btn btn-primary"><em
+                            class="icon ni ni-plus"></em><span>Добавить</span></button>
+                </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    $('li[data-li="control"]').addClass('active')
+    $('li[data-li="control-expenses"]').addClass('active')
+
+    $('.js-remove').click(async function () {
+        if (confirm('Действительно хотите удалить?')) {
+            var itemId = $(this).parents('ul').data('id');
+            try {
+                let response = await fetch('/api/expenses/' + itemId, {
+                    method: 'DELETE'
+                });
+                response = await response.json();
+                if (response._success === true) {
+                    window.location.reload();
+                } else {
+                    alert(response.message);
+                }
+            } catch (error) {
+                alertShow('waring', `${error.message}`);
+            }
+        }
+    })
+
+    async function createItem() {
+        $('#createButton').prop('disabled', true)
+        try {
+            let response = await fetch('/api/expenses/', {
+                method: 'POST',
+                body: JSON.stringify(getValues('#new-data-item'))
+            });
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
+            } else {
+                $('#createButton').prop('disabled', false)
+                alert(response.message);
+            }
+        } catch (error) {
+            $('#createButton').prop('disabled', false)
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    $('.js-update').click(async function () {
+        alertShow('waring', 'Загрузка...')
+        var itemId = $(this).parents('ul').data('id');
+        try {
+            let data = getValues('.js-cont[data-id="' + itemId + '"]')
+            let response = await fetch(`/api/expenses/${itemId}`, {
+                method: 'PUT',
+                body: JSON.stringify(data)
+            });
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success', 'Обнавлено')
+            } else {
+                alert(response.message);
+            }
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    })
+
+</script>
+{% endblock %}
