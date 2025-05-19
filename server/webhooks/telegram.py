@@ -169,7 +169,7 @@ class TelegramWebhookView(HTTPMethodView):
                         return response.json({
                             'method': 'sendMessage',
                             'chat_id': chat_id,
-                            'text': f'Ваш заказ усепшно зарегистирован. Номер заказа: #{counter["seq"]}',
+                            'text': f'Ваш заказ успешно зарегистирован. Номер заказа: #{counter["seq"]}',
                             'reply_markup': {
                                 'keyboard': [
                                     ['\u2063📔Каталог'],
@@ -210,7 +210,7 @@ class TelegramWebhookView(HTTPMethodView):
                     basket.append({'title': good['title'], 'count': count, 'sum': count * (good['price'] or 0)})
 
                     inline_keyboard = [[{'text': '✅Bыбрать продукт', 'callback_data': 'chooseGoods'}],
-                                       [{'text': '🗑Очистить карзинку', 'callback_data': 'clearBasket'}],
+                                       [{'text': '🗑Очистить корзину', 'callback_data': 'clearBasket'}],
                                        [{'text': '💳Оформить заказ', 'callback_data': 'doneBasket'}]]
 
                     response_text = 'Товары в корзине:\n\n'
@@ -305,7 +305,7 @@ class TelegramWebhookView(HTTPMethodView):
                 if basket:
                     response_text = 'Товары в корзине:\n\n'
                     inline_keyboard.extend([
-                        [{'text': '🗑Очистить карзинку', 'callback_data': 'clearBasket'}],
+                        [{'text': '🗑Очистить корзину', 'callback_data': 'clearBasket'}],
                         [{'text': '💳Оформить заказ', 'callback_data': 'doneBasket'}],
                     ])
                     for g in basket:
