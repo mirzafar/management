@@ -237,6 +237,36 @@ class TelegramWebhookView(HTTPMethodView):
             if text and text.startswith('\u2063'):
                 return response.json(await on_catalog(chat_id))
 
+            if text and text.startswith('\u2063'):
+                orders = await mongo.orders.find({'chat_id': chat_id}).sort('_id', -1).to_list(None)
+                if not orders:
+                    return response.json({
+                        'method': 'sendMessage',
+                        'text': 'У вас нету заказов',
+                        'reply_markup': {
+                            'keyboard': [
+                                ['\u2063📔Каталог'],
+                                ['\u2062📦Заказать'],
+                                ['\u2061🗃Мои заказы'],
+                            ],
+                            'resize_keyboard': True,
+                            'one_time_keyboard': True,
+                            'selective': True
+                        }
+                    })
+
+                orders = orders[:15]
+                return response.json({
+                    'method': 'sendMessage',
+                    'text': 'Заказы',
+                    'chat_id': chat_id,
+                    'reply_markup': {
+                        'inline_keyboard': [
+                            [{'text': f'Заказ #{o["id"]}', 'callback_data': f'selected:Order:{o["id"]}'}] for o in orders
+                        ]
+                    }
+                })
+
             if text and text.startswith('\u2062'):
                 basket = await cache.get(f'bread:{chat_id}:basket')
                 if basket:
