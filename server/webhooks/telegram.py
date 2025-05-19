@@ -186,11 +186,18 @@ class TelegramWebhookView(HTTPMethodView):
                 good = goods[good_id]
                 count = text and text.isdigit() and int(text)
                 if count and count > 0:
-                    basket = await cache.get(f'bread:{chat_id}:basket')
-                    if basket:
-                        basket = ujson.loads(basket)
+                    bsk = await cache.get(f'bread:{chat_id}:basket')
+                    if bsk:
+                        bsk = ujson.loads(bsk)
                     else:
-                        basket = []
+                        bsk = []
+
+                    basket = []
+                    for b in bsk:
+                        if b['title'] == good['title']:
+                            pass
+                        else:
+                            basket.append(b)
 
                     basket.append({'title': good['title'], 'count': count, 'sum': count * (good['price'] or 0)})
 
