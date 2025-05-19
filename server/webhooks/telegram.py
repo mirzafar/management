@@ -97,7 +97,7 @@ class TelegramWebhookView(HTTPMethodView):
                         'keyboard': [
                             ['\u2063📔Каталог'],
                             ['\u2062📦Заказать'],
-                            ['\u2062🗃Мои заказы'],
+                            ['\u2061🗃Мои заказы'],
                         ],
                         'resize_keyboard': True,
                         'one_time_keyboard': True,
@@ -167,7 +167,7 @@ class TelegramWebhookView(HTTPMethodView):
                                 'keyboard': [
                                     ['\u2063📔Каталог'],
                                     ['\u2062📦Заказать'],
-                                    ['\u2062🗃Мои заказы'],
+                                    ['\u2061🗃Мои заказы'],
                                 ],
                                 'resize_keyboard': True,
                                 'one_time_keyboard': True,
