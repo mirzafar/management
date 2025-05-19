@@ -119,11 +119,6 @@ class TelegramWebhookView(HTTPMethodView):
                 })
 
             if f_state := await cache.get(f'bread:{chat_id}:finish:state'):
-                try:
-                    f_state = f_state.decode('utf-8')
-                except (Exception,):
-                    pass
-
                 if f_state == 'address':
                     if text:
                         await cache.set(f'bread:{chat_id}:finish:state', 'phone')
@@ -161,7 +156,7 @@ class TelegramWebhookView(HTTPMethodView):
                             'id': counter['seq'],
                             'chat_id': chat_id,
                             'items': basket and ujson.loads(basket) or None,
-                            'address': address and address.decode('utf-8') or None,
+                            'address': address,
                             'phone': text
                         })
                         return response.json({
