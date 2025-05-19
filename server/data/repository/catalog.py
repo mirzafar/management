@@ -30,6 +30,7 @@ async def on_selected(chat_id: str, _id: str) -> dict:
                 ['\u2063📔Каталог'],
                 ['\u2062📦Заказать'],
                 ['\u2061🗃Мои заказы'],
+                ['\u2064🚚Инфо о доставке'],
             ],
             'resize_keyboard': True,
             'one_time_keyboard': True,

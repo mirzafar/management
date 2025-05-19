@@ -104,6 +104,7 @@ class TelegramWebhookView(HTTPMethodView):
                             ['\u2063📔Каталог'],
                             ['\u2062📦Заказать'],
                             ['\u2061🗃Мои заказы'],
+                            ['\u2064🚚Инфо о доставке'],
                         ],
                         'resize_keyboard': True,
                         'one_time_keyboard': True,
@@ -174,6 +175,7 @@ class TelegramWebhookView(HTTPMethodView):
                                     ['\u2063📔Каталог'],
                                     ['\u2062📦Заказать'],
                                     ['\u2061🗃Мои заказы'],
+                                    ['\u2064🚚Инфо о доставке'],
                                 ],
                                 'resize_keyboard': True,
                                 'one_time_keyboard': True,
@@ -243,6 +245,24 @@ class TelegramWebhookView(HTTPMethodView):
             if text and text.startswith('\u2063'):
                 return response.json(await on_catalog(chat_id))
 
+            if text and text.startswith('\u2064'):
+                return response.json({
+                    'method': 'sendMessage',
+                    'chat_id': chat_id,
+                    'text': 'Экономьте на доставке — собирайте заказ от 3 000 тенге, и мы привезем его бесплатно.',
+                    'reply_markup': {
+                        'keyboard': [
+                            ['\u2063📔Каталог'],
+                            ['\u2062📦Заказать'],
+                            ['\u2061🗃Мои заказы'],
+                            ['\u2064🚚Инфо о доставке'],
+                        ],
+                        'resize_keyboard': True,
+                        'one_time_keyboard': True,
+                        'selective': True
+                    }
+                })
+
             if text and text.startswith('\u2061'):
                 orders = await mongo.orders.find({'chat_id': chat_id}).sort('_id', -1).to_list(None)
                 if not orders:
@@ -254,6 +274,7 @@ class TelegramWebhookView(HTTPMethodView):
                                 ['\u2063📔Каталог'],
                                 ['\u2062📦Заказать'],
                                 ['\u2061🗃Мои заказы'],
+                                ['\u2064🚚Инфо о доставке'],
                             ],
                             'resize_keyboard': True,
                             'one_time_keyboard': True,
@@ -370,6 +391,7 @@ class TelegramWebhookView(HTTPMethodView):
                                 ['\u2063📔Каталог'],
                                 ['\u2062📦Заказать'],
                                 ['\u2061🗃Мои заказы'],
+                                ['\u2064🚚Инфо о доставке'],
                             ],
                             'resize_keyboard': True,
                             'one_time_keyboard': True,
@@ -382,29 +404,10 @@ class TelegramWebhookView(HTTPMethodView):
                 for i in order['items']:
                     if i.get('sum'):
                         total_sum += i['sum']
-                    response_text += f'{i["title"]}: {i["count"]}'
+                    response_text += f'{i["title"]}: {i["count"]}\n'
 
                 response_text += f'\n\nОбщая сумма: {total_sum} тенге'
                 response_text += f'\nСтатус заказа: {MAPPING_STATES.get(order.get("state", "new"))}'
-
-                print('')
-                print('res')
-                print({
-                    'method': 'sendMessage',
-                    'chat_id': chat_id,
-                    'text': response_text,
-                    'reply_markup': {
-                        'keyboard': [
-                            ['\u2063📔Каталог'],
-                            ['\u2062📦Заказать'],
-                            ['\u2061🗃Мои заказы'],
-                        ],
-                        'resize_keyboard': True,
-                        'one_time_keyboard': True,
-                        'selective': True
-                    }
-                })
-                print('')
 
                 return response.json({
                     'method': 'sendMessage',
@@ -415,6 +418,7 @@ class TelegramWebhookView(HTTPMethodView):
                             ['\u2063📔Каталог'],
                             ['\u2062📦Заказать'],
                             ['\u2061🗃Мои заказы'],
+                            ['\u2064🚚Инфо о доставке'],
                         ],
                         'resize_keyboard': True,
                         'one_time_keyboard': True,
