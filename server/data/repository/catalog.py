@@ -13,7 +13,7 @@ async def on_catalog(chat_id: str) -> dict:
                    'media': [
                        {
                            'type': 'photo',
-                           'media': f'{settings["base_url"]}/static/uploads/{img}'
+                           'media': f'{settings["base_url"]}/static/uploads/{img["photo"]}'
                        } for img in goods.values() if img.get('photo')
                    ],
                    'chat_id': chat_id}
