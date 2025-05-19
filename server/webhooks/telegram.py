@@ -1,6 +1,8 @@
 import traceback
+from datetime import datetime
 
 import ujson
+from pymongo import ReturnDocument
 from sanic import response
 from sanic.views import HTTPMethodView
 
@@ -144,7 +146,15 @@ class TelegramWebhookView(HTTPMethodView):
                             f'bread:selectGood:{chat_id}',
                             f'bread:{chat_id}:address'
                         )
+                        counter = await mongo.counters.find_one_and_update(
+                            filter={'collection': 'orders'},
+                            update={'$inc': {'seq': 1}},
+                            upsert=True,
+                            return_document=ReturnDocument.AFTER
+                        )
                         await mongo.orders.insert_one({
+                            'created_at': datetime.now(),
+                            'id': counter['seq'],
                             'chat_id': chat_id,
                             'items': basket and ujson.loads(basket) or None,
                             'address': address and address.decode('utf-8') or None,

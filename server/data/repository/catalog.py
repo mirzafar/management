@@ -50,8 +50,4 @@ async def on_selected(chat_id: str, _id: str) -> dict:
         else:
             payload['text'] = f'{good["title"]}'
 
-    print()
-    print('res')
-    print(payload)
-    print()
     return payload
