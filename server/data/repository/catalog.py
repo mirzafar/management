@@ -1,53 +1,32 @@
-import traceback
-
-import httpx
-
 from data.repository.goods import ControlGoodsRepository
-from settings import settings
 
 
 async def on_catalog(chat_id: str) -> dict:
     goods = await ControlGoodsRepository.get_goods()
-    print(dict(url=f'{settings["tg_api_url"]}/bot{settings["tg_token"]}/sendMediaGroup',
-               json={
-                   'media': [
-                       {
-                           'type': 'photo',
-                           'media': f'{settings["base_url"]}/static/uploads/{img["photo"]}'
-                       } for img in goods.values() if img.get('photo')
-                   ],
-                   'chat_id': chat_id}
-               ))
-    try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            res = await client.post(
-                url=f'{settings["tg_api_url"]}/bot{settings["tg_token"]}/sendMediaGroup',
-                json={
-                    'media': [
-                        {
-                            'type': 'photo',
-                            'media': f'{settings["base_url"]}/static/uploads/{img["photo"]}'
-                        } for img in goods.values() if img.get('photo')
-                    ],
-                    'chat_id': chat_id
-                }
-            )
-            print()
-            print('res')
-            print(res.json())
-            print()
-    except (Exception,):
-        traceback.print_exc()
-
-    text = ''
-    counter = 1
-    for c in goods.values():
-        text += f'{counter}) {c["title"]}\n'
-        counter += 1
+    inline_keyboard = []
+    for g in goods.values():
+        inline_keyboard.append([{'text': g['title'], 'callback_data': f'catalog:Select:{g["id"]}'}])
 
     return {
         'method': 'sendMessage',
-        'text': text,
+        'text': 'Выберите товар',
+        'chat_id': chat_id,
+        'reply_markup': {
+            'inline_keyboard': inline_keyboard
+        }
+    }
+
+
+async def on_selected(chat_id: str, _id: str) -> dict:
+    goods = await ControlGoodsRepository.get_goods()
+    good = goods[_id]
+
+    inline_keyboard = []
+    for g in goods:
+        inline_keyboard.append([{'text': g['title'], 'callback_data': f'catalog:Select:{g["id"]}'}])
+
+    payload = {
+        'parse_mode': 'HTML',
         'chat_id': chat_id,
         'reply_markup': {
             'keyboard': [
@@ -60,3 +39,18 @@ async def on_catalog(chat_id: str) -> dict:
             'selective': True
         }
     }
+    if good.get('photo'):
+        payload['method'] = 'sendPhoto'
+        payload['photo'] = good['photo']
+        if good.get('description'):
+            payload['caption'] = f'<b>{good["title"]}</b>\n\n{good["description"]}'
+        else:
+            payload['caption'] = f'{good["title"]}'
+    else:
+        payload['method'] = 'sendMessage'
+        if good.get('description'):
+            payload['text'] = f'<b>{good["title"]}</b>\n\n{good["description"]}'
+        else:
+            payload['text'] = f'{good["title"]}'
+
+    return payload

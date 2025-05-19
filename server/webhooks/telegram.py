@@ -7,7 +7,7 @@ from sanic.views import HTTPMethodView
 from core import i18n
 from core.cache import cache
 from core.db import mongo
-from data.repository.catalog import on_catalog
+from data.repository.catalog import on_catalog, on_selected
 from data.repository.goods import ControlGoodsRepository
 
 
@@ -293,6 +293,10 @@ class TelegramWebhookView(HTTPMethodView):
                     'message_id': message_id,
                     'text': 'Пожалуйста введите адрес',
                 })
+
+            elif callback_data and callback_data.startswith('catalog:Select'):
+                return response.json(await on_selected(chat_id, callback_data.split(':')[2]))
+
         except (Exception,):
             traceback.print_exc()
 
