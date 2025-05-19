@@ -7,7 +7,7 @@ from core.db import mongo
 class ControlGoodsRepository:
     @classmethod
     async def delete_cache(cls):
-        return await cache.delete('control:companies')
+        return await cache.delete('control:goods')
 
     @classmethod
     async def get_goods(cls) -> dict:
