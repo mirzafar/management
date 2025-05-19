@@ -193,15 +193,20 @@ class TelegramWebhookView(HTTPMethodView):
                     else:
                         basket = []
 
-                    basket.append({'title': good['title'], 'count': count})
+                    basket.append({'title': good['title'], 'count': count, 'sum': count * (good['price'] or 0)})
 
                     inline_keyboard = [[{'text': '✅Bыбрать продукт', 'callback_data': 'chooseGoods'}],
                                        [{'text': '🗑Очистить карзинку', 'callback_data': 'clearBasket'}],
                                        [{'text': '💳Оформить заказ', 'callback_data': 'doneBasket'}]]
 
                     response_text = 'Товары в корзине:\n\n'
+                    total_sum = 0
                     for g in basket:
                         response_text += f'{g["title"]}: {g["count"]}\n'
+                        if g.get('sum'):
+                            total_sum += g['sum']
+
+                    response_text += f'\n\nК оплате: {total_sum}'
 
                     await cache.delete(f'bread:selectGood:{chat_id}')
                     await cache.set(f'bread:{chat_id}:basket', ujson.dumps(basket))
