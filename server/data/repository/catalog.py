@@ -22,7 +22,7 @@ async def on_selected(chat_id: str, _id: str) -> dict:
     good = goods[_id]
 
     inline_keyboard = []
-    for g in goods:
+    for g in goods.values():
         inline_keyboard.append([{'text': g['title'], 'callback_data': f'catalog:Select:{g["id"]}'}])
 
     payload = {
