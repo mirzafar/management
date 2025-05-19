@@ -53,7 +53,7 @@
                                     {% endif %}
                                 </div>
                                 <div class="nk-tb-col">
-                                    <select class="form-select" id="changeState" data-id="{{item._id}}">
+                                    <select class="form-select" onchange="onСhanged(this)" data-id="{{item._id}}">
                                         <option value="new">новый</option>
                                         <option value="access" {% if item.state==
                                         'access' %}selected{% endif %}>одобрено</option>
@@ -108,17 +108,18 @@
     $('li[data-li="control"]').addClass('active');
     $('li[data-li="control-orders"]').addClass('active');
 
-    $('#changeState').on('change', async function () {
-        var selectedOption = $(this).find('option:selected');
-        var dataId = $(this).data('id');
-
+    async function onСhanged(element) {
+        let itemId = element.getAttribute('data-id')
+        let itemState = element.value
+        console.log(itemState)
+        console.log(itemId)
         try {
-            if (dataId) {
-                let response = await fetch(`/api/orders/${dataId}`, {
+            if (itemId && itemState) {
+                let response = await fetch(`/api/orders/${itemId}`, {
                     method: 'POST',
                     body: JSON.stringify({
                         'action': 'change_state',
-                        'state': selectedOption.val()
+                        'state': itemState
                     })
                 });
 
@@ -133,8 +134,7 @@
         } catch (error) {
             alertShow('waring', `${error.message}`);
         }
-
-    });
+    }
 
 </script>
 {% endblock %}
