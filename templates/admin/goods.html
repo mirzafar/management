@@ -332,7 +332,7 @@
                 $('#up-price').val(response.good.price);
                 $('#up-description').text(response.good.description);
                 $('#photo-input-val').val(response.good.photo);
-                $('#photo-img-src').prop('src', `/static/uploads/${response.good.photo}/`);
+                $('#photo-img-src').prop('src', `/static/uploads/${response.good.photo}`);
 
             } else {
                 alert(response.message);
