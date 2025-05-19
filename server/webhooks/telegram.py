@@ -12,7 +12,6 @@ from core.db import mongo
 from data.repository.catalog import on_catalog, on_selected
 from data.repository.goods import ControlGoodsRepository
 
-
 # data = {
 #     'update_id': 929199204,
 #     'message': {
@@ -51,6 +50,13 @@ from data.repository.goods import ControlGoodsRepository
 #                                 'text': '✅Bыбрать продукт',
 #                                 'callback_data': 'chooseGoods'}]]}},
 #         'chat_instance': '-8321419619944981968', 'data': 'chooseGoods'}}
+
+MAPPING_STATES = {
+    'new': 'Поступил',
+    'access': 'Одобрено',
+    'finish': 'Завершено',
+}
+
 
 def validate_phone(value: str):
     if value.startswith('7') or value.startswith('8'):
@@ -162,7 +168,7 @@ class TelegramWebhookView(HTTPMethodView):
                         return response.json({
                             'method': 'sendMessage',
                             'chat_id': chat_id,
-                            'text': 'Ваш заказ усепшно зарегистирован',
+                            'text': f'Ваш заказ усепшно зарегистирован. Номер заказа: #{counter["seq"]}',
                             'reply_markup': {
                                 'keyboard': [
                                     ['\u2063📔Каталог'],
@@ -262,7 +268,9 @@ class TelegramWebhookView(HTTPMethodView):
                     'chat_id': chat_id,
                     'reply_markup': {
                         'inline_keyboard': [
-                            [{'text': f'Заказ #{o["id"]}', 'callback_data': f'selected:Order:{o["id"]}'}] for o in orders
+                            [
+                                {'text': f'Заказ #{o["id"]}', 'callback_data': f'order:selected:{o["id"]}'}
+                            ] for o in orders
                         ]
                     }
                 })
@@ -345,8 +353,56 @@ class TelegramWebhookView(HTTPMethodView):
                     'text': 'Пожалуйста введите адрес',
                 })
 
-            elif callback_data and callback_data.startswith('catalog:Select'):
+            elif callback_data and callback_data.startswith('catalog:select'):
                 return response.json(await on_selected(chat_id, callback_data.split(':')[2]))
+
+            elif callback_data and callback_data.startswith('order:selected'):
+                order_id = callback_data.split(':')[2]
+                order = await mongo.orders.insert_one({'id': order_id})
+                if not order:
+                    return response.json({
+                        'method': 'editMessageText',
+                        'chat_id': chat_id,
+                        'message_id': data.get('callback_query', {}).get('message', {}).get('message_id') or None,
+                        'text': f'Заказ не найден',
+                        'reply_markup': {
+                            'keyboard': [
+                                ['\u2063📔Каталог'],
+                                ['\u2062📦Заказать'],
+                                ['\u2061🗃Мои заказы'],
+                            ],
+                            'resize_keyboard': True,
+                            'one_time_keyboard': True,
+                            'selective': True
+                        }
+                    })
+
+                response_text = f'Заказ #{order_id}\n\n'
+                total_sum = 0
+                for i in order['items']:
+                    if i.get('sum'):
+                        total_sum += i['sum']
+                    response_text += f'{i["title"]}: {i["count"]}'
+
+                response_text += f'\n\nОбщая сумма: {total_sum} тенге'
+                response_text += f'\nСтатус заказа: {MAPPING_STATES.get(order.get("state", "new"))}'
+
+                return response.json({
+                    'method': 'sendMessage',
+                    'chat_id': chat_id,
+                    'text': response_text,
+                    'reply_markup': {
+                        'keyboard': [
+                            ['\u2063📔Каталог'],
+                            ['\u2062📦Заказать'],
+                            ['\u2061🗃Мои заказы'],
+                        ],
+                        'resize_keyboard': True,
+                        'one_time_keyboard': True,
+                        'selective': True
+                    }
+                })
+
 
         except (Exception,):
             traceback.print_exc()

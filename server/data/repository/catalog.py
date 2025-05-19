@@ -6,7 +6,7 @@ async def on_catalog(chat_id: str) -> dict:
     goods = await ControlGoodsRepository.get_goods()
     inline_keyboard = []
     for g in goods.values():
-        inline_keyboard.append([{'text': g['title'], 'callback_data': f'catalog:Select:{g["id"]}'}])
+        inline_keyboard.append([{'text': g['title'], 'callback_data': f'catalog:select:{g["id"]}'}])
 
     return {
         'method': 'sendMessage',
