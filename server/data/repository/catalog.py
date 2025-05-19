@@ -21,10 +21,6 @@ async def on_selected(chat_id: str, _id: str) -> dict:
     goods = await ControlGoodsRepository.get_goods()
     good = goods[_id]
 
-    inline_keyboard = []
-    for g in goods.values():
-        inline_keyboard.append([{'text': g['title'], 'callback_data': f'catalog:Select:{g["id"]}'}])
-
     payload = {
         'parse_mode': 'HTML',
         'chat_id': chat_id,
@@ -53,4 +49,8 @@ async def on_selected(chat_id: str, _id: str) -> dict:
         else:
             payload['text'] = f'{good["title"]}'
 
+    print()
+    print('res')
+    print(payload)
+    print()
     return payload
