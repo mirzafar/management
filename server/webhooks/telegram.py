@@ -119,7 +119,11 @@ class TelegramWebhookView(HTTPMethodView):
                 })
 
             if f_state := await cache.get(f'bread:{chat_id}:finish:state'):
-                f_state = f_state.decode('utf-8')
+                try:
+                    f_state = f_state.decode('utf-8')
+                except (Exception,):
+                    pass
+
                 if f_state == 'address':
                     if text:
                         await cache.set(f'bread:{chat_id}:finish:state', 'phone')
