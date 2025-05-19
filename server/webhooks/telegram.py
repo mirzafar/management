@@ -358,7 +358,7 @@ class TelegramWebhookView(HTTPMethodView):
 
             elif callback_data and callback_data.startswith('order:selected'):
                 order_id = callback_data.split(':')[2]
-                order = await mongo.orders.insert_one({'id': order_id})
+                order = await mongo.orders.find_one({'id': order_id})
                 if not order:
                     return response.json({
                         'method': 'editMessageText',
