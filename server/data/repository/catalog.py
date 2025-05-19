@@ -1,4 +1,5 @@
 from data.repository.goods import ControlGoodsRepository
+from local_settings import settings
 
 
 async def on_catalog(chat_id: str) -> dict:
@@ -37,7 +38,7 @@ async def on_selected(chat_id: str, _id: str) -> dict:
     }
     if good.get('photo'):
         payload['method'] = 'sendPhoto'
-        payload['photo'] = good['photo']
+        payload['photo'] = f'{settings["base_url"]}/static/uploads/{good["photo"]}'
         if good.get('description'):
             payload['caption'] = f'<b>{good["title"]}</b>\n\n{good["description"]}'
         else:
