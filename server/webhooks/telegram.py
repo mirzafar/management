@@ -387,6 +387,25 @@ class TelegramWebhookView(HTTPMethodView):
                 response_text += f'\n\nОбщая сумма: {total_sum} тенге'
                 response_text += f'\nСтатус заказа: {MAPPING_STATES.get(order.get("state", "new"))}'
 
+                print('')
+                print('res')
+                print({
+                    'method': 'sendMessage',
+                    'chat_id': chat_id,
+                    'text': response_text,
+                    'reply_markup': {
+                        'keyboard': [
+                            ['\u2063📔Каталог'],
+                            ['\u2062📦Заказать'],
+                            ['\u2061🗃Мои заказы'],
+                        ],
+                        'resize_keyboard': True,
+                        'one_time_keyboard': True,
+                        'selective': True
+                    }
+                })
+                print('')
+
                 return response.json({
                     'method': 'sendMessage',
                     'chat_id': chat_id,
