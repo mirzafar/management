@@ -20,7 +20,7 @@ async def on_catalog(chat_id: str) -> dict:
                ))
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            await client.post(
+            res = await client.post(
                 url=f'{settings["tg_api_url"]}/bot{settings["tg_token"]}/sendMediaGroup',
                 json={
                     'media': [
@@ -32,6 +32,10 @@ async def on_catalog(chat_id: str) -> dict:
                     'chat_id': chat_id
                 }
             )
+            print()
+            print('res')
+            print(res.json())
+            print()
     except (Exception,):
         traceback.print_exc()
 
