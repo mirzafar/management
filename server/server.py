@@ -12,6 +12,7 @@ from core.db import mongo, db
 from core.session import session
 from exceptions import ExceptionsView
 from settings import settings
+from webhooks.telegram import TelegramWebhookView
 
 app = Sanic(name='demo')
 
@@ -48,6 +49,7 @@ app.blueprint([
 ])
 
 app.add_route(UploadView.as_view(), '/upload/')
+app.add_route(TelegramWebhookView.as_view(), '/webhooks/telegram/')
 
 app.error_handler.add(NotFound, ExceptionsView.instance().not_found)
 
