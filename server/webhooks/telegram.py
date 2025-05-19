@@ -237,7 +237,7 @@ class TelegramWebhookView(HTTPMethodView):
             if text and text.startswith('\u2063'):
                 return response.json(await on_catalog(chat_id))
 
-            if text and text.startswith('\u2063'):
+            if text and text.startswith('\u2061'):
                 orders = await mongo.orders.find({'chat_id': chat_id}).sort('_id', -1).to_list(None)
                 if not orders:
                     return response.json({
