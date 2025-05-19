@@ -43,11 +43,17 @@ async def on_selected(chat_id: str, _id: str) -> dict:
             payload['caption'] = f'<b>{good["title"]}</b>\n\n{good["description"]}'
         else:
             payload['caption'] = f'{good["title"]}'
+
+        if good.get('price'):
+            payload['caption'] += f'\n\nЦена: {good["price"]} тг'
     else:
         payload['method'] = 'sendMessage'
         if good.get('description'):
             payload['text'] = f'<b>{good["title"]}</b>\n\n{good["description"]}'
         else:
             payload['text'] = f'{good["title"]}'
+
+        if good.get('price'):
+            payload['text'] += f'\n\nЦена: {good["price"]} тг'
 
     return payload
