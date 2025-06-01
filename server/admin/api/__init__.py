@@ -6,6 +6,7 @@ from admin.api.goods import goods_bp
 from admin.api.main import MainView
 from admin.api.orders import orders_bp
 from admin.api.profile import profile_bp
+from admin.api.rooms import rooms_bp
 from admin.api.users import users_bp
 
 main_bp = Blueprint('main', url_prefix='/')
@@ -19,5 +20,6 @@ api_group = Blueprint.group(
     profile_bp,
     goods_bp,
     orders_bp,
+    rooms_bp,
     url_prefix='/api'
 )

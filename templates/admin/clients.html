@@ -171,8 +171,8 @@
 {% endblock %}
 {% block js %}
 <script>
-    $('li[data-li="clients"]').addClass('active')
-    $('li[data-li="clients-list"]').addClass('active')
+    $('li[data-li="control"]').addClass('active')
+    $('li[data-li="control-clients"]').addClass('active')
 
     $('[type="file"]').change(function () {
         var trigger_name = $(this).parents('.photo-place').data('name');
@@ -200,7 +200,7 @@
             response = await response.json();
             if (response._success === true) {
                 alertShow('success')
-                window.location.href = `/api/clients/${response.employee.id}`;
+                window.location.reload();
             } else {
                 alert(response.message);
             }

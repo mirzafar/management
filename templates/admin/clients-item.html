@@ -9,10 +9,7 @@
                         <li class="nav-item" role="presentation"><a class="nav-link" data-bs-toggle="tab"
                                                                     href="#tabInfo" aria-selected="true" role="tab"><em
                                 class="icon ni ni-user-circle-fill"></em><span>Карточка клиента</span></a></li>
-                        <li class="nav-item" role="presentation"><a class="nav-link" data-bs-toggle="tab"
-                                                                    href="#tabVisits" aria-selected="false" role="tab"
-                                                                    tabindex="-1"><em
-                                class="icon ni ni-property"></em><span>Список услуг</span></a></li>
+
                     </ul>
                     <div class="card-inner">
                         <div class="tab-content">
@@ -85,126 +82,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="tab-pane" id="tabVisits" role="tabpanel">
-                                <div class="card-inner">
-                                    <div class="form-inline flex-nowrap gx-3">
-                                        <div class="w-150px">
-                                            <select class="form-select js-select2 select2-hidden-accessible"
-                                                    data-search="off" data-placeholder="Статус оплаты"
-                                                    data-select2-id="1"
-                                                    tabindex="-1" aria-hidden="true" id="f-status-paid">
-                                                <option value="" data-select2-id="1">Статус оплаты</option>
-                                                <option value="false">В ожидании</option>
-                                                <option value="true">Оплачен</option>
-                                                <option value="-1">Оплачен / В ожидании</option>
-                                            </select>
-                                        </div>
-                                        <div class="btn-wrap" onclick="filterChange()"><span class="d-none d-md-block"><button
-                                                class="btn btn-dim btn-outline-light">Применить</button></span><span
-                                                class="d-md-none"><button
-                                                class="btn btn-dim btn-outline-light btn-icon disabled"><em
-                                                class="icon ni ni-arrow-right"></em></button></span></div>
-                                    </div>
-                                </div>
-                                {% if visits %}
-                                <div class="nk-block">
-                                    <div class="card">
-                                        <div class="nk-tb-list nk-tb-ulist is-compact">
-                                            <div class="nk-tb-item nk-tb-head">
-                                                <div class="nk-tb-col"><span>Клиент</span></div>
-                                                <div class="nk-tb-col"><span>Товар</span></div>
-                                                <div class="nk-tb-col"><span>Вид услуги</span></div>
-                                                <div class="nk-tb-col"><span>Объем (Количество)</span></div>
-                                                <div class="nk-tb-col tb-col-sm"><span>Оплата</span></div>
-                                                <div class="nk-tb-col nk-tb-col-tools text-end"></div>
-                                            </div>
-                                            {% for item in visits %}
-                                            <div class="nk-tb-item">
-                                                <div class="nk-tb-col">
-                                                    {{item.client and item.client.last_name or ''}}
-                                                </div>
-                                                <div class="nk-tb-col">
-                                                    <span>{{item.good and item.good.title or ''}}</span>
-                                                </div>
-                                                <div class="nk-tb-col">
-                                                    <span>{{item.reason and item.reason.title or ''}}</span>
-                                                </div>
-                                                <div class="nk-tb-col">
-                                                    <span>{{item.count or ''}}</span>
-                                                </div>
-
-                                                <div class="nk-tb-col tb-col-sm">
-                                                    {% if item.is_paid %}
-                                                    <span class="badge badge-dim bg-success">Оплачен</span>
-                                                    {% else %}
-                                                    <span class="badge badge-dim bg-warning">Ожидание</span>
-                                                    {% endif %}
-                                                </div>
-
-                                                <div class="nk-tb-col nk-tb-col-tools">
-                                                    <ul class="nk-tb-actions gx-1 my-n1">
-                                                        <li class="me-n1">
-                                                            <div class="dropdown"><a href="#"
-                                                                                     class="dropdown-toggle btn btn-icon btn-trigger"
-                                                                                     data-bs-toggle="dropdown"><em
-                                                                    class="icon ni ni-more-h"></em></a>
-                                                                <div class="dropdown-menu dropdown-menu-end">
-                                                                    <ul class="link-list-opt no-bdr">
-                                                                        <li><a data-target="updateVisitProduct"
-                                                                               class="toggle"
-                                                                               onclick="openVisit({{item.id}})">
-                                                                            <em class="icon ni ni-edit-fill"></em>
-                                                                            <span>Изменить</span>
-                                                                        </a>
-                                                                        </li>
-                                                                        <li onclick="removeVisit({{item.id}})">
-                                                                            <a>
-                                                                                <em class="icon ni ni-trash text-danger"></em>
-                                                                                <span class="tb-status text-danger">Удалить</span>
-                                                                            </a>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </div>
-                                {% if pager %}
-                                <div class="card-inner">
-                                    <ul class="pagination justify-content-center justify-content-md-start">
-                                        <li class="page-item">
-                                            <a class="page-link"
-                                               {% if pager.prev_page %}
-                                               href="/api/clients/{{client.id}}?page={{pager.prev_page}}"
-                                               {% endif %}
-                                            >{% if pager.prev_page %}Prev{% else %}&nbsp;{% endif %}</a>
-                                        </li>
-                                        <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
-                                        <li class="page-item">
-                                            <a class="page-link"
-                                               {% if pager.next_page %}
-                                               href="/api/store/{{client.id}}?page={{pager.next_page}}"
-                                               {% endif %}
-                                            >{% if pager.next_page %}Prev{% else %}&nbsp;{% endif %}</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                {% endif %}
-                                {% else %}
-                                <div class="card-inner">
-                                    <figure class="text-center">
-                                        <blockquote class="blockquote"><h3>
-                                            Cписок услуг
-                                        </h3></blockquote>
-                                    </figure>
-                                </div>
-                                {% endif %}
                             </div>
                         </div>
                     </div>
