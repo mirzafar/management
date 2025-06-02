@@ -34,6 +34,9 @@ class RoomsView(BaseAPIView):
         if not title:
             return self.error(message='Отсуствует обязательный параметры "Имя"')
 
+        if not summ:
+            return self.error(message='Отсуствует обязательный параметры "Сумма"')
+
         counter = await mongo.counters.find_one_and_update(
             filter={'collection': 'goods'},
             update={'$inc': {'seq': 1}},

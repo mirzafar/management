@@ -32,6 +32,9 @@ class RoomView(BaseAPIView):
         if not title:
             return self.error(message='Отсуствует обязательный параметры "Название"')
 
+        if not summ:
+            return self.error(message='Отсуствует обязательный параметры "Сумма"')
+
         await mongo.rooms.update_one({'_id': ObjectId(room_id)}, {'$set': {
             'title': title,
             'summ': summ
