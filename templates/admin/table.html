@@ -1,0 +1,665 @@
+{% extends 'admin/base.html' %}
+
+{% block style %}
+<style>
+    .boxes-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .box {
+        border-radius: 10px;
+        padding: 20px;
+        width: 300px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .type-1 {
+        border-top: 5px solid #3498db;
+    }
+
+    .type-2 {
+        border-top: 5px solid #2ecc71;
+    }
+
+    .box-title {
+        font-weight: bold;
+        font-size: 20px;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    .start-time {
+        font-size: 12px;
+        color: #7f8c8d;
+        margin-bottom: 10px;
+    }
+
+    .timer {
+        font-size: 28px;
+        font-family: 'Courier New', monospace;
+        margin: 10px 0;
+        color: #2c3e50;
+        font-weight: bold;
+    }
+
+    .scoreboard {
+        display: flex;
+        justify-content: space-around;
+        margin: 15px 0;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    .score {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .score-label {
+        font-size: 14px;
+        color: #7f8c8d;
+        margin-bottom: 5px;
+    }
+
+    .score-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #e74c3c;
+        margin: 0 10px;
+        min-width: 30px;
+    }
+
+    .score-controls {
+        display: flex;
+        align-items: center;
+        margin-top: 5px;
+    }
+
+    .score-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: none;
+        background-color: #3498db;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+    }
+
+    .score-btn:hover {
+        background-color: #2980b9;
+    }
+
+    .score-btn.minus {
+        background-color: #e74c3c;
+    }
+
+    .score-btn.minus:hover {
+        background-color: #c0392b;
+    }
+
+    .status {
+        font-size: 16px;
+        color: #555;
+        margin: 10px 0;
+        padding: 8px;
+        border-radius: 4px;
+    }
+
+    .warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .completed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .running {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .complete-btn {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 10px;
+        transition: background-color 0.2s;
+    }
+
+    .complete-btn:hover {
+        background-color: #c82333;
+    }
+
+    .completed-box {
+        opacity: 0.7;
+        background-color: #f8f9fa;
+    }
+
+    .completed-box .timer {
+        color: #6c757d;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 400px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-title {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .modal-message {
+        margin-bottom: 20px;
+        color: #555;
+    }
+
+    .modal-summary {
+        margin: 15px 0;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    .modal-summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .modal-btn {
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        border: none;
+    }
+
+    .modal-btn.confirm {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .modal-btn.cancel {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .modal-btn:hover {
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+{% block container %}
+<div class="components-preview wide-md mx-auto">
+    <div class="nk-block">
+        <div class="card card-stretch">
+            <div class="card-inner">
+                <div class="card-title-group">
+                    <div class="card-title">
+                        <h5 class="title">
+                        </h5>
+                    </div>
+                    <div class="nk-block-head-content">
+                        <div class="toggle-wrap nk-block-tools-toggle">
+                            <a href="#"
+                               class="btn btn-icon btn-trigger toggle-expand me-n1"
+                               data-target="pageMenu">
+                                <em class="icon ni ni-more-v"></em>
+                            </a>
+                            <div class="toggle-expand-content" data-content="pageMenu">
+                                <ul class="nk-block-tools g-3">
+                                    <li class="nk-block-tools-opt">
+                                        <a href="#" data-target="addProduct"
+                                           class="toggle btn btn-icon btn-primary d-md-none">
+                                            <em class="icon ni ni-plus"></em>
+                                        </a>
+                                        <a href="#"
+                                           data-target="addProduct"
+                                           class="toggle btn btn-primary d-none d-md-inline-flex">
+                                            <em class="icon ni ni-plus"></em>
+                                            <span>Добавить</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="nk-block">
+                <div id="boxes-container" class="boxes-container"></div>
+
+                <div id="confirmModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-title">Подтверждение завершения</div>
+                        <div class="modal-message">Вы точно хотите завершить этот бокс?</div>
+                        <div class="modal-summary" id="modalSummary"></div>
+                        <div class="modal-buttons">
+                            <button class="modal-btn cancel" id="cancelBtn">Отмена</button>
+                            <button class="modal-btn confirm" id="confirmBtn">Завершить</button>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
+     data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+    <div class="nk-block">
+        <div class="row g-3">
+            {% if rooms %}
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-room">Стол
+                    </label>
+                    <select class="form-control" id="cf-room" name="room_id">
+                        {% for room in rooms %}
+                        <option value="{{room._id}}">{{room.title}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-first-player">Первый игрок
+                    </label>
+                    <input type="text" name="first_player" id="cf-first-player" class="form-control">
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-second-player">Второй игрок
+                    </label>
+                    <input type="text" name="second_player" id="cf-second-player" class="form-control">
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label"
+                           for="cf-time">Время
+                    </label>
+                    <input type="number" min="1" name="time" id="cf-time" class="form-control">
+                </div>
+            </div>
+            <div class="col-12">
+                <button id="createButton" onclick="createItem()" class="btn btn-primary"><em
+                        class="icon ni ni-plus"></em><span>Добавить</span></button>
+            </div>
+            {% else %}
+            <h4>Все столы заняты</h4>
+            {% endif %}
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    $('li[data-li="control"]').addClass('active')
+    $('li[data-li="control-table"]').addClass('active')
+
+    async function createItem() {
+        $('#createButton').prop('disabled', true)
+        try {
+            let response = await fetch('/api/table/', {
+                method: 'POST',
+                body: JSON.stringify(getValues('#new-data-item'))
+            });
+            response = await response.json();
+            if (response._success === true) {
+                window.location.reload();
+            } else {
+                $('#createButton').prop('disabled', false)
+                alert(response.message);
+            }
+        } catch (error) {
+            $('#createButton').prop('disabled', false)
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    const timerIntervals = {};
+    let currentBoxId = null;
+
+    async function createBoxesWithTimers() {
+        const container = $('#boxes-container');
+        let data = null;
+        try {
+            let response = await fetch(`/api/table?action=get_active_tables`);
+            let res = await response.json();
+            data = res.items;
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+        container.empty();
+
+        data.forEach(item => {
+            const boxTitle = item.box_title;
+            const boxId = item.box_id;
+            const initialTime = item.expire;
+            const boxType = item.type;
+            let firstPlayer = item.first_player;
+            let secondPlayer = item.second_player;
+            let firstScore = item.first_score;
+            let secondScore = item.second_score;
+            const createdAt = item.created_at ? new Date(item.created_at * 1000) : new Date();
+
+            const startTimeStr = formatDateTime(createdAt);
+
+            const boxHtml = `
+                <div class="box type-1" id="box-${boxId}" data-type="1">
+                    <div class="box-title">${boxTitle}</div>
+                    <div class="start-time">Начало: ${startTimeStr}</div>
+                    <div class="timer" id="timer-${boxId}">${formatTime(initialTime)}</div>
+
+                    <div class="scoreboard">
+                        <div class="score">
+                            <div class="score-label">${firstPlayer}</div>
+                            <div class="score-controls">
+                                <button class="score-btn minus" data-box="${boxId}" data-type="first" data-change="-1">-</button>
+                                <div class="score-value" id="first-${boxId}">${firstScore}</div>
+                                <button class="score-btn" data-box="${boxId}" data-type="first" data-change="1">+</button>
+                            </div>
+                        </div>
+                        <div class="score">
+                            <div class="score-label">${secondPlayer}</div>
+                            <div class="score-controls">
+                                <button class="score-btn minus" data-box="${boxId}" data-type="second" data-change="-1">-</button>
+                                <div class="score-value" id="second-${boxId}">${secondScore}</div>
+                                <button class="score-btn" data-box="${boxId}" data-type="second" data-change="1">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="status" id="status-${boxId}">${getInitialStatus(boxType)}</div>
+                    <button class="complete-btn" data-box="${boxId}">Завершить бокс</button>
+                </div>
+            `;
+
+            container.append(boxHtml);
+
+            if (boxType === 'with_time') {
+                timerIntervals[boxId] = startCountdownTimer(boxId, initialTime);
+            } else {
+                timerIntervals[boxId] = startIncrementingTimer(boxId, initialTime);
+            }
+        });
+
+        $('.score-btn').click(async function () {
+            const boxId = $(this).data('box');
+            const scoreType = $(this).data('type');
+            const change = parseInt($(this).data('change'));
+            await updateScore(boxId, scoreType, change);
+        });
+
+        $('.complete-btn').click(async function () {
+            currentBoxId = $(this).data('box');
+            await showConfirmModal(currentBoxId);
+        });
+    }
+
+    let expireTime = 0
+    let summTime = 0
+
+    async function showConfirmModal(boxId) {
+        expireTime = 0;
+        summTime = 0;
+        try {
+            let response = await fetch(`/api/table?action=get_summ&box_id=${boxId}`);
+            response = await response.json();
+            expireTime = response.expire;
+            summTime = response.summ;
+
+            if (response._success === true) {
+                let summaryHtml = '';
+                summaryHtml += `
+                    <div class="modal-summary-item">
+                        <span>Общее время работы:</span>
+                        <strong>${formatTime(expireTime)}</strong>
+                    </div>
+                `;
+                summaryHtml += `
+                    <div class="modal-summary-item">
+                        <span>Итого:</span>
+                        <strong>${response.summ} ₸</strong>
+                    </div>
+                `;
+
+                $('#modalSummary').html(summaryHtml);
+                $('#confirmModal').css('display', 'flex');
+            } else {
+                alert(response.message);
+            }
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    function closeModal() {
+        $('#confirmModal').hide();
+        currentBoxId = null;
+    }
+
+    $('#cancelBtn').click(closeModal);
+
+    $('#confirmBtn').click(async function () {
+        if (currentBoxId) {
+            await completeBox(currentBoxId);
+            closeModal();
+        }
+    });
+
+    async function updateScore(boxId, scoreType, change) {
+        const scoreElement = $(`#${scoreType}-${boxId}`);
+        let currentScore = parseInt(scoreElement.text());
+        currentScore += change;
+
+        if (currentScore < 0) currentScore = 0;
+
+        scoreElement.text(currentScore);
+
+        await updateScoreOnServer(boxId, scoreType, currentScore);
+    };
+
+    async function updateScoreOnServer(boxId, scoreType, newValue) {
+        try {
+            let response = await fetch(`/api/table/`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    'action': 'change_score',
+                    'box_id': boxId,
+                    'player': scoreType,
+                    'value': newValue
+                })
+            });
+            response = await response.json();
+            if (response._success === true) {
+            } else {
+                alert(response.message);
+            }
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function completeBoxOnServer(boxId) {
+        if (!expireTime) {
+            alertShow('waring', `Что то пошел не так`, true);
+        }
+        if (!summTime) {
+            alertShow('waring', `Что то пошел не так`, true);
+        }
+        try {
+            console.log(boxId)
+            let response = await fetch(`/api/table/`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    'action': 'close',
+                    'box_id': boxId,
+                    'expire': expireTime,
+                    'summ': summTime
+                })
+            });
+            response = await response.json();
+            if (response._success === true) {
+                alertShow('success', `Обнавлено`, true);
+            } else {
+                alert(response.message);
+            }
+        } catch (error) {
+            alertShow('waring', `${error.message}`);
+        }
+    }
+
+    async function completeBox(boxId) {
+        clearInterval(timerIntervals[boxId]);
+        delete timerIntervals[boxId];
+
+        const boxElement = $(`#box-${boxId}`);
+        boxElement.addClass('completed-box');
+
+        $(`#status-${boxId}`).text("Бокс завершен").addClass('completed');
+
+        await completeBoxOnServer(boxId);
+    }
+
+    function startCountdownTimer(boxId, initialTime) {
+        let timeLeft = initialTime;
+        const timerElement = $(`#timer-${boxId}`);
+        const statusElement = $(`#status-${boxId}`);
+        const boxElement = $(`#box-${boxId}`);
+
+        return setInterval(function () {
+            timeLeft--;
+
+            timerElement.text(formatTime(timeLeft));
+
+            if (timeLeft <= 0) {
+                clearInterval(timerIntervals[boxId]);
+                statusElement.text("Время вышло!").removeClass('running').addClass('completed');
+                boxElement.addClass('completed-box');
+            }
+
+            if (timeLeft < 30 && timeLeft > 0) {
+                statusElement.addClass('warning').text("Заканчивается время!");
+            } else if (timeLeft > 0) {
+                statusElement.addClass('running').text("Идет отсчет");
+            }
+        }, 1000);
+    }
+
+    function startIncrementingTimer(boxId, initialTime) {
+        let currentTime = initialTime;
+        const timerElement = $(`#timer-${boxId}`);
+        const statusElement = $(`#status-${boxId}`);
+
+        statusElement.addClass('running').text("Идет работа");
+
+        return setInterval(function () {
+            currentTime++;
+            timerElement.text(formatTime(currentTime));
+        }, 1000);
+    }
+
+    function formatTime(seconds) {
+        const mins = Math.floor(Math.abs(seconds) / 60);
+        const secs = Math.abs(seconds) % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function formatDateTime(date) {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+
+        return `${day}.${month}.${year} ${hours}:${minutes}`;
+    }
+
+    function getInitialStatus(type) {
+        return type === 'with_time' ? 'Обратный отсчет' : 'Прямой отсчет';
+    }
+
+    function getSummaryFromServer(boxId, callback) {
+        $.ajax({
+            url: '/api/get-summary',
+            method: 'POST',
+            data: {box: boxId},
+            success: function (response) {
+                callback(response.summary);
+            },
+            error: function (error) {
+                console.error('Ошибка получения суммы:', error);
+                // Можно показать mock-данные при ошибке
+                callback([
+                    {label: "Общее время работы", value: "2 часа 15 мин"},
+                    {label: "Сумма за первые", value: "1 500 руб"},
+                    {label: "Сумма за вторые", value: "2 300 руб"},
+                    {label: "Итого", value: "3 800 руб", isTotal: true}
+                ]);
+            }
+        });
+    }
+
+    createBoxesWithTimers();
+
+</script>
+{% endblock %}

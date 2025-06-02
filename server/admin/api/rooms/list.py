@@ -1,7 +1,10 @@
 from datetime import datetime
 
+from pymongo import ReturnDocument
+
 from core.db import mongo
 from core.handlers import BaseAPIView
+from utils.floats import FloatUtils
 from utils.strs import StrUtils
 
 
@@ -26,12 +29,23 @@ class RoomsView(BaseAPIView):
 
     async def post(self, request, user):
         title = StrUtils.to_str(request.json.get('title'))
+        summ = FloatUtils.to_float(request.json.get('summ'), default=0)
 
         if not title:
             return self.error(message='Отсуствует обязательный параметры "Имя"')
 
+        counter = await mongo.counters.find_one_and_update(
+            filter={'collection': 'goods'},
+            update={'$inc': {'seq': 1}},
+            upsert=True,
+            return_document=ReturnDocument.AFTER
+        )
+
         data = {
+            'id': counter['seq'],
             'title': title,
+            'summ': summ,
+            'in_use': False,
             'is_active': True,
             'created_at': datetime.now()
         }
