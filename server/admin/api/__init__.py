@@ -1,5 +1,6 @@
 from sanic import Blueprint
 
+from admin.api.chats import chats_bp
 from admin.api.clients import clients_bp
 from admin.api.companies import companies_bp
 from admin.api.files import files_bp
@@ -25,5 +26,6 @@ api_group = Blueprint.group(
     rooms_bp,
     table_bp,
     files_bp,
+    chats_bp,
     url_prefix='/api'
 )

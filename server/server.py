@@ -6,6 +6,7 @@ from sanic.exceptions import NotFound
 from admin import admin_bp
 from admin.api import api_group
 from api.core.upload import UploadView
+from core.ai import ai_client
 from core.auth import auth
 from core.cache import cache
 from core.db import mongo, db
@@ -41,6 +42,7 @@ async def initialize_modules(_app, _loop):
     await cache.initialize(_loop, maxsize=5)
     session.initialize(_app)
     auth.initialize(_app)
+    await ai_client.initialize()
 
 
 app.blueprint([

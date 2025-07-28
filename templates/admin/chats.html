@@ -1,0 +1,166 @@
+{% extends 'admin/base.html' %}
+{% block container %}
+
+{% block style %}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+{% endblock %}
+
+<div class="components-preview wide-md mx-auto">
+    <div class="w-full max-w-5xl bg-white shadow-xl rounded-2xl overflow-hidden flex">
+
+        <!-- Левая панель -->
+        <aside class="w-1/3 border-r bg-gray-50 p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">История чатов</h2>
+                <button id="new-chat" class="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">+
+                    Новый
+                </button>
+            </div>
+            <ul id="chat-list" class="space-y-2 text-sm overflow-y-auto max-h-[600px] pr-1">
+                <!-- Список чатов -->
+            </ul>
+        </aside>
+
+        <!-- Правая панель -->
+        <main class="w-2/3 p-6 space-y-5">
+
+            <div>
+                <label class="block font-medium mb-1">Выберите до 3 файлов:</label>
+                <select id="file-select" multiple size="5" class="w-full border rounded px-3 py-2 bg-white">
+                    <!-- Файлы -->
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Удерживайте Ctrl (или ⌘) чтобы выбрать несколько.</p>
+            </div>
+
+            <div>
+                <label class="block font-medium mb-1">Ваш запрос:</label>
+                <textarea id="prompt-input" rows="4" class="w-full border rounded px-3 py-2 resize-none"
+                          placeholder="Введите вопрос..."></textarea>
+            </div>
+
+            <div>
+                <button id="send-btn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Отправить
+                </button>
+            </div>
+
+            <div>
+                <label class="block font-medium mb-1">Ответ:</label>
+                <div id="response-box"
+                     class="min-h-[100px] p-4 bg-gray-100 border rounded text-gray-800 whitespace-pre-wrap"></div>
+            </div>
+
+        </main>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    $('li[data-li="control"]').addClass('active')
+    $('li[data-li="control-chats"]').addClass('active')
+
+    let currentChatId = null;
+
+    function loadFiles() {
+        $.getJSON('/api/files/?response_type=json', function (items) {
+            const select = $('#file-select');
+            let files = items.items;
+            console.log('files', files)
+            select.empty();
+            files.forEach(file => {
+                select.append(`<option value="${file.file_url}">${file.title}</option>`);
+            });
+        });
+    }
+
+    function loadChatHistory() {
+        $.getJSON('/api/chats?response_type=json', function (data) {
+            console.log('loadChatHistory', data)
+            const chatList = $('#chat-list');
+            chatList.empty();
+            let items = data.items;
+
+            items.forEach(chat => {
+                chatList.append(`
+             <li>
+               <button class="w-full text-left px-2 py-1 rounded hover:bg-blue-100" onclick="viewChat('${chat._id}')">
+                 ${$('<div>').text(chat.prompt.slice(0, 40)).html()}...
+               </button>
+             </li>
+             `);
+            });
+        });
+    }
+
+    function viewChat(chatId) {
+        $.getJSON(`/api/chats/${chatId}?response_type=json`, function (data) {
+            console.log('viewChat', data)
+            const chat = data.item;
+            if (!chat) return;
+
+            $('#prompt-input').val(chat.prompt).prop('readonly', true);
+            $('#response-box').text(chat.response);
+            $('#send-btn').hide();
+
+            $('#file-select option').each(function () {
+                const id = $(this).val();
+                $(this).prop('selected', chat.file_urls.includes(id));
+            });
+            $('#file-select').prop('disabled', true);
+
+            currentChatId = chatId;
+        });
+    }
+
+    $(document).ready(function () {
+        loadFiles();
+        loadChatHistory();
+
+        $('#send-btn').click(function () {
+            const selectedOptions = $('#file-select option:selected');
+            if (selectedOptions.length === 0) return alert('Выберите хотя бы один файл');
+            if (selectedOptions.length > 3) return alert('Максимум 3 файла');
+
+            const fileIds = selectedOptions.map(function () {
+                return $(this).val();
+            }).get();
+
+            const prompt = $('#prompt-input').val().trim();
+            if (!prompt) return alert('Введите запрос');
+
+            $.ajax({
+                method: 'POST',
+                url: '/api/chats',
+                contentType: 'application/json',
+                data: JSON.stringify({file_urls: fileIds, prompt: prompt}),
+                success: function (data) {
+                    $('#response-box').text(data.text);
+                    $('#prompt-input').prop('readonly', true);
+                    $('#file-select').prop('disabled', true);
+                    $('#send-btn').hide();
+                    loadChatHistory();
+                },
+                error: function () {
+                    alert('Ошибка при отправке запроса');
+                }
+            });
+        });
+
+        $('#new-chat').click(function () {
+            $('#prompt-input').val('').prop('readonly', false);
+            $('#file-select').prop('disabled', false).val([]);
+            $('#response-box').text('');
+            $('#send-btn').show();
+            currentChatId = null;
+        });
+
+        $('#file-select').on('change', function () {
+            if ($(this).find('option:selected').length > 3) {
+                alert('Максимум 3 файла');
+                const selected = $(this).val().slice(0, 3);
+                $(this).val(selected);
+            }
+        });
+    });
+
+</script>
+{% endblock %}
