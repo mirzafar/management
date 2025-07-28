@@ -16,7 +16,9 @@ class AiClient:
         )
 
     def __getattr__(self, attr):
-        return functools.partial(getattr(self.pool, attr))
+        if self.client is None:
+            raise RuntimeError("Client not initialized. Call initialize() first.")
+        return getattr(self.client, attr)
 
 
 ai_client = AiClient()  # type: Union[openai.AsyncOpenAI, AiClient]
