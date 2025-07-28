@@ -99,6 +99,8 @@ class ChatsView(BaseAPIView):
                 'file_url': f'{settings["base_url"]}/static/uploads/{ur}'
             })
 
+        print("content", content)
+
         response = await ai_client.responses.create(
             model='gpt-4o',
             input=content,
