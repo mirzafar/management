@@ -153,21 +153,38 @@
     $('li[data-li="control-files"]').addClass('active')
 
     let createButton = $('#createButton')
+    let uploadFileUrl = null;
 
     async function createItem() {
         createButton.prop('disabled', true)
         try {
-            let response = await fetch('/api/files/', {
+            const title = document.querySelector('#cf-title').value;
+            const fileInput = document.querySelector('#customFileNew');
+            const file = fileInput.files[0];
+
+            if (!file || !title || !uploadFileUrl) {
+                alert("Пожалуйста, заполните все поля.");
+                createButton.prop('disabled', false);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('url', uploadFileUrl);
+            formData.append('file', file);
+
+            const response = await fetch('/api/files/', {
                 method: 'POST',
-                body: JSON.stringify(getValues('#new-data-item'))
+                body: formData
             });
 
-            response = await response.json();
-            if (response._success === true) {
+            const result = await response.json();
+
+            if (result._success === true) {
                 window.location.reload();
             } else {
-                createButton.prop('disabled', false)
-                alert(response.message);
+                alert(result.message);
+                createButton.prop('disabled', false);
             }
 
         } catch (error) {
@@ -181,7 +198,7 @@
         var input_name = $(this).closest('.file-place').find('[name="' + trigger_name + '"]');
         uploadImage($(this).attr('id')).then(function (data) {
             input_name.val(String(data['file_name']));
-            image.attr('src', '/static/uploads/' + String(data['file_name']));
+            uploadFileUrl = String(data['file_name']);
         }, function (data) {
             alert('error');
         });
