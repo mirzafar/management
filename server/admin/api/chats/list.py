@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 from core.ai import ai_client
@@ -60,7 +61,15 @@ system_message = '''Ты — синтез лучших в мире бизнес-
 
 
 class ChatsView(BaseAPIView):
-    template_name = 'admin/chats.html'
+    @classmethod
+    async def create_assistant(cls):
+        assistant = await ai_client.beta.assistants.create(
+            name='Бизнес-Аналитик',
+            instructions=system_message,
+            model='gpt-4o',
+            tools=[{'type': 'code_interpreter'}, {'type': 'file_search'}]
+        )
+        return assistant
 
     async def get(self, request, user):
         query = StrUtils.to_str(request.args.get('query'))
@@ -82,6 +91,8 @@ class ChatsView(BaseAPIView):
     async def post(self, request, user):
         prompt = StrUtils.to_str(request.json.get('prompt'))
         file_urls = ListUtils.to_list_of_strs(request.json.get('file_urls'))
+        upload_file_ids = ListUtils.to_list_of_strs(request.json.get('upload_file_ids'))
+        mode = StrUtils.to_str(request.json.get('mode'))
 
         if not prompt:
             return self.error(message='Отсуствует обязательный параметры "Текст"')
@@ -89,32 +100,97 @@ class ChatsView(BaseAPIView):
         if not file_urls:
             return self.error(message='Отсуствует обязательный параметры "Файл url"')
 
-        content = [
-            {'role': 'system', 'content': system_message},
-        ]
+        if not upload_file_ids:
+            return self.error(message='Отсуствует обязательный параметры "upload_file_ids"')
 
-        for ur in file_urls:
+        if not mode:
+            return self.error(message='Отсуствует обязательный параметры "Режим"')
+
+        response_txt = None
+        if mode in ['upload_file', 'url']:
+            content = [
+                {'role': 'system', 'content': system_message},
+            ]
+
+            if mode == 'upload_file':
+                for file_id in upload_file_ids:
+                    content.append({
+                        'role': 'user',
+                        'content': [{
+                            'type': 'input_file',
+                            'file_id': file_id
+                        }]
+                    })
+            else:
+                for f_url in file_urls:
+                    content.append({
+                        'role': 'user',
+                        'content': [{
+                            'type': 'input_file',
+                            'file_url': f'{settings["base_url"]}/static/uploads/{f_url}'
+                        }]
+                    })
+
             content.append({
-                'type': 'input_file',
-                'file_url': f'{settings["base_url"]}/static/uploads/{ur}'
+                'role': 'user',
+                'content': [
+                    {'type': 'input_text', 'text': prompt}
+                ]
             })
 
-        print("content", content)
+            response = await ai_client.responses.create(
+                model='gpt-4o',
+                input=content
+            )
 
-        response = await ai_client.responses.create(
-            model='gpt-4o',
-            input=content,
-        )
+            if response.output_text:
+                response_txt = response.output_text
+            else:
+                return self.error(message='Операция не выполнена')
 
-        if not response.output_text:
-            return self.error(message='Операция не выполнена')
+        else:
+            assistant = await self.create_assistant()
+            thread = await ai_client.beta.threads.create(
+                messages=[
+                    {
+                        'role': 'user',
+                        'content': prompt,
+                        'attachments': [
+                            {
+                                'file_id': file_id,
+                                'tools': [{'type': 'code_interpreter'}]
+                            } for file_id in upload_file_ids
+                        ]
+                    }
+                ]
+            )
+
+            run = await ai_client.beta.threads.runs.create(
+                thread_id=thread.id,
+                assistant_id=assistant.id
+            )
+
+            while True:
+                run_status = await ai_client.beta.threads.runs.retrieve(
+                    thread_id=thread.id,
+                    run_id=run.id
+                )
+                if run_status.status == 'completed':
+                    break
+                elif run_status.status in ['failed', 'cancelled', 'expired']:
+                    return self.error(message=f'Run failed: {run_status.status}')
+                await asyncio.sleep(1)
+
+            messages = await ai_client.beta.threads.messages.list(thread_id=thread.id)
+            response_txt = messages.data[0].content[0].text.value
 
         data = {
             'prompt': prompt,
             'file_urls': file_urls,
+            'mode': mode,
             'is_active': True,
             'user_id': user['id'],
-            'response': response.output_text,
+            'response': response_txt,
             'created_at': datetime.now()
         }
 
@@ -127,5 +203,5 @@ class ChatsView(BaseAPIView):
 
         return self.success(data={
             'item': data,
-            'text': response.output_text
+            'text': response_txt
         })
