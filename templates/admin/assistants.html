@@ -191,6 +191,7 @@
         $('#new-chat').click(function () {
             $('#prompt-input').val('').prop('readonly', false);
             $('#file-select').prop('disabled', false).val([]);
+            $('#mode-select').prop('disabled', false);
             $('#response-box').text('');
             $('#send-btn').show();
             currentChatId = null;
