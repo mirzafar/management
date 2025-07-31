@@ -117,7 +117,27 @@
             $('#mode-select').val(chat.mode || 'assistant').prop('disabled', true);
 
             currentChatId = chatId;
+            if (!chat.is_finish) {
+                pollChatUntilFinished(chatId);
+            }
         });
+    }
+
+    function pollChatUntilFinished(chatId) {
+        const intervalId = setInterval(function () {
+            $.getJSON(`/api/chats/${chatId}?response_type=json`, function (data) {
+                if (!data.item) return;
+
+                const chat = data.item;
+                if (chat.is_finish) {
+                    clearInterval(intervalId);
+                    $('#response-box').text(chat.response);
+                }
+            }).fail(function () {
+                clearInterval(intervalId);
+                alert('Ошибка при обновлении чата');
+            });
+        }, 3000);
     }
 
     $(document).ready(function () {
@@ -150,11 +170,16 @@
                 contentType: 'application/json',
                 data: JSON.stringify({file_urls: fileIds, prompt: prompt, upload_file_ids: uploadFileIds, mode: mode}),
                 success: function (data) {
+                    const chatId = data.item.id || data.item._id;
+
                     $('#response-box').text(data.text || '');
                     $('#prompt-input').prop('readonly', true);
                     $('#file-select').prop('disabled', true);
+                    $('#mode-select').prop('disabled', true);
                     $('#send-btn').hide();
                     loadChatHistory();
+
+                    pollChatUntilFinished(chatId);
                 },
                 error: function () {
                     alert('Ошибка при отправке запроса');

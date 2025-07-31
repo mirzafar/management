@@ -71,44 +71,8 @@ class ChatsView(BaseAPIView):
         )
         return assistant
 
-    async def get(self, request, user):
-        query = StrUtils.to_str(request.args.get('query'))
-
-        filters = {
-            'is_active': True,
-            'user_id': user['id'],
-        }
-
-        if query:
-            filters['title'] = {'$regex': query, '$options': 'i'}
-
-        items = await mongo.chats.find(filters).sort('_id', -1).to_list(length=None)
-
-        return self.success(request=request, user=user, data={
-            'items': items
-        })
-
-    async def post(self, request, user):
-        prompt = StrUtils.to_str(request.json.get('prompt'))
-        file_urls = ListUtils.to_list_of_strs(request.json.get('file_urls'))
-        upload_file_ids = ListUtils.to_list_of_strs(request.json.get('upload_file_ids'))
-        mode = StrUtils.to_str(request.json.get('mode'))
-
-        print(f'ChatsView#post() -> mode: {mode}')
-
-        if not prompt:
-            return self.error(message='Отсуствует обязательный параметры "Текст"')
-
-        if not file_urls:
-            return self.error(message='Отсуствует обязательный параметры "Файл url"')
-
-        if not upload_file_ids:
-            return self.error(message='Отсуствует обязательный параметры "upload_file_ids"')
-
-        if not mode:
-            return self.error(message='Отсуствует обязательный параметры "Режим"')
-
-        response_txt = None
+    @classmethod
+    async def function(cls, chat_id, prompt, mode, upload_file_ids, file_urls):
         if mode in ['upload_file', 'url']:
             content = [
                 {'role': 'system', 'content': system_message},
@@ -151,10 +115,10 @@ class ChatsView(BaseAPIView):
             if response.output_text:
                 response_txt = response.output_text
             else:
-                return self.error(message='Операция не выполнена')
+                return
 
         else:
-            assistant = await self.create_assistant()
+            assistant = await cls.create_assistant()
             print(f'ChatsView#post() -> mode: {mode}, assistant: {assistant.id}')
             thread = await ai_client.beta.threads.create(
                 messages=[
@@ -185,12 +149,54 @@ class ChatsView(BaseAPIView):
                 if run_status.status == 'completed':
                     break
                 elif run_status.status in ['failed', 'cancelled', 'expired']:
-                    return self.error(message=f'Run failed: {run_status.status}')
+                    return
                 await asyncio.sleep(1)
 
             print(f'ChatsView#post() -> mode: {mode}, done')
             messages = await ai_client.beta.threads.messages.list(thread_id=thread.id)
             response_txt = messages.data[0].content[0].text.value
+
+        await mongo.chats.update_one({'_id': chat_id}, {'$set': {
+            'response': response_txt,
+            'is_finished': True
+        }})
+
+    async def get(self, request, user):
+        query = StrUtils.to_str(request.args.get('query'))
+
+        filters = {
+            'is_active': True,
+            'user_id': user['id'],
+        }
+
+        if query:
+            filters['title'] = {'$regex': query, '$options': 'i'}
+
+        items = await mongo.chats.find(filters).sort('_id', -1).to_list(length=None)
+
+        return self.success(request=request, user=user, data={
+            'items': items
+        })
+
+    async def post(self, request, user):
+        prompt = StrUtils.to_str(request.json.get('prompt'))
+        file_urls = ListUtils.to_list_of_strs(request.json.get('file_urls'))
+        upload_file_ids = ListUtils.to_list_of_strs(request.json.get('upload_file_ids'))
+        mode = StrUtils.to_str(request.json.get('mode'))
+
+        print(f'ChatsView#post() -> mode: {mode}')
+
+        if not prompt:
+            return self.error(message='Отсуствует обязательный параметры "Текст"')
+
+        if not file_urls:
+            return self.error(message='Отсуствует обязательный параметры "Файл url"')
+
+        if not upload_file_ids:
+            return self.error(message='Отсуствует обязательный параметры "upload_file_ids"')
+
+        if not mode:
+            return self.error(message='Отсуствует обязательный параметры "Режим"')
 
         data = {
             'prompt': prompt,
@@ -198,18 +204,25 @@ class ChatsView(BaseAPIView):
             'mode': mode,
             'is_active': True,
             'user_id': user['id'],
-            'response': response_txt,
+            'is_finished': False,
+            'response': None,
             'created_at': datetime.now()
         }
 
         inserted = await mongo.chats.insert_one(data)
-
-        if inserted.inserted_id:
-            pass
-        else:
+        if not inserted.inserted_id:
             return self.error(message='Операция не выполнена')
 
+        asyncio.create_task(self.function(
+            chat_id=inserted.inserted_id,
+            prompt=prompt,
+            mode=mode,
+            upload_file_ids=upload_file_ids,
+            file_urls=file_urls
+        ))
+
         return self.success(data={
-            'item': data,
-            'text': response_txt
+            'item': {
+                '_id': inserted.inserted_id
+            }
         })
