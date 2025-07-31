@@ -94,6 +94,8 @@ class ChatsView(BaseAPIView):
         upload_file_ids = ListUtils.to_list_of_strs(request.json.get('upload_file_ids'))
         mode = StrUtils.to_str(request.json.get('mode'))
 
+        print(f'ChatsView#post() -> mode: {mode}')
+
         if not prompt:
             return self.error(message='Отсуствует обязательный параметры "Текст"')
 
