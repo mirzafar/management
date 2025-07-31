@@ -117,7 +117,7 @@
             $('#mode-select').val(chat.mode || 'assistant').prop('disabled', true);
 
             currentChatId = chatId;
-            if (!chat.is_finish) {
+            if (!chat.is_finished) {
                 pollChatUntilFinished(chatId);
             }
         });
@@ -129,7 +129,7 @@
                 if (!data.item) return;
 
                 const chat = data.item;
-                if (chat.is_finish) {
+                if (chat.is_finished) {
                     clearInterval(intervalId);
                     $('#response-box').text(chat.response);
                 }
