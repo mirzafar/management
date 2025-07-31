@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from datetime import datetime
 
 from core.ai import ai_client
@@ -73,93 +74,101 @@ class ChatsView(BaseAPIView):
 
     @classmethod
     async def function(cls, chat_id, prompt, mode, upload_file_ids, file_urls):
-        if mode in ['upload_file', 'url']:
-            content = [
-                {'role': 'system', 'content': system_message},
-            ]
-
-            if mode == 'upload_file':
-                for file_id in upload_file_ids:
-                    content.append({
-                        'role': 'user',
-                        'content': [{
-                            'type': 'input_file',
-                            'file_id': file_id
-                        }]
-                    })
-            else:
-                for f_url in file_urls:
-                    content.append({
-                        'role': 'user',
-                        'content': [{
-                            'type': 'input_file',
-                            'file_url': f'{settings["base_url"]}/static/uploads/{f_url}'
-                        }]
-                    })
-
-            content.append({
-                'role': 'user',
-                'content': [
-                    {'type': 'input_text', 'text': prompt}
+        try:
+            if mode in ['upload_file', 'url']:
+                content = [
+                    {'role': 'system', 'content': system_message},
                 ]
-            })
 
-            print(f'ChatsView#post() -> mode: {mode}, content: {content}')
+                if mode == 'upload_file':
+                    for file_id in upload_file_ids:
+                        content.append({
+                            'role': 'user',
+                            'content': [{
+                                'type': 'input_file',
+                                'file_id': file_id
+                            }]
+                        })
+                else:
+                    for f_url in file_urls:
+                        content.append({
+                            'role': 'user',
+                            'content': [{
+                                'type': 'input_file',
+                                'file_url': f'{settings["base_url"]}/static/uploads/{f_url}'
+                            }]
+                        })
 
-            response = await ai_client.responses.create(
-                model='gpt-4o',
-                input=content
-            )
+                content.append({
+                    'role': 'user',
+                    'content': [
+                        {'type': 'input_text', 'text': prompt}
+                    ]
+                })
 
-            print(f'ChatsView#post() -> mode: {mode}, done, output_text: {response.output_text}')
-            if response.output_text:
-                response_txt = response.output_text
-            else:
-                return
+                print(f'ChatsView#post() -> mode: {mode}, content: {content}')
 
-        else:
-            assistant = await cls.create_assistant()
-            print(f'ChatsView#post() -> mode: {mode}, assistant: {assistant.id}')
-            thread = await ai_client.beta.threads.create(
-                messages=[
-                    {
-                        'role': 'user',
-                        'content': prompt,
-                        'attachments': [
-                            {
-                                'file_id': file_id,
-                                'tools': [{'type': 'code_interpreter'}]
-                            } for file_id in upload_file_ids
-                        ]
-                    }
-                ]
-            )
-
-            print(f'ChatsView#post() -> mode: {mode}, thread: {thread.id}')
-            run = await ai_client.beta.threads.runs.create(
-                thread_id=thread.id,
-                assistant_id=assistant.id
-            )
-
-            while True:
-                run_status = await ai_client.beta.threads.runs.retrieve(
-                    thread_id=thread.id,
-                    run_id=run.id
+                response = await ai_client.responses.create(
+                    model='gpt-4o',
+                    input=content
                 )
-                if run_status.status == 'completed':
-                    break
-                elif run_status.status in ['failed', 'cancelled', 'expired']:
+
+                print(f'ChatsView#post() -> mode: {mode}, done, output_text: {response.output_text}')
+                if response.output_text:
+                    response_txt = response.output_text
+                else:
                     return
-                await asyncio.sleep(1)
 
-            print(f'ChatsView#post() -> mode: {mode}, done')
-            messages = await ai_client.beta.threads.messages.list(thread_id=thread.id)
-            response_txt = messages.data[0].content[0].text.value
+            else:
+                assistant = await cls.create_assistant()
+                print(f'ChatsView#post() -> mode: {mode}, assistant: {assistant.id}')
+                thread = await ai_client.beta.threads.create(
+                    messages=[
+                        {
+                            'role': 'user',
+                            'content': prompt,
+                            'attachments': [
+                                {
+                                    'file_id': file_id,
+                                    'tools': [{'type': 'code_interpreter'}]
+                                } for file_id in upload_file_ids
+                            ]
+                        }
+                    ]
+                )
 
-        await mongo.chats.update_one({'_id': chat_id}, {'$set': {
-            'response': response_txt,
-            'is_finished': True
-        }})
+                print(f'ChatsView#post() -> mode: {mode}, thread: {thread.id}')
+                run = await ai_client.beta.threads.runs.create(
+                    thread_id=thread.id,
+                    assistant_id=assistant.id
+                )
+
+                while True:
+                    run_status = await ai_client.beta.threads.runs.retrieve(
+                        thread_id=thread.id,
+                        run_id=run.id
+                    )
+                    if run_status.status == 'completed':
+                        break
+                    elif run_status.status in ['failed', 'cancelled', 'expired']:
+                        return
+                    await asyncio.sleep(1)
+
+                print(f'ChatsView#post() -> mode: {mode}, done')
+                messages = await ai_client.beta.threads.messages.list(thread_id=thread.id)
+                response_txt = messages.data[0].content[0].text.value
+
+            await mongo.chats.update_one({'_id': chat_id}, {'$set': {
+                'response': response_txt,
+                'is_finished': True
+            }})
+
+        except (Exception,) as er:
+            traceback.print_exc()
+            await mongo.chats.update_one({'_id': chat_id}, {'$set': {
+                'response': str(er),
+                'is_finished': True
+            }})
 
     async def get(self, request, user):
         query = StrUtils.to_str(request.args.get('query'))
