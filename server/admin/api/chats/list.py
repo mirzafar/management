@@ -138,11 +138,14 @@ class ChatsView(BaseAPIView):
                 ]
             })
 
+            print(f'ChatsView#post() -> mode: {mode}, content: {content}')
+
             response = await ai_client.responses.create(
                 model='gpt-4o',
                 input=content
             )
 
+            print(f'ChatsView#post() -> mode: {mode}, done, output_text: {response.output_text}')
             if response.output_text:
                 response_txt = response.output_text
             else:
@@ -150,6 +153,7 @@ class ChatsView(BaseAPIView):
 
         else:
             assistant = await self.create_assistant()
+            print(f'ChatsView#post() -> mode: {mode}, assistant: {assistant.id}')
             thread = await ai_client.beta.threads.create(
                 messages=[
                     {
@@ -165,6 +169,7 @@ class ChatsView(BaseAPIView):
                 ]
             )
 
+            print(f'ChatsView#post() -> mode: {mode}, thread: {thread.id}')
             run = await ai_client.beta.threads.runs.create(
                 thread_id=thread.id,
                 assistant_id=assistant.id
@@ -181,6 +186,7 @@ class ChatsView(BaseAPIView):
                     return self.error(message=f'Run failed: {run_status.status}')
                 await asyncio.sleep(1)
 
+            print(f'ChatsView#post() -> mode: {mode}, done')
             messages = await ai_client.beta.threads.messages.list(thread_id=thread.id)
             response_txt = messages.data[0].content[0].text.value
 
