@@ -161,9 +161,6 @@
                                                             <label class="form-label" for="cf-paid_summ">Итоговая
                                                                 сумма</label>
                                                             <div class="form-control-wrap">
-                                                                <div class="form-text-hint">
-                                                                    <span class="overline-title">KZT</span>
-                                                                </div>
                                                                 <input class="form-control form-control-lg text-end fw-bold"
                                                                        disabled="disabled"
                                                                        value="{{overhead.sum or '0'}}"
@@ -381,6 +378,9 @@
                     <em class="icon ni ni-plus-circle me-1"></em> Добавить в накладную
                 </button>
             </div>
+            <br/>
+            <br/>
+            <br/>
         </div>
     </div>
 </div>
@@ -399,12 +399,11 @@
         try {
             let response = await fetch('/api/store/overheads/' + itemId, {
                 method: 'PUT',
-                body: JSON.stringify(getValues('#data-item'))
+                body: JSON.stringify(getValues('#tabItem1'))
             });
 
             response = await response.json();
             if (response._success === true) {
-                window.location.reload()
             } else {
                 alert(response.message);
             }

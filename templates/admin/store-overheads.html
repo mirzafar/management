@@ -1,106 +1,161 @@
 {% extends 'admin/base.html' %}
+
 {% block container %}
-<div class="components-preview wide-md mx-auto">
-    <div class="nk-block-head nk-block-head-sm">
+<style>
+    /* Custom CSS for extra polish */
+    .card-stretch {
+        box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.02);
+        border: 1px solid #e5e9f2;
+        border-radius: 8px;
+    }
+
+    .nk-tb-item {
+        transition: background-color 0.2s;
+    }
+
+    .nk-tb-item:hover {
+        background-color: #f8f9fc;
+    }
+
+    .user-card .user-info {
+        color: #526484;
+        font-weight: 500;
+    }
+
+    .badge-dim {
+        border-radius: 4px;
+        padding: 0.35rem 0.6rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
+
+    .empty-state-icon {
+        font-size: 6rem;
+        opacity: 0.1;
+        color: #6576ff;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #364a63;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        background-color: #fcfdfd;
+        border-color: #dbdfea;
+    }
+
+    .form-control:focus {
+        background-color: #fff;
+        box-shadow: 0 0 0 3px rgba(101, 118, 255, 0.1);
+    }
+</style>
+
+<div class="components-preview wide-md mx-auto py-4">
+
+    <div class="nk-block-head nk-block-head-sm pb-4">
         <div class="nk-block-between">
             <div class="nk-block-head-content">
-                <h3 class="nk-block-title page-title"></h3>
+                <h3 class="nk-block-title page-title">Накладные</h3>
             </div>
-
-        </div>
-    </div>
-    <div class="nk-block">
-        <div class="card card-stretch">
-            <div class="card-inner">
-                <div class="card-title-group">
-                    <div class="card-title"><h5 class="title" id="pageTitle">Накладные</h5></div>
-                    <div class="nk-block-head-content">
-                        <div class="toggle-wrap nk-block-tools-toggle">
-                            <a href="#"
-                               class="btn btn-icon btn-trigger toggle-expand me-n1"
-                               data-target="pageMenu">
-                                <em class="icon ni ni-more-v"></em>
-                            </a>
-                            <div class="toggle-expand-content" data-content="pageMenu">
-                                <ul class="nk-block-tools g-3">
-                                    <li>
-                                        <div class="form-control-wrap">
-                                            <div class="form-icon form-icon-right"><em
-                                                    class="icon ni ni-search"></em></div>
-                                            <input type="text" class="form-control" id="filter-query"
-                                                   value="{{request.args.get('query', '')}}"
-                                                   placeholder="Поиск">
-                                        </div>
-                                    </li>
-                                    <li class="nk-block-tools-opt">
-                                        <a href="#" data-target="addOverhead"
-                                           class="toggle btn btn-icon btn-primary d-md-none">
-                                            <em class="icon ni ni-plus"></em>
-                                        </a>
-                                        <a href="#"
-                                           data-target="addOverhead"
-                                           class="toggle btn btn-primary d-none d-md-inline-flex">
-                                            <em class="icon ni ni-plus"></em>
-                                            <span>добавить</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+            <div class="nk-block-head-content">
+                <div class="toggle-wrap nk-block-tools-toggle">
+                    <a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu">
+                        <em class="icon ni ni-more-v"></em>
+                    </a>
+                    <div class="toggle-expand-content" data-content="pageMenu">
+                        <ul class="nk-block-tools g-3">
+                            <li>
+                                <div class="form-control-wrap">
+                                    <div class="form-icon form-icon-right">
+                                        <em class="icon ni ni-search"></em>
+                                    </div>
+                                    <input type="text" class="form-control form-control-transparent" id="filter-query"
+                                           value="{{request.args.get('query', '')}}"
+                                           placeholder="Поиск по названию...">
+                                </div>
+                            </li>
+                            <li class="nk-block-tools-opt">
+                                <a href="#" data-target="addOverhead"
+                                   class="toggle btn btn-primary d-none d-md-inline-flex">
+                                    <em class="icon ni ni-plus"></em>
+                                    <span>Добавить накладную</span>
+                                </a>
+                                <a href="#" data-target="addOverhead" class="toggle btn btn-icon btn-primary d-md-none">
+                                    <em class="icon ni ni-plus"></em>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            {% if overheads %}
-            <div class="nk-block">
-                <div class="card">
+        </div>
+    </div>
+
+    <div class="nk-block">
+        <div class="card card-stretch">
+            <div class="card-inner-group">
+                <div class="card-inner p-0">
+                    {% if overheads %}
                     <div class="nk-tb-list nk-tb-ulist is-compact">
-                        <div class="nk-tb-item nk-tb-head">
-                            <div class="nk-tb-col"><span>Название</span></div>
-                            <div class="nk-tb-col"><span>Номер документа</span></div>
-                            <div class="nk-tb-col tb-col-sm"><span>Время</span></div>
-                            <div class="nk-tb-col tb-col-sm"><span>Статус</span></div>
-                            <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                        <div class="nk-tb-item nk-tb-head bg-lighter">
+                            <div class="nk-tb-col"><span class="sub-text">Название</span></div>
+                            <div class="nk-tb-col tb-col-sm"><span class="sub-text">Дата создания</span></div>
+                            <div class="nk-tb-col tb-col-sm"><span class="sub-text">Статус</span></div>
+                            <div class="nk-tb-col nk-tb-col-tools text-end"><span class="sub-text">Действия</span></div>
                         </div>
+
                         {% for item in overheads %}
                         <div class="nk-tb-item">
                             <div class="nk-tb-col">
-                                {{item.title or ''}}
-                            </div>
-                            <div class="nk-tb-col">
-                                {{item.uid or ''}}
+                                <div class="user-card">
+                                    <div class="user-avatar xs bg-primary-dim">
+                                        <span><em class="icon ni ni-file-text"></em></span>
+                                    </div>
+                                    <div class="user-info">
+                                        <span class="tb-lead">{{item.title or 'Без названия'}}</span>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="nk-tb-col">
-                                <span>{{item.date}}</span>
+                            <div class="nk-tb-col tb-col-sm">
+                                <span class="tb-sub"><em class="icon ni ni-calendar me-1"></em> {{item.date}}</span>
                             </div>
 
                             <div class="nk-tb-col tb-col-sm">
                                 {% if item.is_close %}
-                                <span class="badge badge-dim bg-success">завершен</span>
+                                <span class="badge badge-dim bg-success-dim text-success">
+                                    <em class="icon ni ni-check-circle me-1"></em>Завершен
+                                </span>
                                 {% else %}
-                                <span class="badge badge-dim bg-warning">открыто</span>
+                                <span class="badge badge-dim bg-warning-dim text-warning">
+                                    <em class="icon ni ni-clock me-1"></em>Открыто
+                                </span>
                                 {% endif %}
                             </div>
 
                             <div class="nk-tb-col nk-tb-col-tools">
-                                <ul class="nk-tb-actions gx-1 my-n1">
-                                    <li class="me-n1">
-                                        <div class="dropdown"><a href="#"
-                                                                 class="dropdown-toggle btn btn-icon btn-trigger"
-                                                                 data-bs-toggle="dropdown"><em
-                                                class="icon ni ni-more-h"></em></a>
+                                <ul class="nk-tb-actions gx-1">
+                                    <li>
+                                        <div class="dropdown">
+                                            <a href="#" class="dropdown-toggle btn btn-icon btn-trigger"
+                                               data-bs-toggle="dropdown">
+                                                <em class="icon ni ni-more-h"></em>
+                                            </a>
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <ul class="link-list-opt no-bdr">
                                                     <li>
                                                         <a href="/api/store/overheads/{{item.id}}/">
-                                                            <em class="icon ni ni-eye text-info"></em>
-                                                            <span class="tb-status text-info">Товары</span>
+                                                            <em class="icon ni ni-eye text-primary"></em>
+                                                            <span>Просмотр товаров</span>
                                                         </a>
                                                     </li>
+                                                    <li class="divider"></li>
                                                     <li onclick="removeItem({{item.id}})">
-                                                        <a>
+                                                        <a href="javascript:void(0)">
                                                             <em class="icon ni ni-trash text-danger"></em>
-                                                            <span class="tb-status text-danger">Удалить</span>
+                                                            <span class="text-danger">Удалить</span>
                                                         </a>
                                                     </li>
                                                 </ul>
@@ -112,92 +167,104 @@
                         </div>
                         {% endfor %}
                     </div>
+
+                    {% if pager %}
+                    <div class="card-inner border-top">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item {{ 'disabled' if not pager.prev_page }}">
+                                <a class="page-link"
+                                   href="{{ '/api/store/overheads?page=' ~ pager.prev_page if pager.prev_page else '#' }}">
+                                    <em class="icon ni ni-chevron-left"></em>
+                                </a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">{{pager.page}}</a></li>
+                            <li class="page-item {{ 'disabled' if not pager.next_page }}">
+                                <a class="page-link"
+                                   href="{{ '/api/store/overheads?page=' ~ pager.next_page if pager.next_page else '#' }}">
+                                    <em class="icon ni ni-chevron-right"></em>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% else %}
+                    <div class="card-inner py-5">
+                        <div class="text-center py-5">
+                            <div class="empty-state-icon mb-4">
+                                <em class="icon ni ni-folder-list"></em>
+                            </div>
+                            <h4 class="nk-block-title mb-2">Список накладных пуст</h4>
+                            <p class="text-soft mb-4">Пока что здесь нет ни одной накладной. <br>Создайте новый
+                                документ, чтобы начать работу.</p>
+                            <a href="#" data-target="addOverhead" class="toggle btn btn-lg btn-primary">
+                                <em class="icon ni ni-plus"></em> <span>Добавить первую накладную</span>
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
-            {% if pager %}
-            <div class="card-inner">
-                <ul class="pagination justify-content-center justify-content-md-start">
-                    <li class="page-item">
-                        <a class="page-link"
-                           {% if pager.prev_page %}
-                           href="/api/store/overheads?page={{pager.prev_page}}"
-                           {% endif %}
-                        >{% if pager.prev_page %}Prev{% else %}&nbsp;{% endif %}</a>
-                    </li>
-                    <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
-                    <li class="page-item">
-                        <a class="page-link"
-                           {% if pager.next_page %}
-                           href="/api/store/overheads?page={{pager.next_page}}"
-                           {% endif %}
-                        >{% if pager.next_page %}Prev{% else %}&nbsp;{% endif %}</a>
-                    </li>
-                </ul>
-            </div>
-            {% endif %}
-            {% else %}
-            <div class="card-inner">
-                <figure class="text-center">
-                    <blockquote class="blockquote"><h3>
-                        Cписок накладных
-                    </h3></blockquote>
-                </figure>
-            </div>
-            {% endif %}
         </div>
     </div>
-    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addOverhead"
-         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addOverhead" data-toggle-screen="any"
+         data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+        <div class="nk-block-head">
+            <div class="nk-block-head-content">
+                <h5 class="nk-block-title">Новая накладная</h5>
+            </div>
+        </div>
         <div class="nk-block">
-            <div class="row g-3">
+            <div class="row g-4">
                 <div class="col-12">
                     <div class="form-group">
-                        <label class="form-label"
-                               for="cf-title">Название
-                        </label>
-                        <input type="text" class="form-control"
-                               name="title"
-                               id="cf-title">
+                        <label class="form-label" for="cf-title">Название</label>
+                        <div class="form-control-wrap">
+                            <input type="text" class="form-control" name="title" id="cf-title"
+                                   placeholder="Например: Приход товаров">
+                        </div>
                     </div>
                 </div>
                 <div class="col-12">
                     <div class="form-group">
-                        <label class="form-label"
-                               for="cf-description">Описание
-                        </label>
-                        <input type="text" class="form-control"
-                               name="description"
-                               id="cf-description">
+                        <label class="form-label" for="cf-description">Примечание</label>
+                        <div class="form-control-wrap">
+                            <textarea class="form-control no-resize" name="description" id="cf-description"
+                                      placeholder="Краткое описание..."></textarea>
+                        </div>
                     </div>
                 </div>
                 <div class="col-12">
                     <div class="form-group">
-                        <label class="form-label"
-                               for="cf-uid">Номер документа
-                        </label>
-                        <input type="text" class="form-control"
-                               name="uid"
-                               id="cf-uid">
+                        <label class="form-label" for="cf-uid">Номер накладной (UID)</label>
+                        <div class="form-control-wrap">
+                            <div class="form-icon form-icon-right">
+                                <em class="icon ni ni-hash"></em>
+                            </div>
+                            <input type="text" class="form-control" name="uid" id="cf-uid" placeholder="№ 000123">
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label"
-                           for="cf-date">Время составления
-                    </label>
-                    <input type="text" class="form-control date-picker-alt"
-                           data-date-format="yyyy-mm-dd"
-                           name="date"
-                           id="cf-date">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label" for="cf-date">Дата составления</label>
+                        <div class="form-control-wrap">
+                            <div class="form-icon form-icon-left">
+                                <em class="icon ni ni-calendar"></em>
+                            </div>
+                            <input type="text" class="form-control date-picker-alt" data-date-format="yyyy-mm-dd"
+                                   name="date" id="cf-date" placeholder="YYYY-MM-DD">
+                        </div>
+                    </div>
                 </div>
                 <div class="col-12">
-                    <button id="createButton" onclick="createItem()" class="btn btn-primary"><em
-                            class="icon ni ni-plus"></em><span>Добавить</span></button>
+                    <div class="d-grid">
+                        <button id="createButton" onclick="createItem()" class="btn btn-primary btn-lg">
+                            <em class="icon ni ni-plus-circle me-1"></em><span>Создать документ</span>
+                        </button>
+                    </div>
                 </div>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
             </div>
         </div>
     </div>
