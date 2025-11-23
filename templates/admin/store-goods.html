@@ -1,205 +1,227 @@
 {% extends 'admin/base.html' %}
 {% block container %}
 <div class="nk-content-body">
-    <div class="nk-block nk-block-lg">
-        <div class="card">
-            <div class="card-aside-wrap">
-                <div class="card-content">
-                    <div class="card-inner">
-                        <div class="tab-content">
-                            <div class="tab-pane show active" id="tabItem2" role="tabpanel">
-                                <br/>
-                                <div class="nk-block">
-                                    <div class="row g-3">
-                                        <ul class="nk-block-tools g-3">
-                                            <li>
-                                                <div class="form-control-wrap">
-                                                    <div class="form-icon form-icon-right"><em
-                                                            class="icon ni ni-search"></em></div>
-                                                    <input type="text" class="form-control" id="filter-query"
-                                                           value="{{request.args.get('query', '')}}"
-                                                           placeholder="Поиск">
-                                                </div>
-                                            </li>
-                                        </ul>
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title">Список товаров</h3>
+                <div class="nk-block-des text-soft">
+                    <p>Управление складскими остатками и ценами.</p>
+                </div>
+            </div>
+            <div class="nk-block-head-content">
+                <div class="toggle-wrap nk-block-tools-toggle">
+                    <a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu">
+                        <em class="icon ni ni-menu-alt-r"></em>
+                    </a>
+                    <div class="toggle-expand-content" data-content="pageMenu">
+                        <ul class="nk-block-tools g-3">
+                            <li>
+                                <div class="form-control-wrap">
+                                    <div class="form-icon form-icon-right">
+                                        <em class="icon ni ni-search"></em>
                                     </div>
+                                    <input type="text" class="form-control" id="filter-query"
+                                           value="{{request.args.get('query', '')}}"
+                                           placeholder="Поиск по названию..."
+                                           onkeydown="if(event.keyCode==13) window.location.href='?query='+this.value">
                                 </div>
-
-                                {% if goods %}
-                                <div class="nk-block">
-                                    <div class="card">
-                                        <div class="nk-tb-list nk-tb-ulist is-compact">
-                                            <div class="nk-tb-item nk-tb-head">
-                                                <div class="nk-tb-col"><span>Название</span></div>
-                                                <div class="nk-tb-col"><span>Категории</span></div>
-                                                <div class="nk-tb-col"><span>Цена</span></div>
-                                                <div class="nk-tb-col tb-col-sm"><span>Остаток</span></div>
-                                                <div class="nk-tb-col nk-tb-col-tools text-end"></div>
-                                            </div>
-                                            {% for item in goods %}
-                                            <div class="nk-tb-item">
-                                                <div class="nk-tb-col">
-                                                    <div class="user-card">
-                                                        <div class="user-info">
-                                                            <span class="tb-lead">
-                                                                {{item.title}}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="nk-tb-col">
-                                                    <div class="user-card">
-                                                        <div class="user-info">
-                                                            <span class="tb-lead">
-                                                                {% if item.category %}
-                                                                {{item.category.title}}
-                                                                {% endif %}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="nk-tb-col">
-                                                    <span>{{item.price or ''}}</span>
-                                                </div>
-                                                <div class="nk-tb-col tb-col-sm">
-                                                    {% if item.balance and item.balance > 20 %}
-                                                    <span class="badge badge-dim bg-success">{{item.balance}}</span>
-                                                    {% elif item.balance and item.balance > 10 %}
-                                                    <span class="badge badge-dim bg-info">{{item.balance}}</span>
-                                                    {% else %}
-                                                    <span class="badge badge-dim bg-warning">{{item.balance}}</span>
-                                                    {% endif %}
-                                                </div>
-                                                <div class="nk-tb-col nk-tb-col-tools">
-                                                    <ul class="nk-tb-actions gx-1 my-n1">
-                                                        <li class="me-n1">
-                                                            <div class="dropdown"><a href="#"
-                                                                                     class="dropdown-toggle btn btn-icon btn-trigger"
-                                                                                     data-bs-toggle="dropdown"><em
-                                                                    class="icon ni ni-more-h"></em></a>
-                                                                <div class="dropdown-menu dropdown-menu-end">
-                                                                    <ul class="link-list-opt no-bdr">
-                                                                        <li><a data-target="updateProduct"
-                                                                               class="toggle"
-                                                                               onclick="openItem({{item.id}})">
-                                                                            <em class="icon ni ni-eye text-info"></em>
-                                                                            <span class="tb-status text-info">Просмотр</span>
-                                                                        </a>
-                                                                        </li>
-                                                                        <li onclick="removeItem({{item.id}})">
-                                                                            <a>
-                                                                                <em class="icon ni ni-trash text-danger"></em>
-                                                                                <span class="tb-status text-danger">Удалить</span>
-                                                                            </a>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-
-                                    </div>
-                                </div>
-                                {% if pager %}
-                                <div class="card-inner">
-                                    <ul class="pagination justify-content-center justify-content-md-start">
-                                        <li class="page-item">
-                                            <a class="page-link"
-                                               {% if pager.prev_page %}
-                                               href="/api/store/goods?page={{pager.prev_page}}"
-                                               {% endif %}
-                                            >{% if pager.prev_page %}Prev{% else %}&nbsp;{% endif %}</a>
-                                        </li>
-                                        <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
-                                        <li class="page-item">
-                                            <a class="page-link"
-                                               {% if pager.next_page %}
-                                               href="/api/store/goods?page={{pager.next_page}}"
-                                               {% endif %}
-                                            >{% if pager.next_page %}Prev{% else %}&nbsp;{% endif %}</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                {% endif %}
-                                {% else %}
-                                <div class="card-inner">
-                                    <figure class="text-center">
-                                        <blockquote class="blockquote"><h3>
-                                            Cписок товаров
-                                        </h3></blockquote>
-                                    </figure>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="nk-block">
+        <div class="card card-bordered card-stretch">
+            <div class="card-inner-group">
+                <div class="card-inner p-0">
+                    {% if goods %}
+                    <div class="nk-tb-list nk-tb-ulist is-compact">
+                        <div class="nk-tb-item nk-tb-head bg-lighter">
+                            <div class="nk-tb-col"><span class="sub-text">Наименование товара</span></div>
+                            <div class="nk-tb-col tb-col-md"><span class="sub-text">Категория</span></div>
+                            <div class="nk-tb-col"><span class="sub-text">Цена продажи</span></div>
+                            <div class="nk-tb-col tb-col-sm"><span class="sub-text">Остаток</span></div>
+                            <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                        </div>
+
+                        {% for item in goods %}
+                        <div class="nk-tb-item">
+                            <div class="nk-tb-col">
+                                <div class="user-card">
+                                    <div class="user-avatar sm bg-light">
+                                        <em class="icon ni ni-box"></em>
+                                    </div>
+                                    <div class="user-info">
+                                        <span class="tb-lead text-dark">{{item.title}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="nk-tb-col tb-col-md">
+                                {% if item.category %}
+                                <span class="badge badge-dim rounded-pill bg-outline-secondary">
+                                    {{item.category.title}}
+                                </span>
+                                {% else %}
+                                <span class="text-soft small">-</span>
+                                {% endif %}
+                            </div>
+                            <div class="nk-tb-col">
+                                <span class="tb-amount fw-bold">{{item.price or '0'}} <span
+                                        class="currency">₸</span></span>
+                            </div>
+                            <div class="nk-tb-col tb-col-sm">
+                                {% if item.balance and item.balance > 20 %}
+                                <span class="badge badge-dot bg-success">{{item.balance}} шт.</span>
+                                {% elif item.balance and item.balance > 10 %}
+                                <span class="badge badge-dot bg-info">{{item.balance}} шт.</span>
+                                {% else %}
+                                <span class="badge badge-dot bg-warning">{{item.balance or 0}} шт.</span>
+                                {% endif %}
+                            </div>
+                            <div class="nk-tb-col nk-tb-col-tools">
+                                <ul class="nk-tb-actions gx-1">
+                                    <li>
+                                        <div class="drodown">
+                                            <a href="#" class="dropdown-toggle btn btn-icon btn-trigger"
+                                               data-bs-toggle="dropdown">
+                                                <em class="icon ni ni-more-h"></em>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <ul class="link-list-opt no-bdr">
+                                                    <li>
+                                                        <a data-target="updateProduct" class="toggle"
+                                                           onclick="openItem({{item.id}})" href="#">
+                                                            <em class="icon ni ni-edit text-primary"></em>
+                                                            <span>Редактировать</span>
+                                                        </a>
+                                                    </li>
+                                                    <li class="divider"></li>
+                                                    <li>
+                                                        <a onclick="removeItem({{item.id}})" href="#"
+                                                           class="text-danger">
+                                                            <em class="icon ni ni-trash"></em>
+                                                            <span>Удалить</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if pager %}
+                    <div class="card-inner border-top">
+                        <ul class="pagination justify-content-center justify-content-md-end mb-0">
+                            <li class="page-item {% if not pager.prev_page %}disabled{% endif %}">
+                                <a class="page-link" {% if pager.prev_page %}
+                                   href="/api/store/goods?page={{pager.prev_page}}" {% else %} href="#" {% endif %}>
+                                    <em class="icon ni ni-chevron-left"></em>
+                                </a>
+                            </li>
+                            <li class="page-item disabled"><a class="page-link">Стр. {{pager.page}}</a></li>
+                            <li class="page-item {% if not pager.next_page %}disabled{% endif %}">
+                                <a class="page-link" {% if pager.next_page %}
+                                   href="/api/store/goods?page={{pager.next_page}}" {% else %} href="#" {% endif %}>
+                                    <em class="icon ni ni-chevron-right"></em>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% else %}
+                    <div class="card-inner p-5 text-center">
+                        <div class="nk-block-content">
+                            <div class="icon-circle bg-lighter mb-3">
+                                <em class="icon ni ni-inbox fs-1 text-soft"></em>
+                            </div>
+                            <h5 class="text-soft">Товары не найдены</h5>
+                            <p class="text-soft">Попробуйте изменить параметры поиска.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
 <div class="nk-add-product toggle-slide toggle-slide-right" data-content="updateProduct"
      data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar
      id="update-data-item">
+    <div class="nk-block-head">
+        <div class="nk-block-head-content">
+            <h5 class="nk-block-title">Карточка товара</h5>
+            <div class="nk-block-des">
+                <p>Просмотр и изменение параметров.</p>
+            </div>
+        </div>
+    </div>
     <div class="nk-block">
-        <div class="row g-3">
+        <div class="row g-4">
             <input type="hidden" id="up-id" name="id">
+
             <div class="col-12">
-                <div class="form-group">
-                    <label class="form-label"
-                           for="up-title">Название
-                    </label>
-                    <input class="form-control" type="text" disabled id="up-title">
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="form-group">
-                    <label class="form-label"
-                           for="up-category">Категории
-                    </label>
-                    <input class="form-control" type="text" disabled id="up-category">
+                <div class="alert alert-light">
+                    <div class="form-group mb-2">
+                        <label class="form-label text-soft small" for="up-title">Название товара</label>
+                        <input class="form-control fw-bold" type="text" disabled id="up-title"
+                               style="background: transparent; border: none; padding: 0;">
+                    </div>
+                    <div class="form-group mb-2">
+                        <label class="form-label text-soft small" for="up-category">Категория</label>
+                        <input class="form-control" type="text" disabled id="up-category"
+                               style="background: transparent; border: none; padding: 0;">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="form-label text-soft small" for="up-last-arrival-price">Закупочная цена
+                            (последняя)</label>
+                        <input class="form-control" type="number" disabled id="up-last-arrival-price"
+                               style="background: transparent; border: none; padding: 0;">
+                    </div>
                 </div>
             </div>
 
             <div class="col-12">
-                <div class="form-group">
-                    <label class="form-label"
-                           for="up-last-arrival-price">Цена последний покупки
-                    </label>
-                    <input class="form-control" type="number" disabled id="up-last-arrival-price">
-                </div>
+                <hr class="my-0">
             </div>
 
             <div class="col-12">
                 <div class="form-group">
-                    <label class="form-label"
-                           for="up-title">Цена
-                    </label>
-                    <input class="form-control" type="number" min="0.0" name="price" id="up-price">
+                    <label class="form-label" for="up-price">Цена продажи</label>
+                    <div class="form-control-wrap">
+                        <div class="form-text-hint">
+                            <span class="overline-title">₸</span>
+                        </div>
+                        <input class="form-control form-control-lg" type="number" min="0.0" name="price" id="up-price">
+                    </div>
                 </div>
             </div>
             <div class="col-12">
                 <div class="form-group">
-                    <label class="form-label"
-                           for="up-title">Остаток
-                    </label>
-                    <input class="form-control" type="number" min="0.0" name="balance" id="up-balance">
+                    <label class="form-label" for="up-balance">Текущий остаток</label>
+                    <div class="form-control-wrap">
+                        <input class="form-control form-control-lg" type="number" min="0.0" name="balance"
+                               id="up-balance">
+                    </div>
                 </div>
             </div>
 
             <div class="col-12">
-                <a onclick="updateItem()" class="btn btn-primary"><em
-                        class="icon ni ni-plus"></em><span>Изменить</span></a>
+                <a onclick="updateItem()" class="btn btn-lg btn-primary btn-block">
+                    <em class="icon ni ni-save me-1"></em>
+                    <span>Сохранить изменения</span>
+                </a>
             </div>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
+            <div class="col-12" style="height: 100px;"></div>
         </div>
     </div>
 </div>
@@ -240,7 +262,6 @@
             alertShow('waring', `${error.message}`);
         }
     }
-
 
 
     async function removeItem(itemId) {

@@ -1,493 +1,528 @@
 {% extends 'admin/base.html' %}
+
+{% block css %}
+<style>
+    :root {
+        --primary-color: #6576ff;
+        --bg-light: #f5f6fa;
+        --text-dark: #364a63;
+        --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    body {
+        background-color: var(--bg-light);
+    }
+
+    /* Скроллбар для списка товаров */
+    .pos-cart-list {
+        max-height: calc(100vh - 250px);
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+
+    .pos-cart-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .pos-cart-list::-webkit-scrollbar-thumb {
+        background-color: #dbdfea;
+        border-radius: 4px;
+    }
+
+    /* Карточка товара в корзине */
+    .cart-item {
+        transition: all 0.2s ease;
+        border-left: 4px solid transparent;
+    }
+
+    .cart-item:hover {
+        background-color: #f8f9fc;
+        border-left-color: var(--primary-color);
+        transform: translateX(2px);
+    }
+
+    /* Итоговая панель */
+    .pos-sidebar {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        height: 100%;
+        position: sticky;
+        top: 20px;
+    }
+
+    /* Кассы */
+    .cashier-tabs .nav-link {
+        border-radius: 8px;
+        color: #8094ae;
+        font-weight: 600;
+        padding: 10px 15px;
+        transition: all 0.2s;
+    }
+
+    .cashier-tabs .nav-link.active {
+        background-color: var(--primary-color);
+        color: white;
+        box-shadow: 0 4px 10px rgba(101, 118, 255, 0.3);
+    }
+
+    .total-amount {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--text-dark);
+    }
+
+    /* Select2 Modernization */
+    .select2-container .select2-selection--single {
+        height: 48px;
+        border: 1px solid #dbdfea;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+    }
+</style>
+{% endblock %}
+
 {% block container %}
-<div class="nk-content-body">
-    <div class="nk-block">
-        <div class="card">
-            <div class="card-aside-wrap">
-                <div class="card-inner card-inner-lg">
-                    <div class="nk-block nk-block-between">
-                        <div class="nk-block-head"></div>
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-2">
+                    <ul class="nav nav-pills nav-fill cashier-tabs">
+                        {% for i in range(1, 5) %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if cashier_id == i %}active{% endif %}"
+                               href="/api/sales/index?cashier_id={{i}}">
+                                <em class="icon ni ni-monitor me-2"></em>Касса {{i}}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                        <div class="nk-block">
-                            <a data-target="addProduct" class="toggle btn btn-primary btn-sm">
-                                <em class="icon ni ni-plus"></em>
-                                <span>Добавить</span>
-                            </a>
-                            {% if items %}
-                            <a class="toggle btn btn-danger btn-sm" data-bs-toggle="modal"
-                               data-bs-target="#profile-edit">
-                                <em class="icon ni ni-check"></em>
-                                <span>Завершить</span>
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 text-dark fw-bold"><em class="icon ni ni-cart me-2 text-primary"></em>Текущий заказ
+                    </h5>
+                    <span class="badge bg-light text-secondary rounded-pill px-3 py-2">Позиций: {{ items|length }}</span>
+                </div>
+
+                <div class="card-body p-0">
                     {% if items %}
-                    <div class="nk-block">
-                        <div class="card">
-                            <div class="nk-tb-list nk-tb-ulist is-compact">
-                                <div class="nk-tb-item nk-tb-head">
-                                    <div class="nk-tb-col"><span>Название</span></div>
-                                    <div class="nk-tb-col"><span>Количество</span></div>
-                                    <div class="nk-tb-col"><span>Сумма</span></div>
-                                    <div class="nk-tb-col nk-tb-col-tools text-end"></div>
-                                </div>
-                                {% for item in items %}
-                                <div class="nk-tb-item">
-                                    <div class="nk-tb-col">
-                                        {{item.good_title or ''}}
+                    <div class="pos-cart-list">
+                        {% for item in items %}
+                        <div class="cart-item p-3 border-bottom position-relative">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center flex-grow-1">
+                                    <div class="user-avatar bg-light text-primary me-3 rounded-3">
+                                        <span>{{ loop.index }}</span>
                                     </div>
-                                    <div class="nk-tb-col">
-                                        <span>{{item.price}} x {{item.count}}</span>
-                                    </div>
-
-                                    <div class="nk-tb-col">
-                                        <span>{{item.sum}}</span>
-                                    </div>
-
-                                    <div class="nk-tb-col nk-tb-col-tools">
-                                        <ul class="nk-tb-actions gx-1 my-n1">
-                                            <li class="me-n1">
-                                                <div class="dropdown"><a href="#"
-                                                                         class="dropdown-toggle btn btn-icon btn-trigger"
-                                                                         data-bs-toggle="dropdown"><em
-                                                        class="icon ni ni-more-h"></em></a>
-                                                    <div class="dropdown-menu dropdown-menu-end">
-                                                        <ul class="link-list-opt no-bdr">
-                                                            <li onclick="removeItem('{{item._id}}')">
-                                                                <a>
-                                                                    <em class="icon ni ni-trash text-danger"></em>
-                                                                    <span class="tb-status text-danger">Удалить</span>
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                                <div class="nk-tb-item">
-                                    <div class="nk-tb-col">
-                                    </div>
-                                    <div class="nk-tb-col">
-                                    </div>
-
-                                    <div class="nk-tb-col">
-                                        <span class="tb-lead">Тотал: </span>
-                                    </div>
-
-                                    <div class="nk-tb-col nk-tb-col-tools">
-                                        <ul class="nk-tb-actions gx-1 my-n1">
-                                            <li>
-                                                <span class="tb-lead">₸ {{sum or 0.0}}</span>
-                                            </li>
-
-                                        </ul>
-
+                                    <div>
+                                        <h6 class="mb-1 text-dark">{{ item.good_title or 'Товар без названия' }}</h6>
+                                        <div class="text-muted small">
+                                            <span class="fw-bold">{{ item.price }} ₸</span> &times; {{ item.count }} шт.
+                                        </div>
                                     </div>
                                 </div>
 
+                                <div class="text-end me-4">
+                                    <span class="d-block fw-bold text-dark h5 mb-0">{{ item.sum }} ₸</span>
+                                </div>
 
+                                <button class="btn btn-icon btn-sm btn-light text-danger hover-danger btn-remove-item"
+                                        data-id="{{item._id}}" title="Удалить">
+                                    <em class="icon ni ni-trash"></em>
+                                </button>
                             </div>
                         </div>
+                        {% endfor %}
                     </div>
                     {% else %}
-                    <div class="card-inner">
-                        <figure class="text-center">
-                            <blockquote class="blockquote"><h3>
-                                Cписок карзинки
-                            </h3></blockquote>
-                        </figure>
+                    <div class="d-flex flex-column align-items-center justify-content-center py-5 text-center h-100">
+                        <div class="bg-light rounded-circle p-4 mb-3">
+                            <em class="icon ni ni-cart-off opacity-50" style="font-size: 4rem;"></em>
+                        </div>
+                        <h5 class="text-muted">Корзина пуста</h5>
+                        <p class="text-muted small">Нажмите "Добавить товар", чтобы начать продажу</p>
                     </div>
                     {% endif %}
                 </div>
-                <div class="card-aside card-aside-left user-aside toggle-slide toggle-slide-left toggle-break-lg"
-                     data-toggle-body="true" data-content="userAside" data-toggle-screen="lg"
-                     data-toggle-overlay="true">
-                    <div class="card-inner-group">
-                        <div class="card-inner p-0">
-                            <ul class="link-list-menu">
-                                <li>
-                                    <a class="{% if cashier_id == 1 %}active{% endif %}"
-                                       href="/api/sales/index?cashier_id=1">
-                                        <em class="icon ni ni-user-fill-c"></em><span>Касса 1</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="{% if cashier_id == 2 %}active{% endif %}"
-                                       href="/api/sales/index?cashier_id=2">
-                                        <em class="icon ni ni-user-fill-c"></em><span>Касса 2</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="{% if cashier_id == 3 %}active{% endif %}"
-                                       href="/api/sales/index?cashier_id=3">
-                                        <em class="icon ni ni-user-fill-c"></em><span>Касса 3</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="{% if cashier_id == 4 %}active{% endif %}"
-                                       href="/api/sales/index?cashier_id=4">
-                                        <em class="icon ni ni-user-fill-c"></em><span>Касса 4</span>
-                                    </a>
-                                </li>
-                            </ul>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="pos-sidebar p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <h6 class="text-uppercase text-muted ls-1 mb-3" style="font-size: 11px;">Сводка заказа</h6>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Подытог</span>
+                        <span class="fw-bold">{{ sum or 0.0 }} ₸</span>
+                    </div>
+                    <hr class="dashed my-3">
+                    <div class="text-center mb-4">
+                        <span class="text-muted small d-block mb-1">К оплате</span>
+                        <div class="total-amount text-primary">
+                            {{ sum or 0.0 }} <span class="fs-4">₸</span>
                         </div>
                     </div>
+                </div>
+
+                <div class="d-grid gap-3">
+                    <button class="btn btn-primary btn-lg py-3 shadow-sm toggle" data-target="addProduct">
+                        <em class="icon ni ni-plus-circle me-2"></em>Добавить товар
+                    </button>
+
+                    {% if items %}
+                    <button class="btn btn-success btn-lg py-3 shadow-sm" data-bs-toggle="modal"
+                            data-bs-target="#profile-edit">
+                        <em class="icon ni ni-check-circle me-2"></em>Завершить / Оплатить
+                    </button>
+                    {% else %}
+                    <button class="btn btn-light btn-lg py-3 text-muted" disabled>
+                        <em class="icon ni ni-check-circle me-2"></em>Оплата
+                    </button>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
-     data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+
+<div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct" data-toggle-screen="any"
+     data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+    <div class="nk-block-head">
+        <div class="nk-block-head-content">
+            <h5 class="nk-block-title">Добавить позицию</h5>
+            <div class="nk-block-des"><p>Выберите категорию и товар.</p></div>
+        </div>
+    </div>
     <div class="nk-block">
-        <div class="row g-3">
-            <div class="col-12" id="div-category-goods">
-                <div class="form-group">
-                    <label class="form-label"
-                           for="cf-category">Выберите категории товара
-                    </label>
-                    <select id="cf-category"></select>
-                </div>
-            </div>
-
-            <div class="col-12" id="div-category-children" style="display: none;">
-                <div class="form-group">
-                    <label class="form-label"
-                           for="cf-category-children">Выберите под категории товара
-                    </label>
-                    <select id="cf-category-children"></select>
-                </div>
-            </div>
+        <div class="row g-4">
             <div class="col-12">
                 <div class="form-group">
-                    <label class="form-label"
-                           for="cf-goods">Выберите товары
-                    </label>
-                    <select id="cf-goods" name="good_id"></select>
+                    <label class="form-label" for="cf-goods">Товар</label>
+                    <div class="form-control-wrap">
+                        <select id="cf-goods" name="good_id" class=""></select>
+                    </div>
                 </div>
             </div>
 
             <div class="col-12">
                 <div class="form-group">
-                    <label class="form-label"
-                           for="cf-count">Количество
-                    </label>
-                    <input type="number" min="0.0" class="form-control"
-                           name="count"
-                           id="cf-count">
+                    <label class="form-label" for="cf-count">Количество</label>
+                    <div class="form-control-wrap">
+                        <div class="input-group">
+                            <input type="number" min="1" class="form-control form-control-lg" name="count" id="cf-count"
+                                   value="1">
+                            <span class="input-group-text">шт.</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-12">
-                <button id="createButton" onclick="createItem()" class="btn btn-primary"><em
-                        class="icon ni ni-plus"></em><span>Добавить</span></button>
+            <div class="col-12 mt-5">
+                <button id="createButton" class="btn btn-primary btn-lg w-100">
+                    <em class="icon ni ni-plus"></em> Добавить в чек
+                </button>
             </div>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
         </div>
     </div>
 </div>
-<div class="modal fade" role="dialog" id="profile-edit">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content"><a href="#" class="close" data-bs-dismiss="modal"><em
-                class="icon ni ni-cross-sm"></em></a>
-            <div class="modal-body modal-body-lg"><h5 class="title">Оплата</h5>
-                <div class="tab-content">
-                    <div class="tab-pane active" id="personal">
-                        <div class="row gy-4">
-                            <div class="col-6">
-                                <div class="form-group">
-                                    <label class="form-label"
-                                           for="op-prev-sum">Сумма
-                                    </label>
-                                    <input type="number" min="0.0" class="form-control"
-                                           value="{{sum or 0.0}}" disabled
-                                           id="op-prev-sum">
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-group">
-                                    <label class="form-label"
-                                           for="op-discount">Скидка
-                                    </label>
-                                    <input type="number" class="form-control"
-                                           name="discount" value="0"
-                                           id="op-discount">
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-group">
-                                    <label class="form-label"
-                                           for="op-sum">Сумма к оплате
-                                    </label>
-                                    <input type="number" class="form-control"
-                                           name="discount" value="{{sum or 0.0}}"
-                                           id="op-sum">
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-group">
-                                    <label class="form-label"
-                                           for="cf-pledge">Заклад
-                                    </label>
-                                    <input type="number" min="0.0" class="form-control"
-                                           name="pledge"
-                                           id="cf-pledge">
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-group">
-                                    <label class="form-label"
-                                           for="cf-pay-type">Тип оплаты
-                                    </label>
-                                    <select id="cf-pay-type" class="form-control">
-                                        <option value="CASH">Наличный</option>
-                                        <option value="KASPI">Каспи</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="cf-is-paid">
-                                    <label class="custom-control-label" for="cf-is-paid">Оплатил</label>
-                                </div>
-                            </div>
 
+<div class="modal fade" tabindex="-1" id="profile-edit">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 overflow-hidden">
+            <div class="modal-header bg-light border-bottom-0">
+                <h5 class="modal-title">Оформление продажи</h5>
+                <a href="#" class="close" data-bs-dismiss="modal"><em class="icon ni ni-cross"></em></a>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-4">
+                    <div class="col-lg-7 border-end-lg">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label text-muted small">Сумма заказа</label>
+                                <input type="text" class="form-control form-control-lg fw-bold" value="{{sum or 0.0}}"
+                                       disabled id="op-prev-sum">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-muted small">Скидка (%)</label>
+                                <input type="number" class="form-control form-control-lg" name="discount" value="0"
+                                       id="op-discount" placeholder="0">
+                            </div>
                             <div class="col-12">
-                                <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
-                                    <li><button id="closeButton" href="#" data-bs-dismiss="modal" onclick="closeCashier()"
-                                           class="btn btn-lg btn-primary">Оплатить</button></li>
-                                    <li><a href="#" data-bs-dismiss="modal" class="link link-light">Отмена</a></li>
-                                </ul>
+                                <div class="bg-primary bg-opacity-10 p-3 rounded-3 text-center mt-2">
+                                    <span class="d-block text-primary small mb-1">Итого к оплате</span>
+                                    <h2 class="mb-0 text-primary" id="display-total-sum">{{sum or 0.0}}</h2>
+                                    <input type="hidden" id="op-sum" value="{{sum or 0.0}}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Способ оплаты</label>
+                                <select id="cf-pay-type" class="form-select form-select-lg">
+                                    <option value="CASH">💵 Наличные</option>
+                                    <option value="KASPI">📱 Kaspi QR</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Внесено (Заклад)</label>
+                                <input type="number" min="0" class="form-control" name="pledge" id="cf-pledge"
+                                       placeholder="Сумма от клиента">
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" id="cf-is-paid">
+                                    <label class="form-check-label fw-bold" for="cf-is-paid">Оплата получена</label>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="modal-footer bg-light border-top-0">
+                <button type="button" class="btn btn-outline-light text-secondary" data-bs-dismiss="modal">Отмена
+                </button>
+                <button id="closeButton" class="btn btn-success btn-lg px-5"><em class="icon ni ni-check me-1"></em>
+                    Провести оплату
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 {% endblock %}
+
 {% block js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
 <script>
-    $('li[data-li="sales"]').addClass('active')
-    $('li[data-li="sales-index"]').addClass('active')
+    // --- Configuration ---
+    const API_BASE = '/api/sales/index';
+    const CURRENT_CASHIER_ID = `{{request.args.get('cashier_id')}}`;
 
-    let discount = 0
-    let sum = parseFloat('{{sum or 0}}')
-    let sumWithDiscount = parseFloat('{{sum or 0}}')
-    $('#op-discount').on('change', function () {
-        discount = $(this).val()
-        if (discount && sum) {
-            sumWithDiscount = (100 - discount) * sum / 100
-            $('#op-sum').val(sumWithDiscount)
-        }
-    })
+    // --- State ---
+    let state = {
+        sum: parseFloat('{{sum or 0}}'),
+        discount: 0,
+        isPaid: false,
+        sumWithDiscount: parseFloat('{{sum or 0}}'),
+        categoryId: null
+    };
 
-    let is_paid = false;
-    $('#cf-is-paid').on('change', function () {
-        if ($(this).is(':checked')) {
-            is_paid = true;
-        } else {
-            is_paid = false;
-        }
+    // --- UI Setup ---
+    $(document).ready(function () {
+        // Highlight active menu items
+        $('li[data-li="sales"], li[data-li="sales-index"]').addClass('active');
+
+        // Initialize Listeners
+        initEventListeners();
+        initSelect2();
     });
 
-    async function createItem() {
-        $('#createButton').prop('disabled', true)
-        try {
-            let response = await fetch('/api/sales/index/', {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'add',
-                    cashier_id: `{{request.args.get('cashier_id')}}`,
-                    ...getValues('#new-data-item')
-                })
-            });
+    function initEventListeners() {
+        // Discount Calc
+        $('#op-discount').on('input', function () {
+            state.discount = parseFloat($(this).val()) || 0;
+            calculateTotal();
+        });
 
-            response = await response.json();
-            if (response._success === true) {
-                alertShow('success');
-                window.location.reload();
-            } else {
-                alert(response.message);
-                $('#createButton').prop('disabled', false)
-            }
+        // Payment Switch
+        $('#cf-is-paid').on('change', function () {
+            state.isPaid = $(this).is(':checked');
+        });
 
-        } catch (error) {
-            $('#createButton').prop('disabled', false)
-            alertShow('waring', `${error.message}`);
+        // Add Item Button
+        $('#createButton').on('click', handleAddItem);
+
+        // Pay Button
+        $('#closeButton').on('click', handleCloseCashier);
+
+        // Remove Item Buttons (Delegated for dynamic content if needed, though here it's static reload)
+        $('.btn-remove-item').on('click', function () {
+            const id = $(this).data('id');
+            handleRemoveItem(id);
+        });
+    }
+
+    function calculateTotal() {
+        if (state.sum) {
+            state.sumWithDiscount = (100 - state.discount) * state.sum / 100;
+            $('#op-sum').val(state.sumWithDiscount.toFixed(2));
+            $('#display-total-sum').text(state.sumWithDiscount.toLocaleString('ru-RU') + ' ₸');
         }
     }
 
-    async function closeCashier() {
-        $('#closeButton').prop('disabled', true)
-        try {
-            let response = await fetch('/api/sales/index/', {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'close',
-                    cashier_id: `{{request.args.get('cashier_id')}}`,
-                    prev_sum: sum,
-                    sum: sumWithDiscount,
-                    is_paid: is_paid,
-                    pledge: $('#cf-pledge').val(),
-                    discount: $('#op-discount').val(),
-                    paid_type: $('#cf-pay-type').val(),
-                })
-            });
+    // --- API Interactions ---
 
-            response = await response.json();
-            if (response._success === true) {
-                alertShow('success');
+    // Generic Fetch Wrapper
+    async function apiRequest(data) {
+        try {
+            const response = await fetch(API_BASE + '/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+
+            if (result._success) {
+                if (typeof alertShow === 'function') alertShow('success');
                 window.location.reload();
             } else {
-                $('#closeButton').prop('disabled', false)
-                alert(response.message);
+                alert(result.message || 'Произошла ошибка');
+                return false; // Signal failure
             }
-
         } catch (error) {
-            $('#closeButton').prop('disabled', false)
-            alertShow('waring', `${error.message}`);
+            if (typeof alertShow === 'function') alertShow('warning', error.message);
+            else alert(error.message);
+            return false;
         }
+        return true;
     }
 
-    async function removeItem(itemId) {
-        try {
-            let response = await fetch('/api/sales/index/', {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'remove',
-                    _id: itemId
-                })
-            });
+    async function handleAddItem() {
+        const btn = $('#createButton');
+        btn.prop('disabled', true).addClass('disabled');
 
-            response = await response.json();
-            if (response._success === true) {
-                alertShow('success');
-                window.location.reload();
-            } else {
-                alert(response.message);
-            }
+        // Helper to get form values (assuming existing logic or simple jQuery)
+        // Note: relying on getValues helper from your original code if it exists globally,
+        // otherwise manually constructing object below for safety:
+        const payload = {
+            action: 'add',
+            cashier_id: CURRENT_CASHIER_ID,
+            good_id: $('#cf-goods').val(),
+            count: $('#cf-count').val()
+        };
 
-        } catch (error) {
-            alertShow('waring', `${error.message}`);
+        if (!payload.good_id) {
+            alert("Выберите товар");
+            btn.prop('disabled', false).removeClass('disabled');
+            return;
         }
+
+        const success = await apiRequest(payload);
+        if (!success) btn.prop('disabled', false).removeClass('disabled');
     }
 
-    $('#cf-category').select2({
-        placeholder: 'Выберите категории',
-        language: {
-            noResults: function () {
-                return "Категории не найден";
-            }
-        },
-        ajax: {
-            transport: async function (params, success, failure) {
-                try {
-                    const query = params.data.q || '';
-                    const response = await fetch(`/api/sales/categories?response_type=json&query=${encodeURIComponent(query)}`);
+    async function handleCloseCashier() {
+        const btn = $('#closeButton');
+        btn.prop('disabled', true).addClass('disabled');
 
-                    const data = await response.json();
-                    console.log(data)
-                    const results = data.items.map(category => ({
-                        id: category.id,
-                        text: `${category.title}`,
-                        value: category.id
-                    }));
+        const payload = {
+            action: 'close',
+            cashier_id: CURRENT_CASHIER_ID,
+            prev_sum: state.sum,
+            sum: state.sumWithDiscount,
+            is_paid: state.isPaid,
+            pledge: $('#cf-pledge').val(),
+            discount: $('#op-discount').val(),
+            paid_type: $('#cf-pay-type').val(),
+        };
 
-                    success({results});
-                } catch (error) {
-                    failure(error);
-                }
-            },
-            processResults: function (data) {
-                return data;
-            }
-        }
-    });
-    let categoryId = null
-    $('#cf-category').on('select2:select', function (e) {
-        const parentId = e.params.data.id;
-        categoryId = parentId
+        const success = await apiRequest(payload);
+        if (!success) btn.prop('disabled', false).removeClass('disabled');
+    }
 
-        $('#div-category-children').show();
-        $('#cf-category-children').empty().trigger('change');
-        $('#cf-category-children').select2({
-            placeholder: 'Выберите под категории',
-            language: {
-                noResults: function () {
-                    return "Категории не найден";
-                }
-            },
+    async function handleRemoveItem(itemId) {
+        if (!confirm('Вы уверены, что хотите удалить эту позицию?')) return;
+
+        await apiRequest({
+            action: 'remove',
+            _id: itemId
+        });
+    }
+
+    // --- Select2 Configuration ---
+
+    function initSelect2() {
+        const commonConfig = {
+            width: '100%',
+            language: {noResults: () => "Ничего не найдено"}
+        };
+
+        // Categories
+        $('#cf-category').select2({
+            ...commonConfig,
+            placeholder: 'Выберите категорию',
             ajax: {
-                transport: async function (params, success, failure) {
+                transport: async (params, success, failure) => {
                     try {
-                        const query = params.data.q || '';
-                        const response = await fetch(`/api/store/categories?response_type=json&query=${encodeURIComponent(query)}&parent_id=${parentId}`);
-
-                        const data = await response.json();
-                        console.log(data)
-                        const results = data.categories.map(category => ({
-                            id: category.id,
-                            text: `${category.title}`,
-                            value: category.id
-                        }));
-
-                        success({results});
-                    } catch (error) {
-                        failure(error);
+                        const res = await fetch(`/api/sales/categories?response_type=json&query=${encodeURIComponent(params.data.q || '')}`);
+                        const data = await res.json();
+                        success({
+                            results: data.items.map(c => ({id: c.id, text: c.title, value: c.id}))
+                        });
+                    } catch (e) {
+                        failure(e);
                     }
-                },
-                processResults: function (data) {
-                    return data;
+                }
+            }
+        }).on('select2:select', function (e) {
+            state.categoryId = e.params.data.id;
+            $('#div-category-children').slideDown();
+
+            // Re-init subcategories
+            const subSelect = $('#cf-category-children');
+            subSelect.empty().trigger('change');
+
+            subSelect.select2({
+                ...commonConfig,
+                placeholder: 'Выберите подкатегорию',
+                ajax: {
+                    transport: async (params, success, failure) => {
+                        try {
+                            const res = await fetch(`/api/store/categories?response_type=json&query=${encodeURIComponent(params.data.q || '')}&parent_id=${state.categoryId}`);
+                            const data = await res.json();
+                            success({
+                                results: data.categories.map(c => ({id: c.id, text: c.title, value: c.id}))
+                            });
+                        } catch (e) {
+                            failure(e);
+                        }
+                    }
+                }
+            });
+        });
+
+        // Subcategory Select Event
+        $('#cf-category-children').on('select2:select', (e) => {
+            state.categoryId = e.params.data.id;
+            // Clear goods when category changes
+            $('#cf-goods').empty().trigger('change');
+        });
+
+        // Goods
+        $('#cf-goods').select2({
+            ...commonConfig,
+            placeholder: 'Поиск товара...',
+            ajax: {
+                transport: async (params, success, failure) => {
+                    try {
+                        const res = await fetch(`/api/sales/goods?response_type=json&query=${encodeURIComponent(params.data.q || '')}&category_id=${state.categoryId || ''}`);
+                        const data = await res.json();
+                        success({
+                            results: data.items.map(g => ({
+                                id: g.id,
+                                text: `${g.title} (Остаток: ${g.balance})`,
+                                value: g.id
+                            }))
+                        });
+                    } catch (e) {
+                        failure(e);
+                    }
                 }
             }
         });
-    });
-
-    $('#cf-category-children').on('select2:select', function (e) {
-        categoryId = e.params.data.id
-    })
-
-    $('#cf-goods').select2({
-        placeholder: 'Выберите товар',
-        language: {
-            noResults: function () {
-                return "Товар не найден";
-            }
-        },
-        ajax: {
-            transport: async function (params, success, failure) {
-                try {
-                    const query = params.data.q || '';
-                    const response = await fetch(`/api/sales/goods?response_type=json&query=${encodeURIComponent(query)}&category_id=${categoryId}`);
-
-                    const data = await response.json();
-                    const results = data.items.map(good => ({
-                        id: good.id,
-                        text: `${good.title} (остаток ${good.balance})`,
-                        value: good.id
-                    }));
-
-                    success({results});
-                } catch (error) {
-                    failure(error);
-                }
-            },
-            processResults: function (data) {
-                return data;
-            }
-        }
-    });
+    }
 </script>
 {% endblock %}
