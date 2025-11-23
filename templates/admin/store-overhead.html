@@ -1,207 +1,277 @@
 {% extends 'admin/base.html' %}
 {% block container %}
+<style>
+    /* Небольшие кастомные стили для улучшения восприятия */
+    .form-label {
+        font-weight: 600;
+        color: #526484;
+    }
+
+    .nk-tb-col {
+        vertical-align: middle;
+    }
+
+    .divider-text {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #8592a3;
+        margin: 15px 0;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .divider-text::before, .divider-text::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #dbdfea;
+    }
+
+    .divider-text::before {
+        margin-right: .5em;
+    }
+
+    .divider-text::after {
+        margin-left: .5em;
+    }
+
+    .bg-lighter-custom {
+        background-color: #f5f6fa;
+        border-radius: 8px;
+        padding: 15px;
+    }
+</style>
+
 <div class="nk-content-body">
     <div class="nk-block-head nk-block-head-sm">
         <div class="nk-block-between g-3">
             <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title">
+                    Накладная <span class="text-primary">#{{overhead.uid}}</span>
+                    {% if overhead.is_close %}
+                    <span class="badge bg-success ms-2">Проведен</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark ms-2">Черновик</span>
+                    {% endif %}
+                </h3>
+                <div class="nk-block-des text-soft">
+                    <p>Управление поступлением товаров и расходами.</p>
+                </div>
+            </div>
+            <div class="nk-block-head-content">
                 <a href="/api/store/overheads/" class="btn btn-outline-light bg-white d-none d-sm-inline-flex">
-                    <em class="icon ni ni-arrow-left"></em>
-                    <span>Назад</span>
+                    <em class="icon ni ni-arrow-left"></em><span>Назад к списку</span>
                 </a>
-                <a href="/api/store/overheads/"
-                   class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none">
+                <a href="/api/store/overheads/" class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none">
                     <em class="icon ni ni-arrow-left"></em>
                 </a>
             </div>
         </div>
     </div>
-    <div class="nk-block nk-block-lg">
-        <div class="card">
-            <div class="card-aside-wrap">
-                <div class="card-content">
-                    <ul class="nav nav-tabs nav-tabs-mb-icon nav-tabs-card">
-                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab"
-                                                href="#tabItem1"><em
-                                class="icon ni ni-user-circle-fill"></em><span>Инфо</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab"
-                                                href="#tabItem2"><em
-                                class="icon ni ni-property"></em><span>Товары</span></a></li>
-                    </ul>
-                    <div class="card-inner">
-                        <div class="tab-content">
-                            <div class="tab-pane" id="tabItem1">
-                                <div class="nk-block nk-block-lg">
-                                    <div class="row g-gs">
-                                        <div class="col-lg-12">
-                                            <div class="card card-bordered h-100">
-                                                <div class="card-inner" id="data-item">
-                                                    <div>
-                                                        <div class="form-group">
-                                                            <div class="form-group">
-                                                                <label class="form-label"
-                                                                       for="cf-title">Название
-                                                                </label>
-                                                                <input type="text" class="form-control"
-                                                                       name="title"
-                                                                       value="{{overhead.title}}"
-                                                                       id="cf-title">
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <div class="form-group">
-                                                                <label class="form-label"
-                                                                       for="cf-description">Описание
-                                                                </label>
-                                                                <input type="text" class="form-control"
-                                                                       name="description"
-                                                                       value="{{overhead.description}}"
-                                                                       id="cf-description">
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <div class="form-group">
-                                                                <label class="form-label"
-                                                                       for="cf-uid">Номер документа
-                                                                </label>
-                                                                <input type="text" class="form-control"
-                                                                       name="uid"
-                                                                       value="{{overhead.uid}}"
-                                                                       id="cf-uid">
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label class="form-label"
-                                                                   for="cf-date">Время составления
-                                                            </label>
-                                                            <input type="text" class="form-control date-picker-alt"
-                                                                   data-date-format="yyyy-mm-dd"
-                                                                   name="date"
-                                                                   value="{{overhead.date}}"
-                                                                   id="cf-date">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label class="form-label"
-                                                                   for="cf-paid_summ">Сумма к оплате
-                                                            </label>
-                                                            <input class="form-control"
-                                                                   disabled="disabled"
-                                                                   value="{{overhead.sum or ''}}"
-                                                                   id="cf-paid_summ">
-                                                        </div>
 
+    <div class="nk-block nk-block-lg">
+        <div class="card card-bordered card-stretch">
+            <div class="card-inner-group">
+                <div class="card-inner position-relative card-tools-toggle">
+                    <div class="card-title-group">
+                        <div class="card-tools">
+                            <ul class="nav nav-tabs nav-tabs-mb-icon nav-tabs-card">
+                                <li class="nav-item">
+                                    <a class="nav-link active" data-bs-toggle="tab" href="#tabItem2">
+                                        <em class="icon ni ni-property"></em><span>Товары</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-bs-toggle="tab" href="#tabItem1">
+                                        <em class="icon ni ni-file-text"></em><span>Основная информация</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-inner p-0">
+                    <div class="tab-content">
+
+                        <div class="tab-pane" id="tabItem1">
+                            <div class="p-4">
+                                <div class="row g-4">
+                                    <div class="col-lg-7">
+                                        <div class="card card-bordered h-100 bg-lighter-custom">
+                                            <div class="card-inner">
+                                                <h6 class="title mb-3"><em class="icon ni ni-info me-1"></em> Детали
+                                                    документа</h6>
+                                                <div class="row g-3">
+                                                    <div class="col-12">
                                                         <div class="form-group">
-                                                            <button onclick="saveItem()" type="submit"
-                                                                    class="btn btn-lg btn-primary">
-                                                                Изменить
-                                                            </button>
+                                                            <label class="form-label" for="cf-title">Название
+                                                                накладной</label>
+                                                            <div class="form-control-wrap">
+                                                                <div class="form-icon form-icon-left"><em
+                                                                        class="icon ni ni-pen"></em></div>
+                                                                <input type="text" class="form-control" name="title"
+                                                                       value="{{overhead.title}}" id="cf-title"
+                                                                       placeholder="Например: Поставка от 23.11">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label class="form-label" for="cf-description">Примечание /
+                                                                Описание</label>
+                                                            <div class="form-control-wrap">
+                                                                <textarea class="form-control no-resize"
+                                                                          name="description" id="cf-description"
+                                                                          rows="3">{{overhead.description}}</textarea>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+
+                                    <div class="col-lg-5">
+                                        <div class="card card-bordered h-100">
+                                            <div class="card-inner">
+                                                <h6 class="title mb-3"><em class="icon ni ni-calendar-alt me-1"></em>
+                                                    Данные учета</h6>
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label class="form-label" for="cf-uid">Номер
+                                                                документа</label>
+                                                            <input type="text" class="form-control" name="uid"
+                                                                   value="{{overhead.uid}}" id="cf-uid">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label class="form-label" for="cf-date">Дата
+                                                                составления</label>
+                                                            <input type="text" class="form-control date-picker-alt"
+                                                                   data-date-format="yyyy-mm-dd" name="date"
+                                                                   value="{{overhead.date}}" id="cf-date">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <label class="form-label" for="cf-paid_summ">Итоговая
+                                                                сумма</label>
+                                                            <div class="form-control-wrap">
+                                                                <div class="form-text-hint">
+                                                                    <span class="overline-title">KZT</span>
+                                                                </div>
+                                                                <input class="form-control form-control-lg text-end fw-bold"
+                                                                       disabled="disabled"
+                                                                       value="{{overhead.sum or '0'}}"
+                                                                       id="cf-paid_summ">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-4 text-end">
+                                                    <button onclick="saveItem()" type="submit" class="btn btn-primary">
+                                                        <em class="icon ni ni-save me-1"></em> Сохранить изменения
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="tab-pane active" id="tabItem2">
-                                <div class="nk-block nk-block-between">
-                                    <div class="nk-block-head"></div>
+                        </div>
 
-                                    <div class="nk-block">
+                        <div class="tab-pane active" id="tabItem2">
+                            <div class="p-3 border-bottom bg-light">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">Список позиций</h6>
+                                        <small class="text-muted">Всего товаров: {{ overhead_items|length }}</small>
+                                    </div>
+                                    <div>
                                         {% if overhead.is_close %}
-                                        <a class="btn btn-success">
-                                            <em class="icon ni ni-check"></em>
-                                            <span>Завершен</span>
-                                        </a>
+                                        <span class="badge badge-dim bg-success rounded-pill px-3 py-2">
+                                                <em class="icon ni ni-check-circle me-1"></em> Документ завершен
+                                            </span>
                                         {% else %}
-                                        <a onclick="closeOverhead()"
-                                           class="toggle btn btn-danger">
-                                            <em class="icon ni ni-check"></em>
-                                            <span>Завершить</span>
+                                        <a onclick="closeOverhead()" class="btn btn-dim btn-danger me-2">
+                                            <em class="icon ni ni-lock"></em><span>Завершить</span>
                                         </a>
-                                        <a href="#"
-                                           data-target="addProduct"
-                                           class="toggle btn btn-primary">
-                                            <em class="icon ni ni-plus"></em>
-                                            <span>Добавить</span>
+                                        <a href="#" data-target="addProduct" class="toggle btn btn-primary">
+                                            <em class="icon ni ni-plus-circle"></em><span>Добавить товар</span>
                                         </a>
-
                                         {% endif %}
                                     </div>
                                 </div>
-                                {% if overhead_items %}
-                                <div class="nk-block">
-                                    <div class="card">
-                                        <div class="nk-tb-list nk-tb-ulist is-compact">
-                                            <div class="nk-tb-item nk-tb-head">
-                                                <div class="nk-tb-col"><span>Название</span></div>
-                                                <div class="nk-tb-col"><span>Цена прихода</span></div>
-                                                <div class="nk-tb-col"><span>Цена продаж</span></div>
-                                                <div class="nk-tb-col"><span>Количество</span></div>
-                                                <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                            </div>
+
+                            {% if overhead_items %}
+                            <div class="nk-tb-list nk-tb-ulist is-compact border-0">
+                                <div class="nk-tb-item nk-tb-head bg-lighter">
+                                    <div class="nk-tb-col"><span class="sub-text">Наименование</span></div>
+                                    <div class="nk-tb-col tb-col-mb"><span class="sub-text">Цена закупки</span></div>
+                                    <div class="nk-tb-col tb-col-mb"><span class="sub-text">Цена продажи</span></div>
+                                    <div class="nk-tb-col"><span class="sub-text">Кол-во</span></div>
+                                    <div class="nk-tb-col"><span class="sub-text">Сумма</span></div>
+                                    <div class="nk-tb-col nk-tb-col-tools text-end"></div>
+                                </div>
+                                {% for item in overhead_items %}
+                                <div class="nk-tb-item">
+                                    <div class="nk-tb-col">
+                                        <div class="user-card">
+                                            <div class="user-avatar sm bg-primary-dim">
+                                                <span>{{ item.title[:2] | upper if item.title else 'TO' }}</span>
                                             </div>
-                                            {% for item in overhead_items %}
-                                            <div class="nk-tb-item">
-                                                <div class="nk-tb-col">
-                                                    <div class="user-card">
-                                                        <div class="user-info">
-                                                            <span class="tb-lead">
-                                                                {{item.title or ''}}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="nk-tb-col">
-                                                    <span>{{item.arrival_price or ''}}</span>
-                                                </div>
-
-                                                <div class="nk-tb-col">
-                                                    <span>{{item.sale_price or ''}}</span>
-                                                </div>
-
-                                                <div class="nk-tb-col">
-                                                    <span>{{item.count or ''}}</span>
-                                                </div>
-
-                                                <div class="nk-tb-col nk-tb-col-tools">
-                                                    {% if not overhead.is_close %}
-                                                    <ul class="nk-tb-actions gx-1 my-n1">
-                                                        <li class="me-n1">
-                                                            <div class="dropdown"><a href="#"
-                                                                                     class="dropdown-toggle btn btn-icon btn-trigger"
-                                                                                     data-bs-toggle="dropdown"><em
-                                                                    class="icon ni ni-more-h"></em></a>
-                                                                <div class="dropdown-menu dropdown-menu-end">
-                                                                    <ul class="link-list-opt no-bdr">
-                                                                        <li>
-                                                                            <a onclick="removeOverheadItem({{item.id}})">
-                                                                                <em class="icon ni ni-trash text-danger"></em>
-                                                                                <span class="tb-status text-danger">Удалить</span>
-                                                                            </a>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                    </ul>
-                                                    {% endif %}
-                                                </div>
+                                            <div class="user-info">
+                                                <span class="tb-lead">{{item.title or 'Неизвестный товар'}}</span>
                                             </div>
-                                            {% endfor %}
                                         </div>
+                                    </div>
+                                    <div class="nk-tb-col tb-col-mb">
+                                        <span class="fw-medium">{{item.arrival_price or '0'}}</span>
+                                    </div>
+                                    <div class="nk-tb-col tb-col-mb">
+                                        <span class="fw-medium text-success">{{item.sale_price or '0'}}</span>
+                                    </div>
+                                    <div class="nk-tb-col">
+                                        <span class="badge badge-dim bg-gray">{{item.count or '0'}}</span>
+                                    </div>
+                                    <div class="nk-tb-col">
+                                        <span class="fw-bold">{{ (item.arrival_price * item.count) if item.arrival_price and item.count else '-' }}</span>
+                                    </div>
 
+                                    <div class="nk-tb-col nk-tb-col-tools">
+                                        {% if not overhead.is_close %}
+                                        <ul class="nk-tb-actions gx-1">
+                                            <li>
+                                                <a onclick="removeOverheadItem({{item.id}})"
+                                                   class="btn btn-trigger btn-icon" data-bs-toggle="tooltip"
+                                                   data-bs-placement="top" title="Удалить">
+                                                    <em class="icon ni ni-trash text-danger"></em>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                        {% endif %}
                                     </div>
                                 </div>
-                                {% else %}
-                                <div class="card-inner">
-                                    <figure class="text-center">
-                                        <blockquote class="blockquote"><h3>
-                                            Cписок товаров
-                                        </h3></blockquote>
-                                    </figure>
-                                </div>
-                                {% endif %}
+                                {% endfor %}
                             </div>
+                            {% else %}
+                            <div class="p-5 text-center">
+                                <div class="nk-block-content">
+                                    <span class="nk-block-icon icon-circle icon-circle-xxl bg-lighter"><em
+                                            class="icon ni ni-box"></em></span>
+                                    <div class="nk-block-content-head mt-3">
+                                        <h5>Список товаров пуст</h5>
+                                        <p class="text-soft">Нажмите "Добавить товар", чтобы начать заполнение
+                                            накладной.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -209,104 +279,113 @@
         </div>
     </div>
 </div>
+
 <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
      data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+    <div class="nk-block-head">
+        <div class="nk-block-head-content">
+            <h5 class="nk-block-title">Новая позиция</h5>
+            <div class="nk-block-des">
+                <p>Добавление товара в накладную.</p>
+            </div>
+        </div>
+    </div>
     <div class="nk-block">
         <div class="row g-3">
             <div class="col-12">
-                <div class="form-group">
-                    <label class="form-label"
-                           for="cf-goods">Выберите товары или ниже укажите наименования
-                    </label>
-                </div>
+                <div class="divider-text">Товар</div>
             </div>
+
             <div class="col-12">
                 <div class="form-group">
-                    <select id="cf-goods" name="good_id"></select>
+                    <label class="form-label" for="cf-goods">Поиск существующего</label>
+                    <div class="form-control-wrap">
+                        <select id="cf-goods" name="good_id" class="form-select"></select>
+                    </div>
                 </div>
             </div>
 
             <div class="col-12">
                 <div class="form-group">
-                    <input type="text" class="form-control" name="good_title" id="cf-good-title">
+                    <label class="form-label" for="cf-good-title">Или новое название</label>
+                    <div class="form-control-wrap">
+                        <input type="text" class="form-control" name="good_title" id="cf-good-title"
+                               placeholder="Введите название нового товара">
+                    </div>
                 </div>
             </div>
 
             <div class="col-12" id="div-category-goods" style="display: none;">
-                <div class="form-group">
-                    <label class="form-label"
-                           for="cf-category">Выберите категории товара
-                    </label>
-                    <select id="cf-category"></select>
-                </div>
-            </div>
-
-            <div class="col-12" id="div-category-children" style="display: none;">
-                <div class="form-group">
-                    <label class="form-label"
-                           for="cf-category-children">Выберите под категории товара
-                    </label>
-                    <select id="cf-category-children"></select>
+                <div class="bg-lighter-custom">
+                    <div class="form-group">
+                        <label class="form-label" for="cf-category">Категория</label>
+                        <select id="cf-category" class="form-select"></select>
+                    </div>
+                    <div class="form-group mt-2" id="div-category-children" style="display: none;">
+                        <label class="form-label" for="cf-category-children">Подкатегория</label>
+                        <select id="cf-category-children" class="form-select"></select>
+                    </div>
                 </div>
             </div>
 
             <div class="col-12">
-                <div class="form-group">
-                    <label class="form-label"
-                           for="cf-arrival-price">Цена прихода
-                    </label>
-                    <input type="number" min="0.0" class="form-control"
-                           name="arrival_price"
-                           id="cf-arrival-price">
-                </div>
+                <div class="divider-text">Расчеты</div>
             </div>
+
             <div class="col-6">
-                <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="percentFlag">
-                    <label class="custom-control-label" for="percentFlag">Использовать процент</label>
+                <div class="form-group">
+                    <label class="form-label" for="cf-arrival-price">Цена закупа</label>
+                    <div class="form-control-wrap">
+                        <input type="number" min="0.0" class="form-control" name="arrival_price" id="cf-arrival-price">
+                    </div>
                 </div>
             </div>
-            <div class="col-6" style="display: none;" id="div-price-percent">
+
+            <div class="col-6">
                 <div class="form-group">
-                    <input type="number" min="0" class="form-control" id="cf-price-percent">
+                    <label class="form-label" for="cf-count">Количество</label>
+                    <div class="form-control-wrap">
+                        <input type="number" min="0.0" class="form-control" name="count" id="cf-count">
+                    </div>
                 </div>
             </div>
 
             <div class="col-12">
-                <div class="form-group">
-                    <label class="form-label"
-                           for="cf-sale-price">Цена продажа
-                    </label>
-                    <input type="number" min="0.0" class="form-control"
-                           name="sale_price"
-                           id="cf-sale-price">
+                <div class="card card-bordered p-2 bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label mb-0" for="cf-sale-price">Цена продажи</label>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="percentFlag">
+                            <label class="custom-control-label text-soft" for="percentFlag">% наценки</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="display: none;" id="div-price-percent">
+                        <div class="input-group mb-2">
+                            <input type="number" min="0" class="form-control" id="cf-price-percent"
+                                   placeholder="Процент">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="number" min="0.0" class="form-control fw-bold text-success" name="sale_price"
+                               id="cf-sale-price">
+                    </div>
                 </div>
             </div>
 
-            <div class="col-12">
-                <div class="form-group">
-                    <label class="form-label"
-                           for="cf-count">Количество
-                    </label>
-                    <input type="number" min="0.0" class="form-control"
-                           name="count"
-                           id="cf-count">
-                </div>
+            <div class="col-12 mt-4">
+                <button id="createOverheadButton" onclick="createOverheadItem()"
+                        class="btn btn-primary btn-lg btn-block">
+                    <em class="icon ni ni-plus-circle me-1"></em> Добавить в накладную
+                </button>
             </div>
-
-            <div class="col-12">
-                <button id="createOverheadButton" onclick="createOverheadItem()" class="btn btn-primary"><em
-                        class="icon ni ni-plus"></em><span>Добавить</span></button>
-            </div>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
         </div>
     </div>
 </div>
 {% endblock %}
+
 
 {% block js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>

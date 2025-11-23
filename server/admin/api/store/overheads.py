@@ -98,14 +98,13 @@ class StoreOverheadView(BaseAPIView):
 
         overhead = dict(await db.fetchrow(
             '''
-            SELECT 
-                id,
-                title,
-                description,
-                uid,
-                date,
-                sum,
-                is_close
+            SELECT id,
+                   title,
+                   description,
+                   uid,
+                   date,
+                   sum,
+                   is_close
             FROM store.overheads
             WHERE id = $1
             ORDER BY id DESC
@@ -115,17 +114,17 @@ class StoreOverheadView(BaseAPIView):
 
         overhead_items = ListUtils.to_list_of_dicts(await db.fetch(
             '''
-            SELECT
-                oi.id,
-                CASE WHEN g.id IS NULL 
-                    THEN oi.title 
-                    ELSE g.title
-                END AS title,
-                oi.arrival_price,
-                oi.sale_price,
-                oi.count
+            SELECT oi.id,
+                   CASE
+                       WHEN g.id IS NULL
+                           THEN oi.title
+                       ELSE g.title
+                       END AS title,
+                   oi.arrival_price,
+                   oi.sale_price,
+                   oi.count
             FROM store.overhead_items oi
-            LEFT JOIN public.goods g ON g.id = oi.good_id
+                     LEFT JOIN public.goods g ON g.id = oi.good_id
             WHERE oi.overhead_id = $1
             ORDER BY oi.id DESC
             ''',
@@ -219,7 +218,8 @@ class StoreOverheadView(BaseAPIView):
 
             item_id = await db.fetchval(
                 '''
-                DELETE FROM store.overhead_items 
+                DELETE
+                FROM store.overhead_items
                 WHERE id = $1
                 RETURNING id
                 ''',
@@ -234,7 +234,14 @@ class StoreOverheadView(BaseAPIView):
         elif action == 'close':
             overhead_items = await db.fetch(
                 '''
-                SELECT id, title, description, good_id, category_id, count, sale_price, arrival_price
+                SELECT id,
+                       title,
+                       description,
+                       good_id,
+                       category_id,
+                       count,
+                       sale_price,
+                       arrival_price
                 FROM store.overhead_items
                 WHERE overhead_id = $1
                 ''',
@@ -247,8 +254,9 @@ class StoreOverheadView(BaseAPIView):
             item_id = await db.fetchval(
                 '''
                 UPDATE store.overheads
-                SET is_close = TRUE 
-                WHERE id = $1 AND is_active
+                SET is_close = TRUE
+                WHERE id = $1
+                  AND is_active
                 RETURNING id
                 ''',
                 overhead_id
@@ -266,7 +274,9 @@ class StoreOverheadView(BaseAPIView):
                     await db.execute(
                         '''
                         UPDATE public.goods
-                        SET balance = balance + $2, price = $3, last_arrival_price = $4
+                        SET balance            = balance + $2,
+                            price              = $3,
+                            last_arrival_price = $4
                         WHERE id = $1
                         ''',
                         i['good_id'],
@@ -278,10 +288,9 @@ class StoreOverheadView(BaseAPIView):
                     await db.execute(
                         '''
                         WITH inserted_order AS (
-                            INSERT INTO public.goods(title, category_id, balance, price, last_arrival_price)
-                            VALUES ($2, $3, $4, $5, $6)
-                            RETURNING id
-                        )
+                            INSERT INTO public.goods (title, category_id, balance, price, last_arrival_price)
+                                VALUES ($2, $3, $4, $5, $6)
+                                RETURNING id)
                         UPDATE store.overhead_items
                         SET good_id = (SELECT id FROM inserted_order)
                         WHERE id = $1;
@@ -298,7 +307,7 @@ class StoreOverheadView(BaseAPIView):
                 await db.execute(
                     '''
                     UPDATE store.overheads
-                    SET sum = $2 
+                    SET sum = $2
                     WHERE id = $1
                     RETURNING id
                     ''',
@@ -327,8 +336,11 @@ class StoreOverheadView(BaseAPIView):
 
         item_id = await db.fetchval(
             '''
-            UPDATE store.overheads 
-            SET title = $2, description = $3, uid = $4, date = $5
+            UPDATE store.overheads
+            SET title       = $2,
+                description = $3,
+                uid         = $4,
+                date        = $5
             WHERE id = $1
             RETURNING id
             ''',
