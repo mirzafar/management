@@ -1,259 +1,317 @@
 {% extends 'admin/base.html' %}
 {% block container %}
 <div class="components-preview wide-md mx-auto">
-    <div class="col-lg-12">
-        <div class="nk-block-head">
-            <div class="nk-block-head-content"><h5 class="nk-block-title title">Фильтр</h5></div>
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between">
+            <div class="nk-block-head-content">
+                <h3 class="nk-block-title page-title">Заказы</h3>
+                <div class="nk-block-des text-soft">
+                    <p>Управление продажами</p>
+                </div>
+            </div>
+            <div class="nk-block-head-content d-md-none">
+                <a href="#" class="btn btn-icon btn-trigger toggle-expand" data-target="filter-panel">
+                    <em class="icon ni ni-filter-alt"></em>
+                </a>
+            </div>
         </div>
-        <div class="card card-bordered">
-            <div class="card-inner">
-                <div class="row gy-4" id="filter-data">
-                    <div class="col-xxl-4 col-sm-6">
-                        <div class="form-group">
-                            <div class="form-control-wrap">
-                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
-                                <input value="{{request.args.get('start_date') or ''}}" type="text"
-                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
-                                       name="start_date" placeholder="С"></div>
-                        </div>
-                    </div>
-                    <div class="col-xxl-4 col-sm-6">
-                        <div class="form-group">
-                            <div class="form-control-wrap">
-                                <div class="form-icon form-icon-right"><em class="icon ni ni-calendar"></em></div>
-                                <input type="text" value="{{request.args.get('stop_date') or ''}}"
-                                       class="form-control date-picker" data-date-format="yyyy-mm-dd"
-                                       name="stop_date" placeholder="ПО"></div>
-                        </div>
-                    </div>
+    </div>
 
-                    <div class="col-xxl-4 col-sm-6">
-                        <div class="form-group">
-                            <label class="form-label">Статус оплаты</label>
-                            <select class="form-select" name="is_paid">
-                                <option value="">Выберите</option>
-                                <option {% if request.args.get(
-                                'is_paid') == 'false' %} selected {% endif %} value="false">В ожидании</option>
-                                <option {% if request.args.get(
-                                'is_paid') == 'true' %} selected {% endif %} value="true">Оплачен</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-xxl-4 col-sm-6">
-                        <div class="form-group">
-                            <label class="form-label">Вид оплаты</label>
-                            <select class="form-select" name="paid_type">
-                                <option value="">Виберите</option>
-                                <option {% if request.args.get(
-                                'paid_type') == 'CASH' %} selected {% endif %} value="CASH">Наличный</option>
-                                <option {% if request.args.get(
-                                'paid_type') == 'KASPI' %} selected {% endif %} value="KASPI">Каспи</option>
-                            </select>
-                        </div>
-                    </div>
+    <div class="nk-block">
+        <div class="card card-bordered card-stretch">
+            <div class="card-inner-group">
 
-                    <div class="col-12">
-                        <div class="form-group">
-                            <ul class="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
-                                <li>
-                                    <button onclick="searchFilter()" type="submit" class="btn btn-primary">Поиск
-                                    </button>
+                <div class="card-inner position-relative" id="filter-panel">
+                    <div class="card-title-group">
+                        <div class="card-tools w-100">
+                            <div class="row gy-2 gx-3 align-items-center" id="filter-data">
+                                <div class="col-6 col-md-auto">
+                                    <div class="form-control-wrap">
+                                        <div class="form-icon form-icon-right">
+                                            <em class="icon ni ni-calendar-alt"></em>
+                                        </div>
+                                        <input type="text" class="form-control date-picker"
+                                               data-date-format="yyyy-mm-dd"
+                                               name="start_date"
+                                               value="{{request.args.get('start_date') or ''}}"
+                                               placeholder="От">
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-auto">
+                                    <div class="form-control-wrap">
+                                        <div class="form-icon form-icon-right">
+                                            <em class="icon ni ni-calendar-alt"></em>
+                                        </div>
+                                        <input type="text" class="form-control date-picker"
+                                               data-date-format="yyyy-mm-dd"
+                                               name="stop_date"
+                                               value="{{request.args.get('stop_date') or ''}}"
+                                               placeholder="До">
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-sm-6 col-md-auto" style="min-width: 140px;">
+                                    <select class="form-select" data-placeholder="Статус" name="is_paid">
+                                        <option value="">Все статусы</option>
+                                        <option value="false" {% if request.args.get(
+                                        'is_paid') == 'false' %}selected{% endif %}>В ожидании</option>
+                                        <option value="true" {% if request.args.get(
+                                        'is_paid') == 'true' %}selected{% endif %}>Оплачен</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-auto" style="min-width: 140px;">
+                                    <select class="form-select" data-placeholder="Тип оплаты"
+                                            name="paid_type">
+                                        <option value="">Все типы</option>
+                                        <option value="CASH" {% if request.args.get(
+                                        'paid_type') == 'CASH' %}selected{% endif %}>Наличный</option>
+                                        <option value="KASPI" {% if request.args.get(
+                                        'paid_type') == 'KASPI' %}selected{% endif %}>Kaspi</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12 col-md-auto ms-auto">
+                                    <div class="btn-wrap">
+                                        <button onclick="searchFilter()" class="btn btn-dim btn-outline-primary">
+                                            <em class="icon ni ni-search"></em>
+                                        </button>
+                                        <button onclick="clearFilters()" class="btn btn-dim btn-outline-danger"
+                                                title="Сбросить">
+                                            <em class="icon ni ni-cross"></em>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-inner p-0">
+                    {% if items %}
+                    <div class="nk-tb-list nk-tb-ulist is-compact">
+                        <div class="nk-tb-item nk-tb-head">
+                            <div class="nk-tb-col nk-tb-col-md"><span class="sub-text">ID</span></div>
+
+                            <div class="nk-tb-col"><span class="sub-text">Итого</span></div>
+
+                            <div class="nk-tb-col nk-tb-col-sm text-end"><span class="sub-text">Скидка</span></div>
+
+                            <div class="nk-tb-col nk-tb-col-lg text-end"><span class="sub-text">Заклад</span></div>
+
+                            <div class="nk-tb-col"><span class="sub-text">Статус</span></div>
+
+                            <div class="nk-tb-col nk-tb-col-sm"><span class="sub-text">Тип</span></div>
+
+                            <div class="nk-tb-col nk-tb-col-tools"></div>
+                        </div>
+
+                        {% for item in items %}
+                        <div class="nk-tb-item">
+                            <div class="nk-tb-col nk-tb-col-md">
+                                <span class="fw-bold text-secondary">#{{item.id}}</span>
+                            </div>
+
+                            <div class="nk-tb-col">
+                                <div class="user-card">
+                                    <div class="user-info">
+                                        <span class="tb-amount fw-bold fs-16px">{{item.total_sum or '0'}} <span
+                                                class="currency d-none d-sm-inline">₸</span></span>
+                                        <span class="sub-text d-md-none">{{item.created_at.strftime('%d.%m') if item.created_at else ''}}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="nk-tb-col nk-tb-col-sm text-end">
+                                {% if item.discount %}
+                                <span class="tb-amount text-danger">{{item.discount}}%</span>
+                                {% else %}
+                                <span>-</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="nk-tb-col nk-tb-col-lg text-end">
+                                <span class="tb-amount">{{item.pledge or '-'}}</span>
+                            </div>
+
+                            <div class="nk-tb-col">
+                                {% if item.is_paid %}
+                                <span class="badge-dot text-success">Оплачен</span>
+                                {% else %}
+                                <span class="badge-dot text-warning">Ждет</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="nk-tb-col nk-tb-col-sm">
+                                {% if item.paid_type == 'KASPI' %}
+                                <span class="badge badge-dim bg-danger">Kaspi</span>
+                                {% elif item.paid_type == 'CASH' %}
+                                <span class="badge badge-dim bg-dark">Нал</span>
+                                {% else %}
+                                <span class="small text-muted">-</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="nk-tb-col nk-tb-col-tools">
+                                <ul class="nk-tb-actions gx-1">
+                                    <li>
+                                        <div class="dropdown">
+                                            <a href="#" class="dropdown-toggle btn btn-icon btn-trigger"
+                                               data-bs-toggle="dropdown">
+                                                <em class="icon ni ni-more-h"></em>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <ul class="link-list-opt no-bdr">
+                                                    <li><a href="#" onclick="openItem({{item.id}}); return false;">
+                                                        <em class="icon ni ni-eye"></em><span>Детали</span>
+                                                    </a></li>
+                                                    {% if not item.is_paid %}
+                                                    <li class="divider"></li>
+                                                    <li><a href="#" onclick="paidItem({{item.id}}); return false;"
+                                                           class="text-success">
+                                                        <em class="icon ni ni-check-circle"></em><span>Оплатить</span>
+                                                    </a></li>
+                                                    {% endif %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="card-inner">
+                        <div class="alert alert-light text-center">
+                            <em class="icon ni ni-inbox mb-2" style="font-size: 2rem; opacity: 0.4"></em>
+                            <div class="text-soft">Заказы не найдены</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if pager and items %}
+                    <div class="card-inner border-top">
+                        <div class="d-flex justify-content-center justify-content-md-start">
+                            <ul class="pagination">
+                                <li class="page-item {% if not pager.prev_page %}disabled{% endif %}">
+                                    <a class="page-link" href="javascript:void(0)"
+                                       onclick="goToPage({{pager.prev_page or 1}})">
+                                        <em class="icon ni ni-arrow-left"></em>
+                                    </a>
                                 </li>
-                                <li>
-                                    <button onclick="clearFilters()" data-bs-dismiss="modal" class="btn btn-danger">
-                                        Очистить
-                                    </button>
+                                <li class="page-item active"><a class="page-link" href="#">{{pager.page}}</a></li>
+                                <li class="page-item {% if not pager.next_page %}disabled{% endif %}">
+                                    <a class="page-link" href="javascript:void(0)"
+                                       onclick="goToPage({{pager.next_page or pager.page}})">
+                                        <em class="icon ni ni-arrow-right"></em>
+                                    </a>
                                 </li>
                             </ul>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="nk-block-head nk-block-head-sm">
-        <div class="nk-block-between">
-            <div class="nk-block-head-content">
-                <h3 class="nk-block-title page-title"></h3>
-            </div>
-
-        </div>
-    </div>
-    <div class="nk-block">
-        <div class="card card-stretch">
-            <div class="card-inner">
-                <div class="card-title-group">
-                    <div class="card-title"><h5 class="title">Заказы</h5></div>
-                </div>
-            </div>
-            <div class="card-inner p-0">
-                {% if items %}
-                <div class="nk-block">
-                    <div class="card">
-                        <div class="nk-tb-list nk-tb-ulist is-compact">
-                            <div class="nk-tb-item nk-tb-head">
-                                <div class="nk-tb-col"><span>#</span></div>
-                                <div class="nk-tb-col"><span>Сумма</span></div>
-                                <div class="nk-tb-col"><span>Скидка (%)</span></div>
-                                <div class="nk-tb-col"><span>Итоговая сумма</span></div>
-                                <div class="nk-tb-col"><span>Оплата</span></div>
-                                <div class="nk-tb-col"><span>Заклад</span></div>
-                                <div class="nk-tb-col"><span>Вид оплаты</span></div>
-                                <div class="nk-tb-col"><span>Дата</span></div>
-                                <div class="nk-tb-col nk-tb-col-tools text-end"></div>
-                            </div>
-                            {% for item in items %}
-                            <div class="nk-tb-item">
-                                <div class="nk-tb-col">
-                                    {{item.id}}
-                                </div>
-                                <div class="nk-tb-col">
-                                    <span>{{item.sum or ''}}</span>
-                                </div>
-                                <div class="nk-tb-col">
-                                    <span>{{item.discount or ''}}</span>
-                                </div>
-                                <div class="nk-tb-col">
-                                    <span>{{item.total_sum or ''}}</span>
-                                </div>
-
-                                <div class="nk-tb-col">
-                                    {% if item.is_paid %}
-                                    <span class="badge badge-dim bg-success">Оплачен</span>
-                                    {% else %}
-                                    <span class="badge badge-dim bg-warning">Ожидание</span>
-                                    {% endif %}
-                                </div>
-                                <div class="nk-tb-col">
-                                    <span>{{item.pledge or ''}}</span>
-                                </div>
-                                <div class="nk-tb-col">
-                                    {% if item.paid_type == 'KASPI' %}
-                                    <span class="badge badge-dot bg-danger">Каспи</span>
-                                    {% elif item.paid_type == 'CASH' %}
-                                    <span class="badge badge-dot bg-dark">Наличный</span>
-                                    {% endif %}
-                                </div>
-                                <div class="nk-tb-col">
-                                    <span>{{item.created_at and item.created_at.strftime('%Y-%m-%d %H:%M') or ''}}</span>
-                                </div>
-
-                                <div class="nk-tb-col nk-tb-col-tools">
-                                    <ul class="nk-tb-actions gx-1 my-n1">
-                                        <li class="me-n1">
-                                            <div class="dropdown"><a href="#"
-                                                                     class="dropdown-toggle btn btn-icon btn-trigger"
-                                                                     data-bs-toggle="dropdown"><em
-                                                    class="icon ni ni-more-h"></em></a>
-                                                <div class="dropdown-menu dropdown-menu-end">
-                                                    <ul class="link-list-opt no-bdr">
-                                                        <li><a onclick="openItem({{item.id}})">
-                                                            <em class="icon ni ni-eye"></em>
-                                                            <span>Просмотр</span>
-                                                        </a></li>
-                                                        {% if not item.is_paid %}
-                                                        <li><a onclick="paidItem({{item.id}})">
-                                                            <em class="icon ni ni-money"></em>
-                                                            <span>Оплатить</span>
-                                                        </a></li>
-                                                        {% endif %}
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-                {% if pager %}
-                <div class="card-inner">
-                    <ul class="pagination justify-content-center justify-content-md-start">
-                        <li class="page-item">
-                            <a class="page-link"
-                               {% if pager.prev_page %}
-                               href="/api/sales/orders?page={{pager.prev_page}}"
-                               {% endif %}
-                            >{% if pager.prev_page %}Prev{% else %}&nbsp;{% endif %}</a>
-                        </li>
-                        <li class="page-item"><a class="page-link">{{pager.page}}</a></li>
-                        <li class="page-item">
-                            <a class="page-link"
-                               {% if pager.next_page %}
-                               href="/api/sales/orders?page={{pager.next_page}}"
-                               {% endif %}
-                            >{% if pager.next_page %}Prev{% else %}&nbsp;{% endif %}</a>
-                        </li>
-                    </ul>
-                </div>
-                {% endif %}
-                {% else %}
-                <div class="card-inner">
-                    <figure class="text-center">
-                        <blockquote class="blockquote"><h3>
-                            Cписок услуг
-                        </h3></blockquote>
-                    </figure>
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
+
 {% block js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
 
 <script>
-    $('li[data-li="sales"]').addClass('active')
-    $('li[data-li="sales-orders"]').addClass('active')
+    // Инициализация активного меню
+    document.addEventListener('DOMContentLoaded', () => {
+        $('li[data-li="sales"]').addClass('active');
+        $('li[data-li="sales-orders"]').addClass('active');
 
+        // Инициализация Select2 если используется в шаблоне
+        if ($('.js-select2').length) {
+            $('.js-select2').select2();
+        }
+    });
+
+    // Функция оплаты
     async function paidItem(itemId) {
+        if (!confirm('Вы действительно хотите отметить этот заказ как оплаченный?')) return;
+
         try {
-            let response = await fetch(`/api/sales/orders/`, {
+            const response = await fetch(`/api/sales/orders/`, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', // Важный заголовок!
+                    'X-CSRFToken': '{{ csrf_token() if csrf_token else "" }}' // На случай если используется CSRF
+                },
                 body: JSON.stringify({
                     action: 'paid',
                     order_id: itemId,
                 })
             });
 
-            response = await response.json();
-            if (response._success === true) {
+            const data = await response.json();
+
+            if (data._success === true) {
+                // Можно добавить toast-уведомление вместо alert
                 window.location.reload();
             } else {
-                alert(response.message);
+                alert(data.message || 'Ошибка при оплате');
             }
 
         } catch (error) {
-            alertShow('waring', `${error.message}`);
+            console.error(error);
+            alert(`Ошибка соединения: ${error.message}`);
         }
     }
 
-    async function openItem(itemId) {
+    function openItem(itemId) {
         if (itemId) {
-            window.location.href = `/api/sales/orders/${itemId}/items`
+            window.location.href = `/api/sales/orders/${itemId}/items`;
         }
     }
 
-    function clearFilters() {
-        window.location.href = '/api/sales/orders/'
+    function getQueryParams() {
+        const searchParams = new URLSearchParams(window.location.search);
+        return searchParams;
     }
 
-    function paramsToQueryString(params) {
-        return Object.keys(params)
-            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+    function paramsToQueryString(paramsObj) {
+        return Object.keys(paramsObj)
+            .filter(key => paramsObj[key] !== "" && paramsObj[key] !== null) // Убираем пустые параметры
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(paramsObj[key])}`)
             .join("&");
     }
 
+    // Поиск с фильтрами
     function searchFilter() {
-        let params = getValues('#filter-data')
-        let updatedQueryString = paramsToQueryString(params);
-        window.location.href = `/api/sales/orders?${updatedQueryString}`
+        // Если используете функцию getValues из вашего шаблона (предполагаю она есть)
+        // Если нет - нужно собрать данные вручную
+        let inputs = document.querySelectorAll('#filter-data input, #filter-data select');
+        let params = {};
 
+        inputs.forEach(input => {
+            params[input.name] = input.value;
+        });
+
+        // Сбрасываем на 1 страницу при новом поиске
+        params['page'] = 1;
+
+        let queryString = paramsToQueryString(params);
+        window.location.href = `/api/sales/orders?${queryString}`;
     }
 
+    // Умная пагинация (сохраняет фильтры)
+    function goToPage(pageNumber) {
+        if (!pageNumber) return;
+
+        let currentParams = new URLSearchParams(window.location.search);
+        currentParams.set('page', pageNumber);
+
+        window.location.href = `/api/sales/orders?${currentParams.toString()}`;
+    }
+
+    function clearFilters() {
+        window.location.href = '/api/sales/orders/';
+    }
 </script>
 {% endblock %}

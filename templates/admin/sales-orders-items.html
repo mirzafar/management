@@ -1,74 +1,336 @@
 {% extends 'admin/base.html' %}
 {% block container %}
-<div class="nk-block-head nk-block-head-sm">
-    <div class="nk-block-between g-3">
-        <div class="nk-block-head-content">
-            <a href="/api/sales/orders/" class="btn btn-outline-light bg-white d-none d-sm-inline-flex">
-                <em class="icon ni ni-arrow-left"></em>
-                <span>Назад</span>
-            </a>
-            <a href="/api/sales/orders/"
-               class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none">
-                <em class="icon ni ni-arrow-left"></em>
-            </a>
-        </div>
-    </div>
-</div>
-<div class="nk-block">
-    <div class="invoice">
-        <div class="card invoice-wrap">
 
-            <div class="invoice-head">
-                <div class="invoice-desc"><h3 class="title">Заказ</h3>
-                    <ul class="list-plain">
-                        <li class="invoice-id"><span>Номер</span>:<span>{{order and order.id or ''}}</span></li>
-                        <li class="invoice-date"><span>Время</span>:<span>{{order and order.created_at and order.created_at.strftime('%Y-%m-%d %H:%M') or ''}}</span>
-                        </li>
-                    </ul>
-                </div>
+<style>
+    .order-page .card {
+        border: 0;
+        border-radius: 14px;
+        box-shadow: 0 6px 24px rgba(16, 24, 40, .06);
+    }
+
+    .order-page .order-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 18px 20px;
+        border-bottom: 1px solid #eef0f4;
+        background: linear-gradient(180deg, #fff 0%, #fbfbfd 100%);
+        border-top-left-radius: 14px;
+        border-top-right-radius: 14px;
+    }
+
+    .order-page .order-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px 22px;
+    }
+
+    .order-page .meta-item {
+        color: #667085;
+        font-size: 13px;
+    }
+
+    .order-page .meta-item b {
+        color: #101828;
+        font-weight: 700;
+        margin-left: 6px;
+    }
+
+    .order-page .table thead th {
+        font-weight: 700;
+        color: #344054;
+        background: #f8fafc;
+        border-bottom: 0;
+    }
+
+    .order-page .table tbody td {
+        vertical-align: middle;
+    }
+
+    .order-page .good-title {
+        font-weight: 600;
+        color: #101828;
+    }
+
+    .order-page .price-cell, .order-page .sum-cell {
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .order-page .tfoot-row td {
+        background: #fcfcfd;
+    }
+
+    .order-page .summary-card .summary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px dashed #eef0f4;
+        font-size: 14px;
+    }
+
+    .order-page .summary-card .summary-row:last-child {
+        border-bottom: 0;
+    }
+
+    .order-page .summary-card .label {
+        color: #667085;
+    }
+
+    .order-page .summary-card .value {
+        font-weight: 700;
+        color: #101828;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .order-page .summary-card .total {
+        background: #0d6efd0f;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-top: 8px;
+    }
+
+    @media print {
+        /* прячем всё */
+        body.print-items-only * {
+            visibility: hidden !important;
+        }
+
+        /* показываем только область печати */
+        body.print-items-only #print-area,
+        body.print-items-only #print-area * {
+            visibility: visible !important;
+        }
+
+        /* прижимаем область к левому верхнему краю */
+        body.print-items-only #print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+
+        @media print {
+            body.print-items-only * {
+                visibility: hidden !important;
+            }
+
+            body.print-items-only #print-area,
+            body.print-items-only #print-area * {
+                visibility: visible !important;
+            }
+
+            body.print-items-only #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+    }
+
+
+</style>
+
+<div class="order-page">
+
+    <!-- Top / Back -->
+    <div class="nk-block-head nk-block-head-sm">
+        <div class="nk-block-between g-3">
+            <div class="nk-block-head-content">
+                <a href="/api/sales/orders/" class="btn btn-outline-light bg-white d-none d-sm-inline-flex">
+                    <em class="icon ni ni-arrow-left"></em>
+                    <span>Назад</span>
+                </a>
+                <a href="/api/sales/orders/"
+                   class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none">
+                    <em class="icon ni ni-arrow-left"></em>
+                </a>
             </div>
-            <div class="invoice-bills">
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th class="w-60">Товар</th>
-                            <th>Цена</th>
-                            <th>Количество</th>
-                            <th>Сумма</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for item in items %}
-                        <tr>
-                            <td>{{item.good_title}}</td>
-                            <td>{{item.count}}</td>
-                            <td>{{item.price}}</td>
-                            <td>₸ {{item.sum}}</td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                        <tfoot>
-                        <tr>
-                            <td colspan="2"></td>
-                            <td colspan="2">Сумма</td>
-                            <td>₸ {{order and order.sum or 0.0}}</td>
-                        </tr>
-                        <tr>
-                            <td colspan="2"></td>
-                            <td colspan="2">Скидка</td>
-                            <td>{{order and order.discount or 0}}</td>
-                        </tr>
-                        <tr>
-                            <td colspan="2"></td>
-                            <td colspan="2">Итоговая сумма</td>
-                            <td>₸ {{order and order.total_sum or 0}}</td>
-                        </tr>
-                        </tfoot>
-                    </table>
-                </div>
+
+            <div class="nk-block-head-content">
+                <button type="button" onclick="printItems()" class="btn btn-outline-primary bg-white">
+                    <em class="icon ni ni-printer"></em>
+                    <span>Печать</span>
+                </button>
+                <button type="button" onclick="downloadItemsPdf()" class="btn btn-success text-white">
+                    <em class="icon ni ni-download"></em>
+                    <span>Поделиться</span>
+                </button>
             </div>
+
         </div>
     </div>
+
+    <div class="nk-block">
+        <div class="row g-4">
+
+            <!-- Items -->
+            <div id="print-area" class="col-12 col-lg-8">
+                <div class="card">
+                    <div class="order-head">
+                        <div>
+                            <h4 class="mb-1">Заказ № {{ order and order.id or '' }}</h4>
+                            <div class="order-meta">
+                                <div class="meta-item">
+                                    Дата:
+                                    <b>{{ order and order.created_at and order.created_at.strftime('%Y-%m-%d %H:%M') or
+                                        '' }}</b>
+                                </div>
+                                {% if order and order.status %}
+                                <div class="meta-item">
+                                    Статус:
+                                    <b>{{ order.status }}</b>
+                                </div>
+                                {% endif %}
+                                {% if order and order.customer_name %}
+                                <div class="meta-item">
+                                    Клиент:
+                                    <b>{{ order.customer_name }}</b>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead>
+                                <tr>
+                                    <th class="w-50">Товар</th>
+                                    <th class="text-end">Цена</th>
+                                    <th class="text-center">Количество</th>
+                                    <th class="text-end">Сумма</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td class="good-title">{{ item.good_title }}</td>
+                                    <td class="text-end price-cell">₸ {{ item.price }}</td>
+                                    <td class="text-center">{{ item.count }}</td>
+                                    <td class="text-end sum-cell fw-semibold">₸ {{ item.sum }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">
+                                        В заказе пока нет товаров
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+
+                                <tfoot>
+                                <tr class="tfoot-row">
+                                    <td colspan="3" class="text-end fw-semibold">Сумма</td>
+                                    <td class="text-end fw-semibold">₸ {{ order and order.sum or 0.0 }}</td>
+                                </tr>
+                                <tr class="tfoot-row">
+                                    <td colspan="3" class="text-end">Скидка</td>
+                                    <td class="text-end">
+                                        {% if order and order.discount %}
+                                        - ₸ {{ order.discount }}
+                                        {% else %}
+                                        ₸ 0
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr class="tfoot-row">
+                                    <td colspan="3" class="text-end fw-bold">Итоговая сумма</td>
+                                    <td class="text-end fw-bold text-primary">₸ {{ order and order.total_sum or 0 }}
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="col-12 col-lg-4">
+                <div class="card summary-card">
+                    <div class="card-body">
+                        <h5 class="mb-3">Итоги заказа</h5>
+
+                        <div class="summary-row">
+                            <div class="label">Товаров</div>
+                            <div class="value">{{ items|length }}</div>
+                        </div>
+
+                        <div class="summary-row">
+                            <div class="label">Сумма</div>
+                            <div class="value">₸ {{ order and order.sum or 0.0 }}</div>
+                        </div>
+
+                        <div class="summary-row">
+                            <div class="label">Скидка</div>
+                            <div class="value">
+                                {% if order and order.discount %}
+                                - ₸ {{ order.discount }}
+                                {% else %}
+                                ₸ 0
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="total">
+                            <div class="summary-row" style="border-bottom:0; padding:0;">
+                                <div class="label fw-semibold">К оплате</div>
+                                <div class="value fs-5 text-primary">₸ {{ order and order.total_sum or 0 }}</div>
+                            </div>
+                        </div>
+
+                        {% if order and order.comment %}
+                        <div class="mt-3 small text-muted">
+                            Комментарий: {{ order.comment }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 </div>
 {% endblock %}
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+    function printItems() {
+        document.body.classList.add('print-items-only');
+        window.print();
+    }
+
+    window.onafterprint = function () {
+        document.body.classList.remove('print-items-only');
+    };
+
+    function downloadItemsPdf() {
+        const element = document.getElementById('print-area');
+
+        const orderId = "{{ order and order.id or '' }}";
+        const fileName = orderId ? `order-${orderId}.pdf` : "order.pdf";
+
+        const opt = {
+            margin: 8,
+            filename: fileName,
+            image: {type: 'jpeg', quality: 0.98},
+            html2canvas: {scale: 2, useCORS: true, backgroundColor: "#ffffff"},
+            jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'}
+        };
+
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
+
+
+{% endblock %}
+
