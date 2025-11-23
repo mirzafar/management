@@ -166,6 +166,8 @@ INSERT INTO public.users (id, last_name, first_name, middle_name, status, passwo
 VALUES (1, 'admin', 'admin', 'admin', 0, '21232f297a57a5a743894a0e4a801fc3', 'admin', '', '2025-11-22 09:16:27.867288',
         null, null);
 
+create schema sales;
+
 create table sales.orders
 (
     id         serial primary key,
