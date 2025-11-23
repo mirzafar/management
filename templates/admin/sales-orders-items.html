@@ -234,9 +234,9 @@
                                     <td colspan="3" class="text-end">Скидка</td>
                                     <td class="text-end">
                                         {% if order and order.discount %}
-                                        - ₸ {{ order.discount }}
+                                        - {{ order.discount }} %
                                         {% else %}
-                                        ₸ 0
+                                        0 %
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -272,9 +272,9 @@
                             <div class="label">Скидка</div>
                             <div class="value">
                                 {% if order and order.discount %}
-                                - ₸ {{ order.discount }}
+                                - {{ order.discount }} %
                                 {% else %}
-                                ₸ 0
+                                0 %
                                 {% endif %}
                             </div>
                         </div>
