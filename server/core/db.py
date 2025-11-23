@@ -1,4 +1,4 @@
-import logging
+import asyncio
 
 import asyncpg
 import ujson
@@ -6,9 +6,7 @@ from motor import motor_asyncio
 
 from settings import settings
 
-__all__ = ['mongo']
-
-logger = logging.getLogger(__name__)
+__all__ = ['mongo', 'db']
 
 
 class MongoProxy:
@@ -47,18 +45,15 @@ class DBProxy:
             schema='pg_catalog'
         )
 
-    async def initialize(self, app, loop, min_size=2, max_size=15):
+    async def initialize(self, loop, min_size: int = 2, max_size: int = 15):
+        loops = asyncio.get_event_loop_policy().get_event_loop()
         self.pool = await asyncpg.create_pool(
-            database=app.config.DB_DATABASE,
-            host=app.config.DB_HOST,
-            port=app.config.DB_PORT,
-            user=app.config.DB_USER,
-            password=app.config.DB_PASSWORD,
             init=self.pool_connection_init,
             min_size=min_size,
             max_size=max_size,
             command_timeout=300,
-            loop=loop
+            loop=loop,
+            **settings['db']
         )
 
     async def execute(self, *args, **kwargs):

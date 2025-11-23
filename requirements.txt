@@ -1,0 +1,11 @@
+aiofiles==23.1.0
+aiohttp==3.8.4
+jinja2==3.0.3
+motor==3.6.0
+pydantic==1.10.5
+sanic==24.6.0
+ujson==5.7.0
+bson
+asyncio-redis
+aioredis==1.3.1
+asyncpg

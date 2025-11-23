@@ -24,6 +24,7 @@ var/
 .installed.cfg
 *.egg
 .idea
+Pipfile
 Pipfile.lock
 server/local_settings.py
 .DS_Store

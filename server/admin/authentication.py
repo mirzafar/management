@@ -4,6 +4,7 @@ from core.db import db
 from core.handlers import TemplateHTTPView, auth, BaseAPIView
 from core.hasher import password_to_hash
 from core.session import session
+from local_settings import settings
 from utils.strs import StrUtils
 
 
@@ -11,7 +12,7 @@ class LoginAdminView(TemplateHTTPView):
     template_name = 'auth/login.html'
 
     async def get(self, request):
-        await auth.logout(request)
+        auth.logout(request)
         return self.success(request=request)
 
     async def post(self, request):
@@ -40,7 +41,8 @@ class LoginAdminView(TemplateHTTPView):
             '''
             SELECT *
             FROM public.users u
-            WHERE u.username = $1 AND u.password = $2
+            WHERE u.username = $1
+              AND u.password = $2
             ''',
             username,
             password_to_hash(password=password)
@@ -66,18 +68,15 @@ class LoginAdminView(TemplateHTTPView):
                 'message': 'Пользователь удален(-о, -а) из системы'
             })
 
-        token = await session.create_session(request, user['id'])
-        await auth.login(request, user, token)
-
         return response.json({
             '_success': True,
             'url': '/api/',
-            'token': token,
+            'token': await session.create_session(request, user['id']),
             'user_id': user['id'],
         })
 
 
 class LogoutAdminView(BaseAPIView):
     async def get(self, request, user):
-        await auth.logout(request)
-        return response.redirect('/api/')
+        auth.logout(request)
+        return response.redirect(settings.get('login_url', '/admin/login/'))

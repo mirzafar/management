@@ -13,7 +13,7 @@ class ClientsView(BaseAPIView):
     async def get(self, request, user):
         pager = Pager()
         pager.set_page(request.args.get('page', 1))
-        pager.set_limit(request.args.get('limit', 20))
+        pager.set_limit(request.args.get('limit', 200))
 
         query = StrUtils.to_str(request.args.get('query'))
 
@@ -60,8 +60,9 @@ class ClientsView(BaseAPIView):
         if not first_name:
             return self.error(message='Отсуствует обязательный параметры "Имя"')
 
-        if not last_name:
-            return self.error(message='Отсуствует обязательный параметры "Фамилия"')
+        if not phone:
+            return self.error(message='Отсуствует обязательный параметры "Телефон"')
+
 
         user = await db.fetchrow(
             '''
