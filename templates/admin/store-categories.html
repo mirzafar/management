@@ -2,116 +2,120 @@
 {% block container %}
 
 <div class="components-preview wide-md mx-auto">
-    {% if parent %}
-    <div class="nk-block-head nk-block-head-sm">
-        <div class="nk-block-between g-3">
-            <div class="nk-block-head-content">
-                <a href="/api/store/categories/" class="btn btn-outline-light bg-white d-none d-sm-inline-flex">
-                    <em class="icon ni ni-arrow-left"></em>
-                    <span>Назад</span>
-                </a>
-                <a href="/api/store/categories/"
-                   class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none">
-                    <em class="icon ni ni-arrow-left"></em>
-                </a>
-            </div>
-        </div>
-    </div>
-    {% endif %}
     <div class="nk-block-head nk-block-head-sm">
         <div class="nk-block-between">
             <div class="nk-block-head-content">
-                <h3 class="nk-block-title page-title"></h3>
+                <h3 class="nk-block-title page-title">
+                    {% if parent %}
+                    <a href="/api/store/categories/" class="btn btn-icon btn-outline-light bg-white d-inline-flex me-2">
+                        <em class="icon ni ni-arrow-left"></em>
+                    </a>
+                    <span class="text-primary small">Подкатегории:</span> {{parent.title}}
+                    {% else %}
+                    Категории товаров
+                    {% endif %}
+                </h3>
+                <div class="nk-block-des text-soft">
+                    <p>Управление структурой каталога товаров.</p>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="nk-block">
-        <div class="card card-stretch">
-            <div class="card-inner">
-                <div class="card-title-group">
-                    <div class="card-title">
-                        <h5 class="title">
-                            Категории {% if parent %} ({{parent.title or ''}}){% endif %}
-                        </h5>
-                    </div>
-                    <div class="nk-block-head-content">
-                        <div class="toggle-wrap nk-block-tools-toggle">
-                            <a href="#"
-                               class="btn btn-icon btn-trigger toggle-expand me-n1"
-                               data-target="pageMenu">
-                                <em class="icon ni ni-more-v"></em>
-                            </a>
-                            <div class="toggle-expand-content" data-content="pageMenu">
-                                <ul class="nk-block-tools g-3">
-                                    <li class="nk-block-tools-opt">
-                                        <a href="#" data-target="addProduct"
-                                           class="toggle btn btn-icon btn-primary d-md-none">
-                                            <em class="icon ni ni-plus"></em>
-                                        </a>
-                                        <a href="#"
-                                           data-target="addProduct"
-                                           class="toggle btn btn-primary d-none d-md-inline-flex">
-                                            <em class="icon ni ni-plus"></em>
-                                            <span>Добавить</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+            <div class="nk-block-head-content">
+                <div class="toggle-wrap nk-block-tools-toggle">
+                    <a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu">
+                        <em class="icon ni ni-menu-alt-r"></em>
+                    </a>
+                    <div class="toggle-expand-content" data-content="pageMenu">
+                        <ul class="nk-block-tools g-3">
+                            <li class="nk-block-tools-opt">
+                                <a href="#" data-target="addProduct" class="toggle btn btn-primary">
+                                    <em class="icon ni ni-plus"></em>
+                                    <span>Добавить категорию</span>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            <div class="nk-block">
-                <div class="card">
+        </div>
+    </div>
+
+    <div class="nk-block">
+        <div class="card card-bordered card-preview">
+            <div class="card-inner-group">
+                <div class="card-inner p-0">
                     <div class="nk-tb-list nk-tb-ulist is-compact">
-                        <div class="nk-tb-item nk-tb-head">
-                            <div class="nk-tb-col"><span>Название</span></div>
-                            <div class="nk-tb-col"><span>Ед. изм.</span></div>
+                        <div class="nk-tb-item nk-tb-head bg-lighter">
+                            <div class="nk-tb-col"><span class="sub-text">Название</span></div>
+                            <div class="nk-tb-col tb-col-mb"><span class="sub-text">Тип измерения</span></div>
                             <div class="nk-tb-col nk-tb-col-tools text-end"></div>
                         </div>
+
                         {% for item in categories %}
                         <div class="nk-tb-item">
-                            <div class="nk-tb-col" onclick="openChildrenItems({{item.id}})">
-                                {{item.title or ''}}
+                            <div class="nk-tb-col" onclick="openChildrenItems({{item.id}})" style="cursor: pointer;">
+                                <div class="user-card">
+                                    <div class="user-avatar sm bg-primary-dim">
+                                        <em class="icon ni ni-folder-fill"></em>
+                                    </div>
+                                    <div class="user-info">
+                                        <span class="tb-lead">{{item.title or 'Без названия'}}</span>
+                                        {% if item.description %}
+                                        <span class="sub-text text-truncate" style="max-width: 250px;">{{item.description}}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </div>
-                            <div class="nk-tb-col">
+                            <div class="nk-tb-col tb-col-mb">
                                 {% if item.unit == 'metric' %}
-                                м.
+                                <span class="badge badge-dim bg-info">Метры (м.)</span>
                                 {% elif item.unit == 'square' %}
-                                кв.
+                                <span class="badge badge-dim bg-warning">Площадь (кв.м.)</span>
                                 {% else %}
-                                шт.
+                                <span class="badge badge-dim bg-gray">Штуки (шт.)</span>
                                 {% endif %}
                             </div>
                             <div class="nk-tb-col nk-tb-col-tools">
-                                <ul class="nk-tb-actions gx-1 my-n1">
-                                    <li class="me-n1">
-                                        <div class="dropdown"><a href="#"
-                                                                 class="dropdown-toggle btn btn-icon btn-trigger"
-                                                                 data-bs-toggle="dropdown"><em
-                                                class="icon ni ni-more-h"></em></a>
+                                <ul class="nk-tb-actions gx-1">
+                                    <li>
+                                        <div class="drodown">
+                                            <a href="#" class="dropdown-toggle btn btn-icon btn-trigger"
+                                               data-bs-toggle="dropdown">
+                                                <em class="icon ni ni-more-h"></em>
+                                            </a>
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <ul class="link-list-opt no-bdr">
-                                                    <li><a onclick="navigateToGood({{item.id}})">
-                                                        <em class="icon ni ni-cc-alt2"></em>
-                                                        <span class="tb-status">Товары</span>
-                                                    </a>
+                                                    <li>
+                                                        <a onclick="navigateToGood({{item.id}})" href="#">
+                                                            <em class="icon ni ni-package text-primary"></em>
+                                                            <span>Товары</span>
+                                                        </a>
                                                     </li>
-                                                    <li><a data-target="updateProduct" class="toggle"
-                                                           onclick="openItem({{item.id}})">
-                                                        <em class="icon ni ni-eye text-info"></em>
-                                                        <span class="tb-status text-info">Просмотр</span>
-                                                    </a>
+                                                    <li class="divider"></li>
+                                                    <li>
+                                                        <a data-target="updateProduct" class="toggle"
+                                                           onclick="openItem({{item.id}})" href="#">
+                                                            <em class="icon ni ni-edit"></em>
+                                                            <span>Редактировать</span>
+                                                        </a>
                                                     </li>
-                                                    <li><a onclick="removeItem({{item.id}})"><em
-                                                            class="icon ni ni-trash text-danger"></em>
-                                                        <span class="tb-status text-danger">Удалить</span></a></li>
-
+                                                    <li>
+                                                        <a onclick="removeItem({{item.id}})" href="#"
+                                                           class="text-danger">
+                                                            <em class="icon ni ni-trash"></em>
+                                                            <span>Удалить</span>
+                                                        </a>
+                                                    </li>
                                                 </ul>
                                             </div>
                                         </div>
                                     </li>
                                 </ul>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="nk-tb-item">
+                            <div class="nk-tb-col text-center p-5 w-100">
+                                <span class="text-soft">Категории не найдены</span>
                             </div>
                         </div>
                         {% endfor %}
@@ -120,40 +124,51 @@
             </div>
         </div>
     </div>
-    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct"
-         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
-        <div class="nk-block">
-            <div class="row g-3">
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="cf-title">Название
-                        </label>
-                        <input class="form-control" type="text" name="title" id="cf-title">
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="form-group">
-                        <label class="form-label"
-                               for="cf-description">Описание
-                        </label>
-                        <textarea class="form-control" name="description" id="cf-description"></textarea>
-                    </div>
-                </div>
 
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct" data-toggle-screen="any"
+         data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="new-data-item">
+        <div class="nk-block-head">
+            <div class="nk-block-head-content">
+                <h5 class="nk-block-title">Новая категория</h5>
+            </div>
+        </div>
+        <div class="nk-block">
+            <div class="row g-4">
                 <div class="col-12">
                     <div class="form-group">
-                        <select name="unit" class="form-control">
-                            <option value="pieces">шт.</option>
-                            <option value="square">кв.</option>
-                            <option value="metric">м.</option>
-                        </select>
+                        <label class="form-label" for="cf-title">Название</label>
+                        <div class="form-control-wrap">
+                            <input type="text" class="form-control form-control-lg" id="cf-title" name="title"
+                                   placeholder="Например: Стройматериалы">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label" for="cf-description">Описание</label>
+                        <div class="form-control-wrap">
+                            <textarea class="form-control no-resize" id="cf-description" name="description"
+                                      placeholder="Краткое описание категории"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label">Единицы измерения</label>
+                        <div class="form-control-wrap">
+                            <select name="unit" class="form-select js-select2">
+                                <option value="pieces">Штуки (шт.)</option>
+                                <option value="square">Площадь (кв.)</option>
+                                <option value="metric">Метраж (м.)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <input type="hidden" name="parent_id" value="{{request.args.get('parent_id', '')}}">
                 <div class="col-12">
-                    <button id="createButton" onclick="createItem()" class="btn btn-primary"><em
-                            class="icon ni ni-plus"></em><span>Добавить</span></button>
+                    <button id="createButton" onclick="createItem()" class="btn btn-lg btn-primary btn-block">
+                        <em class="icon ni ni-plus me-1"></em> Добавить
+                    </button>
                 </div>
                 <br/>
                 <br/>
@@ -163,40 +178,52 @@
             </div>
         </div>
     </div>
-    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="updateProduct"
-         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar
-         id="update-data-item">
+
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="updateProduct" data-toggle-screen="any"
+         data-toggle-overlay="true" data-toggle-body="true" data-simplebar id="update-data-item">
+        <div class="nk-block-head">
+            <div class="nk-block-head-content">
+                <h5 class="nk-block-title">Редактирование</h5>
+                <div class="nk-block-des">
+                    <p>Изменение параметров категории.</p>
+                </div>
+            </div>
+        </div>
         <div class="nk-block">
-            <div class="row g-3">
+            <div class="row g-4">
                 <input type="hidden" id="up-id" name="id">
                 <div class="col-12">
                     <div class="form-group">
-                        <label class="form-label"
-                               for="up-title">Название
-                        </label>
-                        <input class="form-control" type="text" name="title" id="up-title">
+                        <label class="form-label" for="up-title">Название</label>
+                        <div class="form-control-wrap">
+                            <input type="text" class="form-control form-control-lg" name="title" id="up-title">
+                        </div>
                     </div>
                 </div>
                 <div class="col-12">
                     <div class="form-group">
-                        <label class="form-label"
-                               for="up-description">Описание
-                        </label>
-                        <textarea class="form-control" name="description" id="up-description"></textarea>
+                        <label class="form-label" for="up-description">Описание</label>
+                        <div class="form-control-wrap">
+                            <textarea class="form-control no-resize" name="description" id="up-description"></textarea>
+                        </div>
                     </div>
                 </div>
                 <div class="col-12">
                     <div class="form-group">
-                        <select name="unit" class="form-control" id="up-unit">
-                            <option value="pieces">шт.</option>
-                            <option value="square">кв.</option>
-                            <option value="metric">м.</option>
-                        </select>
+                        <label class="form-label">Единицы измерения</label>
+                        <div class="form-control-wrap">
+                            <select name="unit" class="form-select" id="up-unit">
+                                <option value="pieces">Штуки (шт.)</option>
+                                <option value="square">Площадь (кв.)</option>
+                                <option value="metric">Метраж (м.)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="col-12">
-                    <a onclick="updateItem()" class="btn btn-primary"><em
-                            class="icon ni ni-plus"></em><span>Изменить</span></a>
+                    <a onclick="updateItem()" class="btn btn-lg btn-primary btn-block">
+                        <em class="icon ni ni-save me-1"></em> Сохранить
+                    </a>
                 </div>
                 <br/>
                 <br/>
